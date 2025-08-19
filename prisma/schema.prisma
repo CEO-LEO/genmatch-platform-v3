@@ -1,0 +1,227 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  userType      String   // "STUDENT" or "ELDERLY"
+  firstName     String
+  lastName      String
+  phone         String
+  address       String
+  city          String
+  province      String
+  postalCode    String
+  profileImage  String?
+  bio           String?
+  
+  // Student specific fields
+  studentId     String?
+  university    String?
+  major         String?
+  graduationYear Int?
+  
+  // Elderly specific fields
+  emergencyContact String?
+  medicalConditions String?
+  preferences   String?
+  
+  // Common fields
+  rating        Float    @default(0)
+  totalHours    Int      @default(0)
+  completedTasks Int     @default(0)
+  isVerified    Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  lastActive    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  createdTasks     Task[]     @relation("TaskCreator")
+  acceptedTasks    Task[]     @relation("TaskAccepter")
+  sentMessages     Message[]  @relation("MessageSender")
+  receivedMessages Message[]  @relation("MessageReceiver")
+  notifications    Notification[]
+  achievements     Achievement[]
+  reviews         Review[]    @relation("ReviewAuthor")
+  receivedReviews  Review[]   @relation("ReviewRecipient")
+  taskComments    TaskComment[] @relation("UserTaskComments")
+  
+  @@map("users")
+}
+
+model Task {
+  id              String       @id @default(cuid())
+  title           String
+  description     String
+  category        String       // "HOSPITAL", "TEMPLE", "EXERCISE", "REPAIR"
+  status          String       @default("PENDING") // "PENDING", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED"
+  priority        String       @default("MEDIUM") // "LOW", "MEDIUM", "HIGH", "URGENT"
+  difficulty      String       @default("EASY") // "EASY", "MEDIUM", "HARD", "EXPERT"
+  
+  // Location
+  address         String
+  city            String
+  province        String
+  postalCode      String
+  latitude        Float?
+  longitude       Float?
+  
+  // Time and duration
+  scheduledDate   DateTime
+  scheduledTime   String
+  estimatedHours  Int
+  deadline        DateTime?
+  
+  // Requirements and budget
+  requirements    String?
+  budget          Float?
+  volunteerHours  Int
+  
+  // Relations
+  creatorId       String
+  creator         User         @relation("TaskCreator", fields: [creatorId], references: [id])
+  accepterId      String?
+  accepter        User?        @relation("TaskAccepter", fields: [accepterId], references: [id])
+  
+  // Task details
+  tags            String?
+  attachments     String?
+  isUrgent        Boolean      @default(false)
+  isRecurring     Boolean      @default(false)
+  recurrencePattern String?
+  
+  // Timestamps
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  acceptedAt      DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  
+  // Relations
+  messages        Message[]
+  notifications   Notification[]
+  reviews         Review[]
+  comments        TaskComment[]
+  
+  @@map("tasks")
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  messageType String   @default("TEXT") // "TEXT", "IMAGE", "FILE", "LOCATION"
+  isRead      Boolean  @default(false)
+  
+  // Relations
+  senderId    String
+  sender      User     @relation("MessageSender", fields: [senderId], references: [id])
+  receiverId  String
+  receiver    User     @relation("MessageReceiver", fields: [receiverId], references: [id])
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id])
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("messages")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  title       String
+  message     String
+  type        String   // "TASK_UPDATE", "MESSAGE", "ACHIEVEMENT", "SYSTEM", "REMINDER"
+  isRead      Boolean  @default(false)
+  priority    String   @default("NORMAL") // "LOW", "NORMAL", "HIGH", "URGENT"
+  
+  // Relations
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  taskId      String?
+  task        Task?            @relation(fields: [taskId], references: [id])
+  
+  // Metadata
+  metadata    String?
+  actionUrl   String?
+  
+  // Timestamps
+  createdAt   DateTime         @default(now())
+  readAt      DateTime?
+  
+  @@map("notifications")
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  category    String   // "VOLUNTEER_HOURS", "TASK_COMPLETION", "RATING", "STREAK", "SPECIAL"
+  points      Int      @default(0)
+  isUnlocked  Boolean  @default(false)
+  unlockedAt  DateTime?
+  
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  @@map("achievements")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int
+  comment     String?
+  isAnonymous Boolean  @default(false)
+  
+  // Relations
+  authorId    String
+  author      User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  recipientId String
+  recipient   User     @relation("ReviewRecipient", fields: [recipientId], references: [id])
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id])
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("reviews")
+}
+
+model TaskComment {
+  id          String   @id @default(cuid())
+  content     String
+  isEdited    Boolean  @default(false)
+  
+  // Relations
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+  authorId    String
+  author      User     @relation("UserTaskComments", fields: [authorId], references: [id])
+  parentId    String?
+  parent      TaskComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     TaskComment[] @relation("CommentReplies")
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("task_comments")
+}
