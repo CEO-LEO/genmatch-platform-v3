@@ -123,7 +123,7 @@ export default function Register() {
         </div>
 
         {/* Form Container */}
-        <div className="glass-card p-8">
+        <div className="modern-card modern-card-hover p-8">
           {/* Error Message */}
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-6">
@@ -144,7 +144,7 @@ export default function Register() {
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="กรอกชื่อ"
                     required
                   />
@@ -161,7 +161,7 @@ export default function Register() {
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="กรอกนามสกุล"
                     required
                   />
@@ -181,7 +181,7 @@ export default function Register() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="กรอกอีเมลของคุณ"
                     required
                   />
@@ -198,7 +198,7 @@ export default function Register() {
                     type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร"
                     required
                   />
@@ -225,7 +225,7 @@ export default function Register() {
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="ยืนยันรหัสผ่าน"
                     required
                   />
@@ -252,7 +252,7 @@ export default function Register() {
                     type="text"
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="กรอกที่อยู่ของคุณ"
                     required
                   />
@@ -269,7 +269,7 @@ export default function Register() {
                     type="text"
                     value={formData.province}
                     onChange={(e) => handleInputChange('province', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="กรอกจังหวัด"
                     required
                   />
@@ -286,7 +286,7 @@ export default function Register() {
                     type="text"
                     value={formData.postalCode}
                     onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                     placeholder="กรอกรหัสไปรษณีย์"
                   />
                 </div>
@@ -302,10 +302,10 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => handleInputChange('userType', 'STUDENT')}
-                  className={`p-4 rounded-lg border transition-all ${
+                  className={`p-4 rounded-lg border transition-all duration-300 ${
                     formData.userType === 'STUDENT'
-                      ? 'border-pink-500 bg-pink-500/20 text-white ring-2 ring-pink-500/30'
-                      : 'border-white/20 bg-white/10 text-white/70 hover:bg-white/20 hover:border-white/30'
+                      ? 'border-pink-500 bg-pink-500/20 text-white ring-2 ring-pink-500/30 shadow-glow'
+                      : 'border-white/20 bg-white/10 text-white/70 hover:bg-white/20 hover:border-white/30 hover:scale-105'
                   }`}
                 >
                   <div className="flex items-center justify-center">
@@ -320,10 +320,10 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => handleInputChange('userType', 'ELDERLY')}
-                  className={`p-4 rounded-lg border transition-all ${
+                  className={`p-4 rounded-lg border transition-all duration-300 ${
                     formData.userType === 'ELDERLY'
-                      ? 'border-pink-500 bg-pink-500/20 text-white ring-2 ring-pink-500/30'
-                      : 'border-white/20 bg-white/10 text-white/70 hover:bg-white/20 hover:border-white/30'
+                      ? 'border-pink-500 bg-pink-500/20 text-white ring-2 ring-pink-500/30 shadow-glow'
+                      : 'border-white/20 bg-white/10 text-white/70 hover:bg-white/20 hover:border-white/30 hover:scale-105'
                   }`}
                 >
                   <div className="flex items-center justify-center">
@@ -350,7 +350,7 @@ export default function Register() {
                       type="text"
                       value={formData.studentId}
                       onChange={(e) => handleInputChange('studentId', e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                      className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                       placeholder="กรอกรหัสนิสิต"
                       required
                     />
@@ -367,7 +367,7 @@ export default function Register() {
                       type="text"
                       value={formData.university}
                       onChange={(e) => handleInputChange('university', e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                      className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
                       placeholder="กรอกชื่อมหาวิทยาลัย"
                       required
                     />
@@ -380,7 +380,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full glass-button-primary py-4 px-6 rounded-lg font-medium text-white transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="btn-modern w-full py-4 px-6 rounded-xl font-medium text-white transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">

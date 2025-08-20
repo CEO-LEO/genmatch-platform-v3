@@ -27,22 +27,26 @@ export default function Home() {
     {
       icon: <Heart className="w-8 h-8" />,
       title: 'เชื่อมโยงจิตอาสา',
-      description: 'เชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ'
+      description: 'เชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ',
+      gradient: 'from-pink-500 to-purple-500'
     },
     {
       icon: <Users className="w-8 h-8" />,
       title: 'ชุมชนแห่งการให้',
-      description: 'สร้างชุมชนที่เต็มไปด้วยความเอื้ออาทรและการช่วยเหลือกัน'
+      description: 'สร้างชุมชนที่เต็มไปด้วยความเอื้ออาทรและการช่วยเหลือกัน',
+      gradient: 'from-purple-500 to-indigo-500'
     },
     {
       icon: <MapPin className="w-8 h-8" />,
       title: 'ค้นหางานใกล้บ้าน',
-      description: 'ค้นหางานจิตอาสาที่อยู่ใกล้คุณ พร้อมระบบนำทางที่แม่นยำ'
+      description: 'ค้นหางานจิตอาสาที่อยู่ใกล้คุณ พร้อมระบบนำทางที่แม่นยำ',
+      gradient: 'from-indigo-500 to-blue-500'
     },
     {
       icon: <Clock className="w-8 h-8" />,
       title: 'สะสมชั่วโมงจิตอาสา',
-      description: 'นักศึกษาสามารถสะสมชั่วโมงจิตอาสาเพื่อใช้ในการกู้กยศ. และสมัครงาน'
+      description: 'นักศึกษาสามารถสะสมชั่วโมงจิตอาสาเพื่อใช้ในการกู้กยศ. และสมัครงาน',
+      gradient: 'from-blue-500 to-cyan-500'
     }
   ];
 
@@ -51,33 +55,37 @@ export default function Home() {
       icon: '🏥',
       title: 'โรงพยาบาล',
       description: 'พาไปตรวจสุขภาพ, รับยา, นัดหมายแพทย์',
-      color: 'from-red-500 to-pink-500'
+      color: 'from-red-500 to-pink-500',
+      bgColor: 'bg-gradient-to-br from-red-500/20 to-pink-500/20'
     },
     {
       icon: '🕍',
       title: 'วัด',
       description: 'พาไปทำบุญ, กิจกรรมทางศาสนา, งานวัด',
-      color: 'from-yellow-500 to-orange-500'
+      color: 'from-yellow-500 to-orange-500',
+      bgColor: 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20'
     },
     {
       icon: '💪',
       title: 'ออกกำลังกาย',
       description: 'พาไปออกกำลังกาย, เดินเล่น, กิจกรรมกีฬา',
-      color: 'from-green-500 to-emerald-500'
+      color: 'from-green-500 to-emerald-500',
+      bgColor: 'bg-gradient-to-br from-green-500/20 to-emerald-500/20'
     },
     {
       icon: '🔧',
       title: 'งานซ่อม',
       description: 'ซ่อมแซมอุปกรณ์, งานช่าง, งานเทคนิค',
-      color: 'from-blue-500 to-indigo-500'
+      color: 'from-blue-500 to-indigo-500',
+      bgColor: 'bg-gradient-to-br from-blue-500/20 to-indigo-500/20'
     }
   ];
 
   const stats = [
-    { number: '1,500+', label: 'จิตอาสา', icon: <Users className="w-6 h-6" /> },
-    { number: '500+', label: 'งานเสร็จสิ้น', icon: <CheckCircle className="w-6 h-6" /> },
-    { number: '2,000+', label: 'ชั่วโมงจิตอาสา', icon: <Clock className="w-6 h-6" /> },
-    { number: '4.8', label: 'คะแนนความพึงพอใจ', icon: <Star className="w-6 h-6" /> }
+    { number: '1,500+', label: 'จิตอาสา', icon: <Users className="w-6 h-6" />, gradient: 'from-pink-500 to-purple-500' },
+    { number: '500+', label: 'งานเสร็จสิ้น', icon: <CheckCircle className="w-6 h-6" />, gradient: 'from-green-500 to-emerald-500' },
+    { number: '2,000+', label: 'ชั่วโมงจิตอาสา', icon: <Clock className="w-6 h-6" />, gradient: 'from-blue-500 to-cyan-500' },
+    { number: '4.8', label: 'คะแนนความพึงพอใจ', icon: <Star className="w-6 h-6" />, gradient: 'from-yellow-500 to-orange-500' }
   ];
 
   const testimonials = [
@@ -141,26 +149,33 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative z-10 text-center py-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            เชื่อมโยง
-            <span className="block bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+          {/* Floating Background Elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-full blur-3xl animate-float"></div>
+            <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-float-slow"></div>
+            <div className="absolute bottom-20 left-1/4 w-28 h-28 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-float-fast"></div>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 relative">
+            <span className="block">เชื่อมโยง</span>
+            <span className="block bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
               จิตอาสา
             </span>
-            สร้างสังคมดี
+            <span className="block">สร้างสังคมดี</span>
           </h1>
           
-          <p className="text-xl text-white/80 mb-8 leading-relaxed">
+          <p className="text-xl text-white/80 mb-8 leading-relaxed max-w-3xl mx-auto">
             แพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ<br />
             นักศึกษาสามารถสะสมชั่วโมงจิตอาสา ผู้สูงอายุได้รับความช่วยเหลือที่ต้องการ
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <Link href="/register" className="glass-button-primary px-8 py-4 text-lg rounded-xl hover:scale-105 transition-transform">
+            <Link href="/register" className="btn-modern px-8 py-4 text-lg rounded-xl hover:scale-105 transition-all duration-300">
               เริ่มต้นใช้งาน
               <ArrowRight className="w-5 h-5 ml-2 inline" />
             </Link>
             
-            <Link href="#how-it-works" className="glass-button-secondary px-8 py-4 text-lg rounded-xl hover:scale-105 transition-transform">
+            <Link href="#how-it-works" className="glass-button-secondary px-8 py-4 text-lg rounded-xl hover:scale-105 transition-all duration-300">
               <Play className="w-5 h-5 mr-2 inline" />
               ดูวิธีการทำงาน
             </Link>
@@ -173,14 +188,14 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="glass-card p-6 text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div key={index} className="modern-card modern-card-hover p-6 text-center group">
+                <div className={`w-16 h-16 bg-gradient-to-r ${stat.gradient} rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   <div className="text-white">
                     {stat.icon}
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-white/70">{stat.label}</div>
+                <div className="text-3xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-300">{stat.number}</div>
+                <div className="text-white/70 group-hover:text-white/90 transition-colors duration-300">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -197,14 +212,14 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="glass-card p-8 hover:scale-105 transition-transform">
-                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl flex items-center justify-center mb-6">
+              <div key={index} className="modern-card modern-card-hover p-8 group hover:scale-105 transition-all duration-500">
+                <div className={`w-16 h-16 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <div className="text-white">
                     {feature.icon}
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                <p className="text-white/70 leading-relaxed">{feature.description}</p>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-300">{feature.title}</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-300">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -221,12 +236,12 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category, index) => (
-              <div key={index} className="glass-card p-6 text-center hover:scale-105 transition-transform">
-                <div className={`w-20 h-20 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center mx-auto mb-4 text-4xl`}>
+              <div key={index} className="modern-card modern-card-hover p-6 text-center group hover:scale-105 transition-all duration-500">
+                <div className={`w-20 h-20 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center mx-auto mb-4 text-4xl group-hover:scale-110 transition-transform duration-300 shadow-glow`}>
                   {category.icon}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{category.title}</h3>
-                <p className="text-white/70 text-sm leading-relaxed">{category.description}</p>
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-300">{category.title}</h3>
+                <p className="text-white/70 text-sm leading-relaxed group-hover:text-white/90 transition-colors duration-300">{category.description}</p>
               </div>
             ))}
           </div>
