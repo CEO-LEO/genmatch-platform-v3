@@ -30,7 +30,8 @@ export default function Register() {
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     password: '',
@@ -68,7 +69,8 @@ export default function Register() {
 
     try {
       const success = await register({
-        name: formData.name,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
@@ -124,25 +126,45 @@ export default function Register() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
+            {/* Personal Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
-                  ชื่อ-นามสกุล *
+                  ชื่อ *
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="กรอกชื่อ-นามสกุลของคุณ"
+                    placeholder="กรอกชื่อ"
                     required
                   />
                 </div>
               </div>
 
+              <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">
+                  นามสกุล *
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    placeholder="กรอกนามสกุล"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
                   อีเมล *
@@ -176,22 +198,74 @@ export default function Register() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Password Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">
+                  รหัสผ่าน *
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/70"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
-                  ที่อยู่ *
+                  ยืนยันรหัสผ่าน *
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
                   <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="กรอกที่อยู่ของคุณ"
+                    placeholder="ยืนยันรหัสผ่าน"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/70"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
+              </div>
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-white/80 text-sm font-medium mb-2">
+                ที่อยู่ *
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  placeholder="กรอกที่อยู่ของคุณ"
+                  required
+                />
               </div>
             </div>
 
@@ -277,58 +351,6 @@ export default function Register() {
                 </div>
               </div>
             )}
-
-            {/* Password Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  รหัสผ่าน *
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="อย่างน้อย 6 ตัวอักษร"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/70"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                <p className="text-white/50 text-xs mt-1">รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร</p>
-              </div>
-
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  ยืนยันรหัสผ่าน *
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="กรอกรหัสผ่านอีกครั้ง"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/70"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-            </div>
 
             {/* Submit Button */}
             <button
