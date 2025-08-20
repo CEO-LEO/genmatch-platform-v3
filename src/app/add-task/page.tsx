@@ -78,6 +78,24 @@ export default function AddTask() {
     return null;
   }
 
+  // Only elderly users can add tasks
+  if (user.userType !== 'ELDERLY') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900 flex items-center justify-center p-4">
+        <div className="glass-card p-8 text-center max-w-md">
+          <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">ไม่สามารถเข้าถึงได้</h2>
+          <p className="text-white/70 mb-6">เฉพาะผู้สูงอายุเท่านั้นที่สามารถโพสต์งานได้</p>
+          <Link href="/dashboard" className="btn-modern px-6 py-3">
+            กลับไปหน้าแรก
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -165,7 +183,7 @@ export default function AddTask() {
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="เช่น พาไปตรวจสุขภาพที่โรงพยาบาล"
-                  className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  className="input-modern w-full text-white placeholder-white/50"
                   required
                 />
               </div>
@@ -178,7 +196,7 @@ export default function AddTask() {
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  className="input-modern w-full text-white"
                   required
                 >
                   <option value="">เลือกหมวดหมู่</option>
@@ -202,7 +220,7 @@ export default function AddTask() {
                 onChange={handleInputChange}
                 rows={4}
                 placeholder="อธิบายรายละเอียดงานที่ต้องการความช่วยเหลือ..."
-                className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="input-modern w-full text-white placeholder-white/50 resize-none"
                 required
               />
             </div>
@@ -221,7 +239,7 @@ export default function AddTask() {
                     value={formData.location}
                     onChange={handleInputChange}
                     placeholder="ที่อยู่หรือสถานที่"
-                    className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    className="input-modern w-full text-white placeholder-white/50 pl-10"
                     required
                   />
                 </div>
@@ -238,8 +256,7 @@ export default function AddTask() {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full bg-white/20 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    className="input-modern w-full text-white pl-10"
                     required
                   />
                 </div>
@@ -259,7 +276,7 @@ export default function AddTask() {
                     name="time"
                     value={formData.time}
                     onChange={handleInputChange}
-                    className="w-full bg-white/20 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    className="input-modern w-full text-white pl-10"
                     required
                   />
                 </div>
@@ -273,7 +290,7 @@ export default function AddTask() {
                   name="duration"
                   value={formData.duration}
                   onChange={handleInputChange}
-                  className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                  className="input-modern w-full text-white"
                   required
                 >
                   <option value="">เลือกระยะเวลา</option>
@@ -301,7 +318,7 @@ export default function AddTask() {
                     onChange={handleInputChange}
                     placeholder="0"
                     min="0"
-                    className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    className="input-modern w-full text-white placeholder-white/50 pl-10"
                   />
                 </div>
                 <p className="text-white/60 text-sm mt-1">
@@ -321,7 +338,7 @@ export default function AddTask() {
                     value={formData.requirements}
                     onChange={handleInputChange}
                     placeholder="เช่น ต้องการผู้หญิง, มีรถยนต์, ฯลฯ"
-                    className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    className="input-modern w-full text-white placeholder-white/50 pl-10"
                   />
                 </div>
               </div>
@@ -331,26 +348,26 @@ export default function AddTask() {
             <div className="flex justify-end space-x-4 pt-6">
               <Link
                 href="/dashboard"
-                className="glass-button-secondary px-6 py-3 flex items-center"
+                className="glass-button-secondary px-6 py-3 rounded-lg hover:scale-105 transition-transform"
               >
-                <X className="w-4 h-4 mr-2" />
                 ยกเลิก
               </Link>
+              
               <button
                 type="submit"
-                disabled={!isFormValid || isSubmitting}
-                className="glass-button px-6 py-3 flex items-center disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform"
+                disabled={isSubmitting}
+                className="btn-modern px-8 py-3 rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    กำลังสร้าง...
-                  </>
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    กำลังสร้างงาน...
+                  </div>
                 ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
+                  <div className="flex items-center">
+                    <Save className="w-5 h-5 mr-2" />
                     สร้างงาน
-                  </>
+                  </div>
                 )}
               </button>
             </div>
