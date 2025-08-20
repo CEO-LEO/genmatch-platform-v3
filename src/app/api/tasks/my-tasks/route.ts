@@ -1,50 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { message: 'No token provided' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
-
-    const tasks = await prisma.task.findMany({
-      where: {
-        OR: [
-          { creatorId: decoded.userId },
-          { accepterId: decoded.userId }
-        ]
-      },
-      include: {
+    // Simple my tasks - return demo data for now
+    const tasks = [
+      {
+        id: '1',
+        title: 'Help with grocery shopping',
+        description: 'Need assistance with grocery shopping at local market',
+        category: 'EXERCISE',
+        status: 'PENDING',
+        budget: 0,
+        volunteerHours: 2,
+        estimatedHours: 2,
+        address: '123 Main St',
+        city: 'Bangkok',
+        province: 'Bangkok',
+        postalCode: '10400',
+        scheduledDate: new Date().toISOString(),
+        scheduledTime: '09:00',
+        createdAt: new Date().toISOString(),
         creator: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            userType: true
-          }
+          id: 'user-1',
+          firstName: 'John',
+          lastName: 'Doe',
+          userType: 'ELDERLY'
         },
-        accepter: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            userType: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
+        accepter: null
       }
-    });
+    ];
 
     return NextResponse.json(tasks);
   } catch (error) {
