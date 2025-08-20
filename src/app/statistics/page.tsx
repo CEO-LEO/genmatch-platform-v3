@@ -323,7 +323,7 @@ export default function Statistics() {
               <div className="p-4 bg-white/10 rounded-lg">
                 <h4 className="text-white font-semibold mb-2">ประสิทธิภาพสูงสุด</h4>
                 <p className="text-white/70 text-sm">
-                  คุณมีประสิทธิภาพสูงสุดในหมวดหมู่ "โรงพยาบาล" ด้วยคะแนนเฉลี่ย 4.9/5.0
+                  คุณมีประสิทธิภาพสูงสุดในหมวดหมู่ &ldquo;โรงพยาบาล&rdquo; ด้วยคะแนนเฉลี่ย 4.9/5.0
                 </p>
               </div>
               
@@ -343,7 +343,7 @@ export default function Statistics() {
               <div className="p-4 bg-white/10 rounded-lg">
                 <h4 className="text-white font-semibold mb-2">คำแนะนำ</h4>
                 <p className="text-white/70 text-sm">
-                  ลองรับงานในหมวดหมู่ "งานซ่อม" เพิ่มเติมเพื่อเพิ่มความหลากหลาย
+                  ลองรับงานในหมวดหมู่ &ldquo;งานซ่อม&rdquo; เพิ่มเติมเพื่อเพิ่มความหลากหลาย
                 </p>
               </div>
             </div>

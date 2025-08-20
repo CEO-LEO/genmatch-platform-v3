@@ -368,7 +368,7 @@ export default function Navigation() {
               { href: '/profile', icon: User, label: 'โปรไฟล์' }
             ].map((item) => {
               const Icon = item.icon;
-              const isActive = isActiveRoute(item.href, item.exact);
+              const isActive = isActiveRoute(item.href);
               const hasBadge = item.href === '/chat' && getUnreadChatCount() > 0;
 
               return (

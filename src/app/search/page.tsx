@@ -346,8 +346,8 @@ export default function SearchPage() {
                 <div key={task.id} className="glass-card p-6 hover:scale-105 transition-transform">
                   {/* Category Badge */}
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${categoryInfo.color} text-white`}>
-                      {categoryInfo.name}
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${categoryInfo?.color || 'from-gray-500 to-gray-600'} text-white`}>
+                      {categoryInfo?.name || task.category}
                     </div>
                     <div className="flex items-center text-white/60 text-sm">
                       <Star className="w-4 h-4 mr-1" />

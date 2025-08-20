@@ -566,10 +566,6 @@ select:focus {
   .text-small {
     @apply text-sm sm:text-base;
   }
-
-  .text-xs {
-    @apply text-xs sm:text-sm;
-  }
 }
 
 /* Print Styles */

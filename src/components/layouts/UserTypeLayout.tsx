@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner, { LoadingSpinnerPage } from '@/components/LoadingSpinner';
 
 interface UserTypeLayoutProps {
   children: ReactNode;
@@ -43,17 +43,17 @@ export default function UserTypeLayout({
 
   // Show loading spinner while checking authentication
   if (loading) {
-    return <LoadingSpinner.LoadingSpinnerPage />;
+    return <LoadingSpinnerPage />;
   }
 
   // Show loading spinner while redirecting
   if (requireAuth && !user) {
-    return <LoadingSpinner.LoadingSpinnerPage text="กำลังเปลี่ยนเส้นทาง..." />;
+    return <LoadingSpinnerPage text="กำลังเปลี่ยนเส้นทาง..." />;
   }
 
   // Show loading spinner if user type is not allowed
   if (user && allowedUserTypes.length > 0 && !allowedUserTypes.includes(user.userType as any)) {
-    return <LoadingSpinner.LoadingSpinnerPage text="กำลังเปลี่ยนเส้นทาง..." />;
+    return <LoadingSpinnerPage text="กำลังเปลี่ยนเส้นทาง..." />;
   }
 
   return (

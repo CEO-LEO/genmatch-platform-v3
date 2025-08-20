@@ -9,14 +9,16 @@ export async function GET(request: NextRequest) {
         creator: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             userType: true
           }
         },
         accepter: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             userType: true
           }
         }
@@ -50,11 +52,11 @@ export async function POST(request: NextRequest) {
     const token = authHeader.substring(7);
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
 
-    const { title, description, location, budget } = await request.json();
+    const { title, description, category, address, city, province, postalCode, budget, scheduledDate, scheduledTime, estimatedHours } = await request.json();
 
-    if (!title || !description) {
+    if (!title || !description || !category) {
       return NextResponse.json(
-        { message: 'Title and description are required' },
+        { message: 'Title, description, and category are required' },
         { status: 400 }
       );
     }
@@ -63,15 +65,24 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        location: location || null,
+        category,
+        address: address || '',
+        city: city || '',
+        province: province || '',
+        postalCode: postalCode || '',
+        scheduledDate: scheduledDate ? new Date(scheduledDate) : new Date(),
+        scheduledTime: scheduledTime || '09:00',
+        estimatedHours: estimatedHours ? parseInt(estimatedHours) : 2,
         budget: budget ? parseFloat(budget) : null,
+        volunteerHours: estimatedHours ? parseInt(estimatedHours) : 2,
         creatorId: decoded.userId
       },
       include: {
         creator: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             userType: true
           }
         }

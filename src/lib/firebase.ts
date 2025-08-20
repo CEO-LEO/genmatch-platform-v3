@@ -336,10 +336,12 @@ export const firebaseUtils = {
 export { app, auth, db, storage, messaging };
 
 // Export default Firebase utilities
-export default {
+const firebaseDefault = {
   auth: FirebaseAuth,
   db: FirestoreDB,
   storage: FirebaseStorage,
   messaging: FirebaseMessaging,
   utils: firebaseUtils
 };
+
+export default firebaseDefault;

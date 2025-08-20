@@ -35,7 +35,7 @@ export default function Register() {
     phone: '',
     password: '',
     confirmPassword: '',
-    userType: 'STUDENT',
+    userType: 'STUDENT' as 'STUDENT' | 'ELDERLY',
     studentId: '',
     university: '',
     address: ''

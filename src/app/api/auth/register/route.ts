@@ -5,9 +5,9 @@ import { prisma } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name, userType } = await request.json();
+    const { email, password, firstName, lastName, userType } = await request.json();
 
-    if (!email || !password || !name || !userType) {
+    if (!email || !password || !firstName || !lastName || !userType) {
       return NextResponse.json(
         { message: 'All fields are required' },
         { status: 400 }
@@ -45,8 +45,14 @@ export async function POST(request: NextRequest) {
       data: {
         email,
         password: hashedPassword,
-        name,
-        userType
+        firstName,
+        lastName,
+        userType,
+        phone: '', // Default empty string
+        address: '', // Default empty string
+        city: '', // Default empty string
+        province: '', // Default empty string
+        postalCode: '' // Default empty string
       }
     });
 

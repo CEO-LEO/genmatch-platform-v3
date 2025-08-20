@@ -44,13 +44,13 @@ export async function checkDatabaseHealth() {
     await prisma.$queryRaw`SELECT 1`;
     return { status: 'healthy', timestamp: new Date().toISOString() };
   } catch (error) {
-    return { status: 'unhealthy', error: error.message, timestamp: new Date().toISOString() };
+    return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error', timestamp: new Date().toISOString() };
   }
 }
 
 // Database transaction utilities
 export async function withTransaction<T>(
-  fn: (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>) => Promise<T>
+  fn: (tx: any) => Promise<T>
 ): Promise<T> {
   return await prisma.$transaction(fn);
 }
@@ -59,9 +59,6 @@ export async function withTransaction<T>(
 export async function seedDatabase() {
   try {
     console.log('🌱 Starting database seeding...');
-    
-    // Seed categories
-    await seedCategories();
     
     // Seed sample users
     await seedSampleUsers();
@@ -79,34 +76,24 @@ export async function seedDatabase() {
   }
 }
 
-async function seedCategories() {
-  const categories = [
-    { id: 'HOSPITAL', name: 'โรงพยาบาล', description: 'งานในโรงพยาบาล เช่น พาไปตรวจสุขภาพ, รับยา', icon: '🏥', color: '#EF4444' },
-    { id: 'TEMPLE', name: 'วัด', description: 'งานในวัด เช่น พาไปทำบุญ, กิจกรรมทางศาสนา', icon: '🕍', color: '#F59E0B' },
-    { id: 'EXERCISE', name: 'ออกกำลังกาย', description: 'งานออกกำลังกาย เช่น พาไปเดินเล่น, กิจกรรมกีฬา', icon: '💪', color: '#10B981' },
-    { id: 'REPAIR', name: 'งานซ่อม', description: 'งานซ่อมแซม เช่น ซ่อมอุปกรณ์, งานช่าง', icon: '🔧', color: '#3B82F6' },
-  ];
-
-  for (const category of categories) {
-    await prisma.category.upsert({
-      where: { id: category.id },
-      update: category,
-      create: category,
-    });
-  }
-}
+// Note: Categories are now stored as string values in tasks, not separate model
 
 async function seedSampleUsers() {
   const users = [
     {
       id: 'user_student_1',
-      name: 'สมชาย ใจดี',
+      firstName: 'สมชาย',
+      lastName: 'ใจดี', 
       email: 'somchai@example.com',
+      password: '$2a$12$dummy.password.hash.for.seeding.data',
       phone: '0812345678',
+      address: 'กรุงเทพมหานคร',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
       userType: 'STUDENT',
       studentId: '6400000001',
       university: 'มหาวิทยาลัยมหิดล',
-      address: 'กรุงเทพมหานคร',
       rating: 4.8,
       totalHours: 25,
       completedTasks: 8,
@@ -114,13 +101,18 @@ async function seedSampleUsers() {
     },
     {
       id: 'user_student_2',
-      name: 'สมหญิง รักดี',
+      firstName: 'สมหญิง',
+      lastName: 'รักดี',
       email: 'somying@example.com',
+      password: '$2a$12$dummy.password.hash.for.seeding.data',
       phone: '0823456789',
+      address: 'กรุงเทพมหานคร',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
       userType: 'STUDENT',
       studentId: '6400000002',
       university: 'จุฬาลงกรณ์มหาวิทยาลัย',
-      address: 'กรุงเทพมหานคร',
       rating: 4.6,
       totalHours: 18,
       completedTasks: 6,
@@ -128,11 +120,16 @@ async function seedSampleUsers() {
     },
     {
       id: 'user_elderly_1',
-      name: 'คุณยายสมศรี รักดี',
+      firstName: 'สมศรี',
+      lastName: 'รักดี',
       email: 'yaisomsri@example.com',
+      password: '$2a$12$dummy.password.hash.for.seeding.data',
       phone: '0834567890',
-      userType: 'ELDERLY',
       address: 'กรุงเทพมหานคร',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
+      userType: 'ELDERLY',
       rating: 4.9,
       totalHours: 0,
       completedTasks: 0,
@@ -140,11 +137,16 @@ async function seedSampleUsers() {
     },
     {
       id: 'user_elderly_2',
-      name: 'คุณลุงสมชาย ใจดี',
+      firstName: 'สมชาย',
+      lastName: 'ใจดี',
       email: 'lungsomchai@example.com',
+      password: '$2a$12$dummy.password.hash.for.seeding.data',
       phone: '0845678901',
-      userType: 'ELDERLY',
       address: 'กรุงเทพมหานคร',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
+      userType: 'ELDERLY',
       rating: 4.7,
       totalHours: 0,
       completedTasks: 0,
@@ -169,17 +171,20 @@ async function seedSampleTasks() {
       description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหิดล ในวันที่ 15 มกราคม 2567 เวลา 9:00 น.',
       category: 'HOSPITAL',
       status: 'PENDING',
-      location: 'โรงพยาบาลมหิดล, กรุงเทพมหานคร',
+      address: 'โรงพยาบาลมหิดล',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
       budget: 3,
-      hours: 3,
+      volunteerHours: 3,
+      estimatedHours: 3,
       priority: 'MEDIUM',
       difficulty: 'EASY',
-      estimatedDuration: 180,
       creatorId: 'user_elderly_1',
-      scheduledDate: '2024-01-15',
+      scheduledDate: new Date('2024-01-15'),
       scheduledTime: '09:00',
-      requirements: ['มีประสบการณ์การพาผู้สูงอายุไปโรงพยาบาล', 'ใจดี อดทน'],
-      tags: ['สุขภาพ', 'โรงพยาบาล', 'ผู้สูงอายุ'],
+      requirements: 'มีประสบการณ์การพาผู้สูงอายุไปโรงพยาบาล, ใจดี อดทน',
+      tags: 'สุขภาพ, โรงพยาบาล, ผู้สูงอายุ',
     },
     {
       id: 'task_2',
@@ -187,17 +192,20 @@ async function seedSampleTasks() {
       description: 'ต้องการคนพาไปทำบุญที่วัดพระศรีรัตนศาสดาราม ในวันที่ 20 มกราคม 2567 เวลา 8:00 น.',
       category: 'TEMPLE',
       status: 'PENDING',
-      location: 'วัดพระศรีรัตนศาสดาราม, กรุงเทพมหานคร',
+      address: 'วัดพระศรีรัตนศาสดาราม',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
       budget: 2,
-      hours: 2,
+      volunteerHours: 2,
+      estimatedHours: 2,
       priority: 'LOW',
       difficulty: 'EASY',
-      estimatedDuration: 120,
       creatorId: 'user_elderly_2',
-      scheduledDate: '2024-01-20',
+      scheduledDate: new Date('2024-01-20'),
       scheduledTime: '08:00',
-      requirements: ['ใจดี มีความเคารพในศาสนา'],
-      tags: ['ทำบุญ', 'วัด', 'ศาสนา'],
+      requirements: 'ใจดี มีความเคารพในศาสนา',
+      tags: 'ทำบุญ, วัด, ศาสนา',
     },
     {
       id: 'task_3',
@@ -205,17 +213,20 @@ async function seedSampleTasks() {
       description: 'ต้องการคนพาไปเดินออกกำลังกายที่สวนลุมพินี ทุกวันเสาร์ เวลา 6:00 น.',
       category: 'EXERCISE',
       status: 'PENDING',
-      location: 'สวนลุมพินี, กรุงเทพมหานคร',
+      address: 'สวนลุมพินี',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
       budget: 2,
-      hours: 2,
+      volunteerHours: 2,
+      estimatedHours: 2,
       priority: 'MEDIUM',
       difficulty: 'EASY',
-      estimatedDuration: 120,
       creatorId: 'user_elderly_1',
-      scheduledDate: '2024-01-27',
+      scheduledDate: new Date('2024-01-27'),
       scheduledTime: '06:00',
-      requirements: ['มีประสบการณ์การออกกำลังกาย', 'ใจดี อดทน'],
-      tags: ['ออกกำลังกาย', 'สวน', 'สุขภาพ'],
+      requirements: 'มีประสบการณ์การออกกำลังกาย, ใจดี อดทน',
+      tags: 'ออกกำลังกาย, สวน, สุขภาพ',
     },
     {
       id: 'task_4',
@@ -223,17 +234,20 @@ async function seedSampleTasks() {
       description: 'ต้องการคนมาซ่อมก๊อกน้ำที่รั่วในห้องน้ำ งานไม่ยาก ใช้เวลาไม่นาน',
       category: 'REPAIR',
       status: 'PENDING',
-      location: 'บ้านพัก, กรุงเทพมหานคร',
+      address: 'บ้านพัก',
+      city: 'กรุงเทพมหานคร',
+      province: 'กรุงเทพมหานคร',
+      postalCode: '10110',
       budget: 4,
-      hours: 2,
+      volunteerHours: 2,
+      estimatedHours: 2,
       priority: 'HIGH',
       difficulty: 'MODERATE',
-      estimatedDuration: 120,
       creatorId: 'user_elderly_2',
-      scheduledDate: '2024-01-18',
+      scheduledDate: new Date('2024-01-18'),
       scheduledTime: '14:00',
-      requirements: ['มีทักษะงานช่างพื้นฐาน', 'มีเครื่องมือ'],
-      tags: ['ซ่อม', 'ก๊อกน้ำ', 'งานช่าง'],
+      requirements: 'มีทักษะงานช่างพื้นฐาน, มีเครื่องมือ',
+      tags: 'ซ่อม, ก๊อกน้ำ, งานช่าง',
     },
   ];
 
@@ -250,58 +264,48 @@ async function seedAchievements() {
   const achievements = [
     {
       id: 'achievement_1',
-      title: 'จิตอาสามือใหม่',
+      name: 'จิตอาสามือใหม่',
       description: 'ทำงานจิตอาสาครั้งแรก',
       icon: '🌟',
-      category: 'VOLUNTEER',
-      level: 'BRONZE',
+      category: 'VOLUNTEER_HOURS',
       points: 10,
-      requirement: 'ทำงานจิตอาสา 1 ครั้ง',
-      rarity: 'COMMON',
+      userId: 'user_student_1',
     },
     {
       id: 'achievement_2',
-      title: 'จิตอาสามืออาชีพ',
+      name: 'จิตอาสามืออาชีพ',
       description: 'ทำงานจิตอาสา 10 ครั้ง',
       icon: '🏆',
-      category: 'VOLUNTEER',
-      level: 'SILVER',
+      category: 'TASK_COMPLETION',
       points: 50,
-      requirement: 'ทำงานจิตอาสา 10 ครั้ง',
-      rarity: 'RARE',
+      userId: 'user_student_1',
     },
     {
       id: 'achievement_3',
-      title: 'จิตอาสาแห่งปี',
+      name: 'จิตอาสาแห่งปี',
       description: 'ทำงานจิตอาสา 50 ครั้ง',
       icon: '👑',
-      category: 'VOLUNTEER',
-      level: 'GOLD',
+      category: 'VOLUNTEER_HOURS',
       points: 100,
-      requirement: 'ทำงานจิตอาสา 50 ครั้ง',
-      rarity: 'EPIC',
+      userId: 'user_student_2',
     },
     {
       id: 'achievement_4',
-      title: 'ผู้ช่วยเหลือชุมชน',
+      name: 'ผู้ช่วยเหลือชุมชน',
       description: 'ทำงานจิตอาสาในชุมชนท้องถิ่น',
       icon: '🏘️',
-      category: 'COMMUNITY',
-      level: 'BRONZE',
+      category: 'SPECIAL',
       points: 20,
-      requirement: 'ทำงานจิตอาสาในชุมชนท้องถิ่น 5 ครั้ง',
-      rarity: 'COMMON',
+      userId: 'user_student_1',
     },
     {
       id: 'achievement_5',
-      title: 'ผู้เชี่ยวชาญด้านสุขภาพ',
+      name: 'ผู้เชี่ยวชาญด้านสุขภาพ',
       description: 'ทำงานจิตอาสาด้านสุขภาพ 20 ครั้ง',
       icon: '🏥',
-      category: 'SKILL',
-      level: 'SILVER',
+      category: 'RATING',
       points: 75,
-      requirement: 'ทำงานจิตอาสาด้านสุขภาพ 20 ครั้ง',
-      rarity: 'RARE',
+      userId: 'user_student_2',
     },
   ];
 
@@ -325,7 +329,7 @@ export async function createDatabaseBackup() {
     return { success: true, path: backupPath };
   } catch (error) {
     console.error('❌ Database backup failed:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 
@@ -341,7 +345,7 @@ export async function runMigrations() {
     return { success: true };
   } catch (error) {
     console.error('❌ Database migrations failed:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 
@@ -363,7 +367,7 @@ export async function cleanupDatabase() {
     return { success: true };
   } catch (error) {
     console.error('❌ Database cleanup failed:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 
@@ -374,7 +378,6 @@ export async function getDatabaseStats() {
       users: await prisma.user.count(),
       tasks: await prisma.task.count(),
       achievements: await prisma.achievement.count(),
-      categories: await prisma.category.count(),
       timestamp: new Date().toISOString(),
     };
     

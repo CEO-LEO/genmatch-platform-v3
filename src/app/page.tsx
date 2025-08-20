@@ -288,7 +288,7 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <p className="text-white/80 mb-4 leading-relaxed">"{testimonial.content}"</p>
+                <p className="text-white/80 mb-4 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                 
                 <div className="flex items-center">
                   {[...Array(testimonial.rating)].map((_, i) => (

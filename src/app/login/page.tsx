@@ -41,7 +41,7 @@ export default function Login() {
     phone: '',
     password: '',
     confirmPassword: '',
-    userType: 'STUDENT',
+    userType: 'STUDENT' as 'STUDENT' | 'ELDERLY',
     studentId: '',
     university: '',
     address: ''
