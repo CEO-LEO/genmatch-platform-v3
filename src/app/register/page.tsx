@@ -30,8 +30,7 @@ export default function Register() {
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
     phone: '',
     password: '',
@@ -68,9 +67,14 @@ export default function Register() {
     setIsLoading(true);
 
     try {
+      // แยกชื่อและนามสกุลจาก name
+      const nameParts = formData.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
       const success = await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        firstName,
+        lastName,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
@@ -130,41 +134,21 @@ export default function Register() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
-                  ชื่อ *
+                  ชื่อ-นามสกุล *
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
                   <input
                     type="text"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="กรอกชื่อ"
+                    placeholder="กรอกชื่อ-นามสกุลของคุณ"
                     required
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  นามสกุล *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="กรอกนามสกุล"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
                   อีเมล *
@@ -181,7 +165,10 @@ export default function Register() {
                   />
                 </div>
               </div>
+            </div>
 
+            {/* Contact Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
                   เบอร์โทรศัพท์ *
@@ -198,10 +185,7 @@ export default function Register() {
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Password Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
                   รหัสผ่าน *
@@ -225,7 +209,10 @@ export default function Register() {
                   </button>
                 </div>
               </div>
+            </div>
 
+            {/* Password Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
                   ยืนยันรหัสผ่าน *
