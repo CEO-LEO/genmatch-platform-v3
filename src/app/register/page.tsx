@@ -30,7 +30,8 @@ export default function Register() {
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     password: '',
@@ -38,7 +39,10 @@ export default function Register() {
     userType: 'STUDENT' as 'STUDENT' | 'ELDERLY',
     studentId: '',
     university: '',
-    address: ''
+    address: '',
+    city: '',
+    province: '',
+    postalCode: ''
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -67,21 +71,19 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      // แยกชื่อและนามสกุลจาก name
-      const nameParts = formData.name.trim().split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
-
       const success = await register({
-        firstName,
-        lastName,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
         userType: formData.userType,
         studentId: formData.studentId,
         university: formData.university,
-        address: formData.address
+        address: formData.address,
+        city: formData.city,
+        province: formData.province,
+        postalCode: formData.postalCode
       });
 
       if (success) {
@@ -134,21 +136,41 @@ export default function Register() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
-                  ชื่อ-นามสกุล *
+                  ชื่อ *
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="กรอกชื่อ-นามสกุลของคุณ"
+                    placeholder="กรอกชื่อ"
                     required
                   />
                 </div>
               </div>
 
+              <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">
+                  นามสกุล *
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    placeholder="กรอกนามสกุล"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-2">
                   อีเมล *
@@ -161,26 +183,6 @@ export default function Register() {
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     placeholder="กรอกอีเมลของคุณ"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  เบอร์โทรศัพท์ *
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="กรอกเบอร์โทรศัพท์"
                     required
                   />
                 </div>
@@ -239,20 +241,55 @@ export default function Register() {
             </div>
 
             {/* Address */}
-            <div>
-              <label className="block text-white/80 text-sm font-medium mb-2">
-                ที่อยู่ *
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                  placeholder="กรอกที่อยู่ของคุณ"
-                  required
-                />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">
+                  ที่อยู่ *
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    placeholder="กรอกที่อยู่ของคุณ"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">
+                  จังหวัด *
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <input
+                    type="text"
+                    value={formData.province}
+                    onChange={(e) => handleInputChange('province', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    placeholder="กรอกจังหวัด"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-white/80 text-sm font-medium mb-2">
+                  รหัสไปรษณีย์
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <input
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={(e) => handleInputChange('postalCode', e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    placeholder="กรอกรหัสไปรษณีย์"
+                  />
+                </div>
               </div>
             </div>
 

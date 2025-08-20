@@ -2,11 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, firstName, lastName, userType } = await request.json();
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      password, 
+      userType, 
+      phone, 
+      studentId, 
+      university, 
+      address, 
+      city, 
+      province, 
+      postalCode 
+    } = await request.json();
 
-    if (!email || !password || !firstName || !lastName || !userType) {
+    // Validate required fields
+    if (!firstName || !lastName || !email || !password || !userType) {
       return NextResponse.json(
-        { message: 'All fields are required' },
+        { message: 'First name, last name, email, password, and user type are required' },
         { status: 400 }
       );
     }
@@ -25,18 +39,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Simple demo registration - create demo user
+    // Validate student-specific fields
+    if (userType === 'STUDENT' && (!studentId || !university)) {
+      return NextResponse.json(
+        { message: 'Student ID and university are required for students' },
+        { status: 400 }
+      );
+    }
+
+    // Create demo user with enhanced data
     const user = {
       id: 'demo-user-' + Date.now(),
-      email,
       firstName,
       lastName,
+      email,
+      phone: phone || '',
       userType,
-      phone: '',
-      address: '',
-      city: '',
-      province: '',
-      postalCode: ''
+      studentId: studentId || '',
+      university: university || '',
+      address: address || '',
+      city: city || '',
+      province: province || '',
+      postalCode: postalCode || '',
+      avatar: '',
+      rating: 0,
+      totalHours: 0,
+      completedTasks: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
     const token = 'demo-token-' + Date.now();

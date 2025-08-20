@@ -4,13 +4,17 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 export interface User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   userType: 'STUDENT' | 'ELDERLY';
   studentId?: string;
   university?: string;
   address: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
   avatar?: string;
   rating?: number;
   totalHours?: number;
@@ -20,7 +24,8 @@ export interface User {
 }
 
 export interface RegisterData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   password: string;
@@ -28,6 +33,9 @@ export interface RegisterData {
   studentId?: string;
   university?: string;
   address: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
 }
 
 interface AuthContextType {
@@ -135,12 +143,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setLoading(true);
       
+      // Validate required fields
+      if (!data.firstName || !data.lastName || !data.email || !data.password || !data.userType) {
+        console.error('Missing required fields');
+        return false;
+      }
+
+      // Validate student-specific fields
+      if (data.userType === 'STUDENT' && (!data.studentId || !data.university)) {
+        console.error('Missing student-specific fields');
+        return false;
+      }
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phone: data.phone || '',
+          password: data.password,
+          userType: data.userType,
+          studentId: data.studentId || '',
+          university: data.university || '',
+          address: data.address || '',
+          city: data.city || '',
+          province: data.province || '',
+          postalCode: data.postalCode || ''
+        }),
       });
 
       if (response.ok) {
@@ -242,13 +275,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Auto-login with mock user for development
       const mockUser: User = {
         id: '1',
-        name: 'สมชาย ใจดี',
+        firstName: 'สมชาย',
+        lastName: 'ใจดี',
         email: 'somchai@example.com',
         phone: '0812345678',
         userType: 'STUDENT',
         studentId: '6400000001',
         university: 'มหาวิทยาลัยมหิดล',
         address: 'กรุงเทพมหานคร',
+        city: 'กรุงเทพมหานคร',
+        province: 'กรุงเทพมหานคร',
+        postalCode: '10100',
         avatar: '',
         rating: 4.8,
         totalHours: 25,
