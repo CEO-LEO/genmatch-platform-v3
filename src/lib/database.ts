@@ -384,17 +384,3 @@ export async function getDatabaseStats() {
     return null;
   }
 }
-
-// Export database utilities
-export {
-  prisma as db,
-  connectDatabase,
-  disconnectDatabase,
-  checkDatabaseHealth,
-  withTransaction,
-  seedDatabase,
-  createDatabaseBackup,
-  runMigrations,
-  cleanupDatabase,
-  getDatabaseStats,
-};
