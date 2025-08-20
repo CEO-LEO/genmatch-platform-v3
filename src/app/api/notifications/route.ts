@@ -1,29 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { message: 'No token provided' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
-
-    const notifications = await prisma.notification.findMany({
-      where: {
-        userId: decoded.userId
+    // Simple notifications - return demo data for now
+    const notifications = [
+      {
+        id: '1',
+        title: 'Welcome to GenMatch!',
+        message: 'Thank you for joining our platform.',
+        type: 'SYSTEM',
+        isRead: false,
+        createdAt: new Date().toISOString()
       },
-      orderBy: {
-        createdAt: 'desc'
+      {
+        id: '2',
+        title: 'Task Completed',
+        message: 'Your task has been completed successfully.',
+        type: 'TASK_UPDATE',
+        isRead: false,
+        createdAt: new Date().toISOString()
       }
-    });
+    ];
 
     return NextResponse.json(notifications);
   } catch (error) {
