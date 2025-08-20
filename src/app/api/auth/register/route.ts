@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,45 +25,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    // Simple demo registration - create demo user
+    const user = {
+      id: 'demo-user-' + Date.now(),
+      email,
+      firstName,
+      lastName,
+      userType,
+      phone: '',
+      address: '',
+      city: '',
+      province: '',
+      postalCode: ''
+    };
 
-    if (existingUser) {
-      return NextResponse.json(
-        { message: 'User with this email already exists' },
-        { status: 409 }
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        userType,
-        phone: '', // Default empty string
-        address: '', // Default empty string
-        city: '', // Default empty string
-        province: '', // Default empty string
-        postalCode: '' // Default empty string
-      }
-    });
-
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '7d' }
-    );
-
-    const { password: _, ...userWithoutPassword } = user;
+    const token = 'demo-token-' + Date.now();
 
     return NextResponse.json({
       token,
-      user: userWithoutPassword
+      user
     }, { status: 201 });
   } catch (error) {
     console.error('Registration error:', error);
