@@ -69,33 +69,86 @@ export default function TaskDetailPage() {
     try {
       console.log('Loading task with ID:', params.id); // Debug log
       
-      // Mock data for demo
-      const mockTask: Task = {
-        id: params.id as string,
-        title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
-        description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน เช่น ผักคะน้า ผักบุ้ง มะเขือเทศ แครอท แอปเปิ้ล ส้ม กล้วย และของใช้ในบ้าน เช่น น้ำยาล้างจาน แปรงสีฟัน สบู่ ผ้าขนหนู',
-        category: 'EXERCISE',
-        status: 'PENDING',
-
-        volunteerHours: 2,
-        estimatedHours: 2,
-        address: 'เซ็นทรัลเวิลด์',
-        city: 'กรุงเทพฯ',
-        province: 'กรุงเทพฯ',
-        postalCode: '10330',
-        scheduledDate: '2024-01-22',
-        scheduledTime: '09:00',
-        createdAt: '2024-01-15T10:00:00Z',
-        creator: {
-          id: 'elderly-1',
-          firstName: 'สมศรี',
-          lastName: 'ใจดี',
-          userType: 'ELDERLY'
+      // Mock data based on task ID
+      const mockTasks = {
+        '1': {
+          id: '1',
+          title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
+          description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน เช่น ผักคะน้า ผักบุ้ง มะเขือเทศ แครอท แอปเปิ้ล ส้ม กล้วย และของใช้ในบ้าน เช่น น้ำยาล้างจาน แปรงสีฟัน สบู่ ผ้าขนหนู',
+          category: 'EXERCISE',
+          status: 'PENDING',
+          volunteerHours: 2,
+          estimatedHours: 2,
+          address: 'เซ็นทรัลเวิลด์',
+          city: 'กรุงเทพฯ',
+          province: 'กรุงเทพฯ',
+          postalCode: '10330',
+          scheduledDate: '2024-01-22',
+          scheduledTime: '09:00',
+          createdAt: '2024-01-15T10:00:00Z',
+          creator: {
+            id: 'elderly-1',
+            firstName: 'สมศรี',
+            lastName: 'ใจดี',
+            userType: 'ELDERLY'
+          }
+        },
+        '2': {
+          id: '2',
+          title: 'ช่วยติดตั้งคอมพิวเตอร์',
+          description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน เช่น Office, Chrome, Photoshop และโปรแกรมอื่นๆ ที่จำเป็น',
+          category: 'REPAIR',
+          status: 'PENDING',
+          volunteerHours: 3,
+          estimatedHours: 3,
+          address: 'บ้านผู้ใช้',
+          city: 'กรุงเทพฯ',
+          province: 'กรุงเทพฯ',
+          postalCode: '10400',
+          scheduledDate: '2024-01-25',
+          scheduledTime: '13:00',
+          createdAt: '2024-01-18T14:00:00Z',
+          creator: {
+            id: 'elderly-2',
+            firstName: 'สมชาย',
+            lastName: 'รักดี',
+            userType: 'ELDERLY'
+          }
+        },
+        '3': {
+          id: '3',
+          title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
+          description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด ตรวจตา และตรวจสุขภาพทั่วไป',
+          category: 'HOSPITAL',
+          status: 'PENDING',
+          volunteerHours: 4,
+          estimatedHours: 4,
+          address: 'โรงพยาบาลมหาราช',
+          city: 'กรุงเทพฯ',
+          province: 'กรุงเทพฯ',
+          postalCode: '10400',
+          scheduledDate: '2024-01-28',
+          scheduledTime: '08:00',
+          createdAt: '2024-01-20T16:00:00Z',
+          creator: {
+            id: 'elderly-3',
+            firstName: 'สมศักดิ์',
+            lastName: 'ใจเย็น',
+            userType: 'ELDERLY'
+          }
         }
       };
       
-      console.log('Mock task loaded:', mockTask); // Debug log
-      setTask(mockTask);
+      const taskId = params.id as string;
+      const mockTask = mockTasks[taskId as keyof typeof mockTasks];
+      
+      if (mockTask) {
+        console.log('Mock task loaded:', mockTask); // Debug log
+        setTask(mockTask);
+      } else {
+        console.log('Task not found for ID:', taskId);
+        setTask(null);
+      }
     } catch (error) {
       console.error('Failed to load task:', error);
     } finally {
@@ -257,13 +310,21 @@ export default function TaskDetailPage() {
               แชทกับผู้สร้างงาน
             </Link>
             
-            <Link
-              href="/search"
-              className="glass-button-secondary flex-1 px-8 py-4 text-lg font-semibold flex items-center justify-center"
-            >
-              <Eye className="w-6 h-6 mr-3" />
-              ดูงานอื่นๆ
-            </Link>
+                         <Link
+               href={`/task/${task.id}/complete`}
+               className="glass-button flex-1 px-8 py-4 text-lg font-semibold flex items-center justify-center"
+             >
+               <CheckCircle className="w-6 h-6 mr-3" />
+               ปิดงาน
+             </Link>
+             
+             <Link
+               href="/search"
+               className="glass-button-secondary flex-1 px-8 py-4 text-lg font-semibold flex items-center justify-center"
+             >
+               <Eye className="w-6 h-6 mr-3" />
+               ดูงานอื่นๆ
+             </Link>
           </div>
         </div>
       </div>

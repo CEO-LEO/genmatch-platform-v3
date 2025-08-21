@@ -40,14 +40,14 @@ export default function RegisterPage() {
       return
     }
     
-    if (!formData.firstName || !formData.lastName || !formData.phone) {
+    if (!formData.firstName || !formData.lastName) {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน')
       return
     }
     
     // Student validation
     if (userType === 'STUDENT') {
-      if (!formData.phone || !formData.studentId || !formData.university) {
+      if (!formData.email || !formData.phone || !formData.studentId || !formData.university) {
         alert('กรุณากรอกข้อมูลนักศึกษาให้ครบถ้วน')
         return
       }
@@ -211,6 +211,26 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
+
+            {/* Email Field (only for students) */}
+            {userType === 'STUDENT' && (
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <Mail className="w-4 h-4 inline mr-2 text-purple-500" />
+                  อีเมล
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="example@email.com"
+                  required
+                />
+              </div>
+            )}
 
             {/* Phone Field (only for students) */}
             {userType === 'STUDENT' && (
