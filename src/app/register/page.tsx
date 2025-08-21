@@ -1,238 +1,390 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  User, 
-  Phone, 
-  Building, 
-  GraduationCap,
-  Heart,
-  ArrowRight,
-  ArrowLeft,
-  Shield,
-  CheckCircle,
-  MapPin
-} from 'lucide-react';
-import Link from 'next/link';
+import { useState } from 'react'
+import Link from 'next/link'
+import { Eye, EyeOff, Lock, Mail, User, Phone, GraduationCap, Building, MapPin, ArrowLeft, CheckCircle } from 'lucide-react'
+import LogoIcon from '@/components/LogoIcon'
 
-export default function Register() {
-  const router = useRouter();
-  const { register } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
+export default function RegisterPage() {
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [userType, setUserType] = useState<'STUDENT' | 'ELDERLY'>('STUDENT')
+  const [isLoading, setIsLoading] = useState(false)
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
-    userType: 'STUDENT' as 'STUDENT' | 'ELDERLY',
+    phone: '',
     studentId: '',
     university: '',
     address: '',
     city: '',
     province: '',
     postalCode: ''
-  });
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
+    e.preventDefault()
+    
+    // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('รหัสผ่านไม่ตรงกัน');
-      return;
+      alert('รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง')
+      return
     }
-
-    if (formData.password.length < 6) {
-      setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
-      return;
+    
+    if (formData.password.length < 8) {
+      alert('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร')
+      return
     }
-
-    if (formData.userType === 'STUDENT' && (!formData.studentId || !formData.university)) {
-      setError('กรุณากรอกข้อมูลนักศึกษาให้ครบถ้วน');
-      return;
+    
+    if (!formData.firstName || !formData.lastName || !formData.phone) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน')
+      return
     }
-
-    setIsLoading(true);
-
-    try {
-      const success = await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        userType: formData.userType,
-        studentId: formData.studentId,
-        university: formData.university,
-        address: formData.address,
-        city: formData.city,
-        province: formData.province,
-        postalCode: formData.postalCode
-      });
-
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError('เกิดข้อผิดพลาดในการลงทะเบียน');
+    
+    // Student validation
+    if (userType === 'STUDENT') {
+      if (!formData.phone || !formData.studentId || !formData.university) {
+        alert('กรุณากรอกข้อมูลนักศึกษาให้ครบถ้วน')
+        return
       }
-    } catch (err) {
-      setError('เกิดข้อผิดพลาดในการลงทะเบียน');
-    } finally {
-      setIsLoading(false);
     }
-  };
+    
+    // Address validation
+    if (!formData.address || !formData.city || !formData.province || !formData.postalCode) {
+      alert('กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วน')
+      return
+    }
+    
+    setIsLoading(true)
+    
+    try {
+      // Simulate registration process
+      console.log('กำลังสร้างบัญชี...', { userType, ...formData })
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Show success message
+      alert(`สร้างบัญชีสำเร็จ! ยินดีต้อนรับเข้าสู่ชุมชนจิตอาสา GenMatch`)
+      
+      // Reset form
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        phone: '',
+        studentId: '',
+        university: '',
+        address: '',
+        city: '',
+        province: '',
+        postalCode: ''
+      })
+      
+      // Redirect to login page after successful registration
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 1500)
+      
+    } catch (error) {
+      console.error('Registration error:', error)
+      alert('เกิดข้อผิดพลาดในการสร้างบัญชี กรุณาลองใหม่อีกครั้ง')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900 flex items-center justify-center p-4">
-      {/* Background Orbs */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-purple-300/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-300/30 to-blue-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-100/30 to-blue-200/20 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-2xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center text-white/70 hover:text-white transition-colors mb-4">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            กลับหน้าหลัก
-          </Link>
-          
-          <div className="w-20 h-20 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-10 h-10 text-white" />
+      <div className="relative z-10 max-w-4xl mx-auto">
+        {/* Back to Home */}
+        <Link 
+          href="/" 
+          className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-8 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          กลับหน้าหลัก
+        </Link>
+
+        {/* Register Card */}
+        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-200/50 p-8">
+          {/* Logo and Title */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <LogoIcon className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-800 bg-clip-text text-transparent">
+              สร้างบัญชีใหม่
+            </h1>
+            <p className="text-gray-600 mt-2">
+              เข้าร่วมชุมชนจิตอาสาของเรา
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">สร้างบัญชีใหม่</h1>
-          <p className="text-white/70 text-lg">เข้าร่วมชุมชนจิตอาสา GenMatch</p>
-        </div>
 
-        {/* Form Container */}
-        <div className="modern-card modern-card-hover p-8">
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-6">
-              <p className="text-red-400 text-sm">{error}</p>
+          {/* User Type Selection */}
+          <div className="mb-8">
+            <label className="block text-lg font-semibold text-gray-900 mb-4 text-center">
+              เลือกประเภทผู้ใช้
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+              <button
+                type="button"
+                onClick={() => setUserType('STUDENT')}
+                className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
+                  userType === 'STUDENT'
+                    ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-lg'
+                    : 'border-gray-300 bg-white text-gray-600 hover:border-purple-300 hover:bg-purple-50'
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  <GraduationCap className="w-6 h-6" />
+                  <span className="font-semibold">นักศึกษา กยศ.</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType('ELDERLY')}
+                className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
+                  userType === 'ELDERLY'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-lg'
+                    : 'border-gray-300 bg-white text-gray-600 hover:border-blue-300 hover:bg-blue-50'
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  <User className="w-6 h-6" />
+                  <span className="font-semibold">ผู้สูงอายุ</span>
+                </div>
+              </button>
             </div>
-          )}
+          </div>
 
+          {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Personal Information */}
+            {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  ชื่อ *
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
+                  ชื่อ
                 </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                    placeholder="กรอกชื่อ"
-                    required
-                  />
-                </div>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="ชื่อ"
+                  required
+                />
               </div>
-
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  นามสกุล *
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
+                  นามสกุล
                 </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                    placeholder="กรอกนามสกุล"
-                    required
-                  />
-                </div>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="นามสกุล"
+                  required
+                />
               </div>
             </div>
 
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Phone Field (only for students) */}
+            {userType === 'STUDENT' && (
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  อีเมล *
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                  <Phone className="w-4 h-4 inline mr-2 text-purple-500" />
+                  เบอร์โทรศัพท์
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="081-234-5678"
+                  required
+                />
+              </div>
+            )}
+
+
+
+
+
+            {/* Student-specific fields */}
+            {userType === 'STUDENT' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="studentId" className="block text-sm font-medium text-gray-700 mb-2">
+                    รหัสนักศึกษา
+                  </label>
                   <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                    placeholder="กรอกอีเมลของคุณ"
+                    type="text"
+                    id="studentId"
+                    name="studentId"
+                    value={formData.studentId}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                    placeholder="รหัสนักศึกษา"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="university" className="block text-sm font-medium text-gray-700 mb-2">
+                    <Building className="w-4 h-4 inline mr-2 text-purple-500" />
+                    มหาวิทยาลัย
+                  </label>
+                  <input
+                    type="text"
+                    id="university"
+                    name="university"
+                    value={formData.university}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                    placeholder="ชื่อมหาวิทยาลัย"
                     required
                   />
                 </div>
               </div>
+            )}
 
+            {/* Address Fields */}
+            <div>
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                <MapPin className="w-4 h-4 inline mr-2 text-purple-500" />
+                ที่อยู่
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                placeholder="ที่อยู่"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  รหัสผ่าน *
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                  อำเภอ/เขต
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="อำเภอ/เขต"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-2">
+                  จังหวัด
+                </label>
+                <input
+                  type="text"
+                  id="province"
+                  name="province"
+                  value={formData.province}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="จังหวัด"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-2">
+                  รหัสไปรษณีย์
+                </label>
+                <input
+                  type="text"
+                  id="postalCode"
+                  name="postalCode"
+                  value={formData.postalCode}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                  placeholder="รหัสไปรษณีย์"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Password Fields - Moved to bottom */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  รหัสผ่าน
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                    placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร"
+                    onChange={handleChange}
+                    className="w-full pr-12 px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                    placeholder="รหัสผ่านอย่างน้อย 8 ตัวอักษร"
+                    minLength={8}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/70"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-500 hover:text-purple-700 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
-            </div>
-
-            {/* Password Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  ยืนยันรหัสผ่าน *
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  ยืนยันรหัสผ่าน
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
                     value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
+                    onChange={handleChange}
+                    className="w-full pr-12 px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
                     placeholder="ยืนยันรหัสผ่าน"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/70"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-500 hover:text-purple-700 transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -240,147 +392,15 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Address */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  ที่อยู่ *
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                    placeholder="กรอกที่อยู่ของคุณ"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  จังหวัด *
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    value={formData.province}
-                    onChange={(e) => handleInputChange('province', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                    placeholder="กรอกจังหวัด"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  รหัสไปรษณีย์
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                  <input
-                    type="text"
-                    value={formData.postalCode}
-                    onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                    className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                    placeholder="กรอกรหัสไปรษณีย์"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* User Type Selection */}
-            <div>
-              <label className="block text-white/80 text-sm font-medium mb-3">
-                ประเภทผู้ใช้ *
-              </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => handleInputChange('userType', 'STUDENT')}
-                  className={`p-4 rounded-lg border transition-all duration-300 ${
-                    formData.userType === 'STUDENT'
-                      ? 'border-pink-500 bg-pink-500/20 text-white ring-2 ring-pink-500/30 shadow-glow'
-                      : 'border-white/20 bg-white/10 text-white/70 hover:bg-white/20 hover:border-white/30 hover:scale-105'
-                  }`}
-                >
-                  <div className="flex items-center justify-center">
-                    <GraduationCap className="w-6 h-6 mr-3" />
-                    <div className="text-left">
-                      <div className="font-semibold">นักศึกษา</div>
-                      <div className="text-xs opacity-80">รับงานจิตอาสา สะสมชั่วโมง</div>
-                    </div>
-                  </div>
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => handleInputChange('userType', 'ELDERLY')}
-                  className={`p-4 rounded-lg border transition-all duration-300 ${
-                    formData.userType === 'ELDERLY'
-                      ? 'border-pink-500 bg-pink-500/20 text-white ring-2 ring-pink-500/30 shadow-glow'
-                      : 'border-white/20 bg-white/10 text-white/70 hover:bg-white/20 hover:border-white/30 hover:scale-105'
-                  }`}
-                >
-                  <div className="flex items-center justify-center">
-                    <Heart className="w-6 h-6 mr-3" />
-                    <div className="text-left">
-                      <div className="font-semibold">ผู้สูงอายุ</div>
-                      <div className="text-xs opacity-80">โพสต์งานที่ต้องการความช่วยเหลือ</div>
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Student-specific fields */}
-            {formData.userType === 'STUDENT' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-white/80 text-sm font-medium mb-2">
-                    รหัสนิสิต *
-                  </label>
-                  <div className="relative">
-                    <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                    <input
-                      type="text"
-                      value={formData.studentId}
-                      onChange={(e) => handleInputChange('studentId', e.target.value)}
-                      className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                      placeholder="กรอกรหัสนิสิต"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white/80 text-sm font-medium mb-2">
-                    มหาวิทยาลัย *
-                  </label>
-                  <div className="relative">
-                    <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-                    <input
-                      type="text"
-                      value={formData.university}
-                      onChange={(e) => handleInputChange('university', e.target.value)}
-                      className="input-modern w-full pl-10 pr-4 py-3 text-white placeholder-white/50"
-                      placeholder="กรอกชื่อมหาวิทยาลัย"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-modern w-full py-4 px-6 rounded-xl font-medium text-white transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className={`w-full font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 text-lg ${
+                isLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-500 to-blue-700 hover:from-purple-600 hover:to-blue-800 hover:shadow-xl hover:scale-105'
+              } text-white`}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -388,63 +408,25 @@ export default function Register() {
                   กำลังสร้างบัญชี...
                 </div>
               ) : (
-                <div className="flex items-center justify-center">
-                  สร้างบัญชีใหม่
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </div>
+                'สร้างบัญชี'
               )}
             </button>
-
-            {/* Login Link */}
-            <div className="text-center">
-              <p className="text-white/70">
-                มีบัญชีอยู่แล้ว?{' '}
-                <Link href="/login" className="text-pink-400 hover:text-pink-300 font-medium">
-                  เข้าสู่ระบบเลย
-                </Link>
-              </p>
-            </div>
           </form>
 
-          {/* Terms and Privacy */}
-          <div className="mt-6 text-center">
-            <p className="text-white/60 text-xs">
-              การลงทะเบียนถือว่าคุณยอมรับ{' '}
-              <Link href="/terms" className="text-pink-400 hover:text-pink-300">
-                ข้อกำหนดการใช้งาน
-              </Link>{' '}
-              และ{' '}
-              <Link href="/privacy" className="text-pink-400 hover:text-pink-300">
-                นโยบายความเป็นส่วนตัว
+          {/* Login Link */}
+          <div className="text-center mt-8">
+            <p className="text-gray-600">
+              มีบัญชีอยู่แล้ว?{' '}
+              <Link 
+                href="/login" 
+                className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
+              >
+                เข้าสู่ระบบเลย
               </Link>
             </p>
           </div>
         </div>
-
-        {/* Features */}
-        <div className="mt-8 text-center">
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <p className="text-white/70 text-xs">ปลอดภัย 100%</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <CheckCircle className="w-6 h-6 text-white" />
-              </div>
-              <p className="text-white/70 text-xs">ยืนยันตัวตน</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-2">
-                <Heart className="w-6 h-6 text-white" />
-              </div>
-              <p className="text-white/70 text-xs">เชื่อมโยงชุมชน</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-  );
+  )
 }

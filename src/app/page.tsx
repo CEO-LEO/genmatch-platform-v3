@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 import { 
   Heart, 
   Users, 
@@ -17,297 +18,243 @@ import {
   MessageCircle,
   Calendar,
   Building,
-  GraduationCap
+  GraduationCap,
+  ChevronRight,
+  Sparkles,
+  Target,
+  Globe,
+  User
 } from 'lucide-react';
+import LogoIcon from '@/components/LogoIcon'
 
-export default function Home() {
-  const [activeTab, setActiveTab] = useState('features');
-
+export default function HomePage() {
   const features = [
     {
-      icon: <Heart className="w-8 h-8" />,
+      icon: <Users className="w-10 h-10 text-white" />,
       title: 'เชื่อมโยงจิตอาสา',
-      description: 'เชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ',
-      gradient: 'from-pink-500 to-purple-500'
+      description: 'เชื่อมต่อระหว่างนักศึกษา กยศ. และผู้สูงอายุอย่างมีประสิทธิภาพ',
+      bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600'
     },
     {
-      icon: <Users className="w-8 h-8" />,
-      title: 'ชุมชนแห่งการให้',
-      description: 'สร้างชุมชนที่เต็มไปด้วยความเอื้ออาทรและการช่วยเหลือกัน',
-      gradient: 'from-purple-500 to-indigo-500'
+      icon: <Target className="w-10 h-10 text-white" />,
+      title: 'ระบบจัดการงาน',
+      description: 'ติดตามและจัดการงานจิตอาสาได้อย่างเป็นระบบ',
+      bgColor: 'bg-gradient-to-br from-purple-600 to-purple-700'
     },
     {
-      icon: <MapPin className="w-8 h-8" />,
-      title: 'ค้นหางานใกล้บ้าน',
-      description: 'ค้นหางานจิตอาสาที่อยู่ใกล้คุณ พร้อมระบบนำทางที่แม่นยำ',
-      gradient: 'from-indigo-500 to-blue-500'
+      icon: <Clock className="w-10 h-10 text-white" />,
+      title: 'สะสมชั่วโมง',
+      description: 'นักศึกษาสามารถสะสมชั่วโมงจิตอาสาได้',
+      bgColor: 'bg-gradient-to-br from-blue-600 to-blue-700'
     },
     {
-      icon: <Clock className="w-8 h-8" />,
-      title: 'สะสมชั่วโมงจิตอาสา',
-      description: 'นักศึกษาสามารถสะสมชั่วโมงจิตอาสาเพื่อใช้ในการกู้กยศ. และสมัครงาน',
-      gradient: 'from-blue-500 to-cyan-500'
+      icon: <Award className="w-10 h-10 text-white" />,
+      title: 'รีวิวและคะแนน',
+      description: 'ระบบรีวิวและคะแนนความพึงพอใจ',
+      bgColor: 'bg-gradient-to-br from-blue-700 to-blue-800'
     }
-  ];
+  ]
 
   const categories = [
     {
-      icon: '🏥',
+      icon: <Heart className="w-8 h-8 text-white" />,
       title: 'โรงพยาบาล',
-      description: 'พาไปตรวจสุขภาพ, รับยา, นัดหมายแพทย์',
-      color: 'from-red-500 to-pink-500',
-      bgColor: 'bg-gradient-to-br from-red-500/20 to-pink-500/20'
+      description: 'ช่วยเหลือในโรงพยาบาลและสถานพยาบาล',
+      bgColor: 'bg-gradient-to-br from-red-500 to-red-600',
+      iconBg: 'bg-red-500'
     },
     {
-      icon: '🕍',
+      icon: <Globe className="w-8 h-8 text-white" />,
       title: 'วัด',
-      description: 'พาไปทำบุญ, กิจกรรมทางศาสนา, งานวัด',
-      color: 'from-yellow-500 to-orange-500',
-      bgColor: 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20'
+      description: 'กิจกรรมจิตอาสาในวัดและศาสนสถาน',
+      bgColor: 'bg-gradient-to-br from-yellow-500 to-yellow-600',
+      iconBg: 'bg-yellow-500'
     },
     {
-      icon: '💪',
+      icon: <Target className="w-8 h-8 text-white" />,
       title: 'ออกกำลังกาย',
-      description: 'พาไปออกกำลังกาย, เดินเล่น, กิจกรรมกีฬา',
-      color: 'from-green-500 to-emerald-500',
-      bgColor: 'bg-gradient-to-br from-green-500/20 to-emerald-500/20'
+      description: 'กิจกรรมออกกำลังกายและกีฬา',
+      bgColor: 'bg-gradient-to-br from-green-500 to-green-600',
+      iconBg: 'bg-green-500'
     },
     {
-      icon: '🔧',
-      title: 'งานซ่อม',
-      description: 'ซ่อมแซมอุปกรณ์, งานช่าง, งานเทคนิค',
-      color: 'from-blue-500 to-indigo-500',
-      bgColor: 'bg-gradient-to-br from-blue-500/20 to-indigo-500/20'
+      icon: <Sparkles className="w-8 h-8 text-white" />,
+      title: 'ซ่อมแซม',
+      description: 'งานซ่อมแซมและปรับปรุงสถานที่',
+      bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
+      iconBg: 'bg-blue-500'
     }
-  ];
+  ]
 
   const stats = [
-    { number: '1,500+', label: 'จิตอาสา', icon: <Users className="w-6 h-6" />, gradient: 'from-pink-500 to-purple-500' },
-    { number: '500+', label: 'งานเสร็จสิ้น', icon: <CheckCircle className="w-6 h-6" />, gradient: 'from-green-500 to-emerald-500' },
-    { number: '2,000+', label: 'ชั่วโมงจิตอาสา', icon: <Clock className="w-6 h-6" />, gradient: 'from-blue-500 to-cyan-500' },
-    { number: '4.8', label: 'คะแนนความพึงพอใจ', icon: <Star className="w-6 h-6" />, gradient: 'from-yellow-500 to-orange-500' }
-  ];
-
-  const testimonials = [
     {
-      name: 'คุณสมชาย ใจดี',
-      role: 'นักศึกษา มหาวิทยาลัยมหิดล',
-      content: 'ได้เรียนรู้การดูแลผู้สูงอายุและได้รับประสบการณ์ที่มีค่ามาก ระบบใช้งานง่ายมาก',
-      avatar: '👨‍🎓',
-      rating: 5
+      icon: <Users className="w-10 h-10 text-purple-600" />,
+      value: '1,500+',
+      label: 'จิตอาสา',
+      bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100',
+      borderColor: 'border-purple-200'
     },
     {
-      name: 'คุณยายสมศรี รักดี',
-      role: 'ผู้สูงอายุ',
-      content: 'มีคนมาช่วยเหลือเป็นประจำ ทำให้ชีวิตมีความสุขมากขึ้น ขอบคุณมากๆ',
-      avatar: '👵',
-      rating: 5
+      icon: <CheckCircle className="w-10 h-10 text-purple-600" />,
+      value: '500+',
+      label: 'งานเสร็จสิ้น',
+      bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100',
+      borderColor: 'border-purple-200'
     },
     {
-      name: 'คุณสมหญิง รักดี',
-      role: 'นักศึกษา จุฬาลงกรณ์มหาวิทยาลัย',
-      content: 'ได้ช่วยเหลือสังคมและสะสมชั่วโมงจิตอาสาไปพร้อมกัน ดีมากเลย',
-      avatar: '👩‍🎓',
-      rating: 5
+      icon: <Clock className="w-10 h-10 text-blue-600" />,
+      value: '2,000+',
+      label: 'ชั่วโมงจิตอาสา',
+      bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100',
+      borderColor: 'border-blue-200'
+    },
+    {
+      icon: <Star className="w-10 h-10 text-blue-600" />,
+      value: '4.8',
+      label: 'คะแนนความพึงพอใจ',
+      bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100',
+      borderColor: 'border-blue-200'
     }
-  ];
+  ]
+
+  const steps = [
+    {
+      number: '1',
+      icon: <GraduationCap className="w-12 h-12 text-white" />,
+      title: 'นักศึกษา กยศ.',
+      description: 'ลงทะเบียนและเลือกงานจิตอาสา',
+      bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600'
+    },
+    {
+      number: '2',
+      icon: <User className="w-12 h-12 text-white" />,
+      title: 'ผู้สูงอายุ',
+      description: 'โพสต์งานที่ต้องการความช่วยเหลือ',
+      bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600'
+    },
+    {
+      number: '3',
+      icon: <GraduationCap className="w-12 h-12 text-white" />,
+      title: 'จิตอาสา',
+      description: 'ทำงานและได้รับประสบการณ์',
+      bgColor: 'bg-gradient-to-br from-purple-600 to-blue-700'
+    }
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
-      {/* Background Orbs */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       {/* Navigation */}
-      <nav className="relative z-10 flex items-center justify-between p-6">
-        <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl flex items-center justify-center">
-            <Heart className="w-6 h-6 text-white" />
+      <nav className="bg-white/90 backdrop-blur-md border-b border-purple-200/50 shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+                <LogoIcon className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-600 font-medium">Generation Matching</div>
+                <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-800 bg-clip-text text-transparent">
+                  GenMatch
+                </div>
+              </div>
+            </div>
+            <div className="hidden lg:flex items-center space-x-8">
+              <Link href="#features" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+                คุณสมบัติ
+              </Link>
+              <Link href="#how-it-works" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+                วิธีการทํางาน
+              </Link>
+              <Link href="#about" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+                เกี่ยวกับเรา
+              </Link>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link href="/login" className="text-purple-600 hover:text-purple-700 font-semibold px-4 py-2 rounded-lg hover:bg-purple-50 transition-all duration-200">
+                เข้าสู่ระบบ
+              </Link>
+              <Link href="/register" className="bg-gradient-to-r from-purple-500 to-blue-700 hover:from-purple-600 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                ลงทะเบียน
+              </Link>
+            </div>
           </div>
-          <span className="text-2xl font-bold text-white">GenMatch</span>
-        </div>
-        
-        <div className="hidden md:flex items-center space-x-6">
-          <a href="#features" className="text-white/70 hover:text-white transition-colors">คุณสมบัติ</a>
-          <a href="#how-it-works" className="text-white/70 hover:text-white transition-colors">วิธีการทำงาน</a>
-          <a href="#about" className="text-white/70 hover:text-white transition-colors">เกี่ยวกับเรา</a>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          <Link href="/login" className="text-white/70 hover:text-white transition-colors">
-            เข้าสู่ระบบ
-          </Link>
-          <Link href="/register" className="glass-button-primary px-6 py-2 rounded-lg">
-            ลงทะเบียน
-          </Link>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative z-10 text-center py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          {/* Floating Background Elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-full blur-3xl animate-float"></div>
-            <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-float-slow"></div>
-            <div className="absolute bottom-20 left-1/4 w-28 h-28 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-float-fast"></div>
-          </div>
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-purple-300/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-300/30 to-blue-400/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-100/30 to-blue-200/20 rounded-full blur-3xl"></div>
+        </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 relative">
-            <span className="block">เชื่อมโยง</span>
-            <span className="block bg-gradient-to-r from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
-              จิตอาสา
-            </span>
-            <span className="block">สร้างสังคมดี</span>
-          </h1>
-          
-          <p className="text-xl text-white/80 mb-8 leading-relaxed max-w-3xl mx-auto">
-            แพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ<br />
-            นักศึกษาสามารถสะสมชั่วโมงจิตอาสา ผู้สูงอายุได้รับความช่วยเหลือที่ต้องการ
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <Link href="/register" className="btn-modern px-8 py-4 text-lg rounded-xl hover:scale-105 transition-all duration-300">
-              เริ่มต้นใช้งาน
-              <ArrowRight className="w-5 h-5 ml-2 inline" />
-            </Link>
+        <div className="relative z-10 max-w-7xl mx-auto text-center">
+          <div className="mb-8">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight">
+              <span className="block bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 bg-clip-text text-transparent animate-pulse">
+                แพลตฟอร์ม
+              </span>
+              <span className="block bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 bg-clip-text text-transparent">
+                เชื่อมโยง
+              </span>
+              <span className="block bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+                นักศึกษา กยศ.
+              </span>
+              <span className="block bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">
+                และผู้สูงอายุ
+              </span>
+            </h1>
             
-            <Link href="#how-it-works" className="glass-button-secondary px-8 py-4 text-lg rounded-xl hover:scale-105 transition-all duration-300">
-              <Play className="w-5 h-5 mr-2 inline" />
-              ดูวิธีการทำงาน
-            </Link>
+            <p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed">
+              แพลตฟอร์มเชื่อมโยงระหว่างนักศึกษา กยศ. และผู้สูงอายุ เพื่อการช่วยเหลือและแลกเปลี่ยนเรียนรู้ซึ่งกันและกัน
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Link href="/search" className="group bg-gradient-to-r from-purple-500 to-blue-700 hover:from-purple-600 hover:to-blue-800 text-white font-semibold px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center">
+                ดูงานอาสา
+                <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link href="/register" className="group border-2 border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 inline-flex items-center">
+                ลงทะเบียนเป็นจิตอาสา
+                <ChevronRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="relative z-10 py-16 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="modern-card modern-card-hover p-6 text-center group">
-                <div className={`w-16 h-16 bg-gradient-to-r ${stat.gradient} rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <div className="text-white">
-                    {stat.icon}
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-300">{stat.number}</div>
-                <div className="text-white/70 group-hover:text-white/90 transition-colors duration-300">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="relative z-10 py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">คุณสมบัติเด่น</h2>
-            <p className="text-xl text-white/70">ทุกสิ่งที่คุณต้องการในการเป็นจิตอาสา</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="modern-card modern-card-hover p-8 group hover:scale-105 transition-all duration-500">
-                <div className={`w-16 h-16 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  <div className="text-white">
-                    {feature.icon}
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-300">{feature.title}</h3>
-                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-300">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="relative z-10 py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">หมวดหม่งาน</h2>
-            <p className="text-xl text-white/70">เลือกงานที่เหมาะสมกับความสามารถของคุณ</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
-              <div key={index} className="modern-card modern-card-hover p-6 text-center group hover:scale-105 transition-all duration-500">
-                <div className={`w-20 h-20 bg-gradient-to-r ${category.color} rounded-xl flex items-center justify-center mx-auto mb-4 text-4xl group-hover:scale-110 transition-transform duration-300 shadow-glow`}>
-                  {category.icon}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-pink-400 group-hover:to-purple-400 group-hover:bg-clip-text transition-all duration-300">{category.title}</h3>
-                <p className="text-white/70 text-sm leading-relaxed group-hover:text-white/90 transition-colors duration-300">{category.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section id="how-it-works" className="relative z-10 py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">วิธีการทำงาน</h2>
-            <p className="text-xl text-white/70">ง่ายๆ เพียง 3 ขั้นตอน</p>
+      {/* Steps Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              วิธีการทำงาน
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              ง่ายๆ เพียง 3 ขั้นตอน
+            </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="glass-card p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white">
-                1
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">ลงทะเบียน</h3>
-              <p className="text-white/70">สร้างบัญชีและเลือกประเภทผู้ใช้ (นักศึกษาหรือผู้สูงอายุ)</p>
-            </div>
-            
-            <div className="glass-card p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white">
-                2
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">ค้นหาหรือโพสต์งาน</h3>
-              <p className="text-white/70">นักศึกษาค้นหางาน ผู้สูงอายุโพสต์งานที่ต้องการความช่วยเหลือ</p>
-            </div>
-            
-            <div className="glass-card p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold text-white">
-                3
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">เริ่มต้นการเป็นจิตอาสา</h3>
-              <p className="text-white/70">ติดต่อกัน ทำงานร่วมกัน และสร้างความสัมพันธ์ที่ดี</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="relative z-10 py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">เสียงจากผู้ใช้งาน</h2>
-            <p className="text-xl text-white/70">เรื่องราวดีๆ จากชุมชน GenMatch</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="glass-card p-8">
-                <div className="flex items-center mb-6">
-                  <div className="text-4xl mr-4">{testimonial.avatar}</div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-white">{testimonial.name}</h4>
-                    <p className="text-white/70 text-sm">{testimonial.role}</p>
-                  </div>
+            {steps.map((step, index) => (
+              <div key={index} className="text-center">
+                <div className={`w-24 h-24 ${step.bgColor} rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl`}>
+                  <span className="text-3xl font-bold text-white">{step.number}</span>
                 </div>
-                
-                <p className="text-white/80 mb-4 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
-                
-                <div className="flex items-center">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  {step.icon}
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {step.description}
+                </p>
+                <div className="flex justify-center mt-4 space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-purple-500 fill-current" />
                   ))}
                 </div>
               </div>
@@ -316,83 +263,147 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative z-10 py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="glass-card p-12">
-            <h2 className="text-4xl font-bold text-white mb-6">พร้อมที่จะเริ่มต้นการเป็นจิตอาสา?</h2>
-            <p className="text-xl text-white/70 mb-8">
-              เข้าร่วมกับเราเพื่อสร้างสังคมแห่งการให้และความเอื้ออาทร
+      {/* Stats Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className={`group p-6 text-center rounded-2xl border-2 ${stat.bgColor} ${stat.borderColor} hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
+              >
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-white rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300">
+                    {stat.icon}
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-purple-700 mb-2 group-hover:scale-110 transition-transform duration-300">
+                  {stat.value}
+                </div>
+                <div className="text-base text-gray-700 font-medium">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              คุณสมบัติเด่น
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              แพลตฟอร์มที่ออกแบบมาเพื่อการใช้งานที่ง่ายและมีประสิทธิภาพ
             </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <Link href="/register" className="glass-button-primary px-8 py-4 text-lg rounded-xl hover:scale-105 transition-transform">
-                ลงทะเบียนเลย
-                <ArrowRight className="w-5 h-5 ml-2 inline" />
-              </Link>
-              
-              <Link href="/login" className="glass-button-secondary px-8 py-4 text-lg rounded-xl hover:scale-105 transition-transform">
-                เข้าสู่ระบบ
-              </Link>
-            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="group p-6 text-center rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className={`w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed text-sm">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              หมวดหม่างานจิตอาสา
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              เลือกงานจิตอาสาตามความสนใจและความสามารถของคุณ
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {categories.map((category, index) => (
+              <div
+                key={index}
+                className={`group p-6 text-center rounded-2xl ${category.bgColor} hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
+              >
+                <div className={`w-14 h-14 ${category.iconBg} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                  {category.icon}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">
+                  {category.title}
+                </h3>
+                <p className="text-white/90 leading-relaxed text-sm">
+                  {category.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 py-12 px-6 border-t border-white/20">
-        <div className="max-w-6xl mx-auto">
+      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
-                  <Heart className="w-5 h-5 text-white" />
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-700 rounded-xl flex items-center justify-center">
+                  <LogoIcon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">GenMatch</span>
+                <span className="text-xl font-bold">GenMatch</span>
               </div>
-              <p className="text-white/70 text-sm">
-                แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี
+              <p className="text-gray-400 leading-relaxed text-sm">
+                แพลตฟอร์มเชื่อมโยงจิตอาสาเพื่อสังคมที่ดี
               </p>
             </div>
             
             <div>
-              <h4 className="text-white font-semibold mb-4">คุณสมบัติ</h4>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li><a href="#" className="hover:text-white transition-colors">ค้นหางาน</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">โพสต์งาน</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">แชท</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">สถิติ</a></li>
+              <h3 className="text-lg font-semibold mb-4">ลิงก์ด่วน</h3>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><Link href="/about" className="hover:text-white transition-colors">เกี่ยวกับเรา</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">ติดต่อเรา</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">ความเป็นส่วนตัว</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="text-white font-semibold mb-4">หมวดหม่งาน</h4>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li><a href="#" className="hover:text-white transition-colors">โรงพยาบาล</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">วัด</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">ออกกำลังกาย</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">งานซ่อม</a></li>
+              <h3 className="text-lg font-semibold mb-4">บริการ</h3>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><Link href="/search" className="hover:text-white transition-colors">ค้นหางาน</Link></li>
+                <li><Link href="/register" className="hover:text-white transition-colors">ลงทะเบียน</Link></li>
+                <li><Link href="/dashboard" className="hover:text-white transition-colors">แดชบอร์ด</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="text-white font-semibold mb-4">ติดต่อเรา</h4>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li><a href="#" className="hover:text-white transition-colors">ช่วยเหลือ</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">เกี่ยวกับเรา</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">นโยบายความเป็นส่วนตัว</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">ข้อกำหนดการใช้งาน</a></li>
+              <h3 className="text-lg font-semibold mb-4">ติดต่อ</h3>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li>อีเมล: info@genmatch.com</li>
+                <li>โทร: 02-123-4567</li>
+                <li>ที่อยู่: กรุงเทพมหานคร</li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-white/20 mt-8 pt-8 text-center">
-            <p className="text-white/50 text-sm">
-              © 2024 GenMatch. สงวนลิขสิทธิ์ทั้งหมด.
-            </p>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 GenMatch. สงวนลิขสิทธิ์ทั้งหมด.</p>
           </div>
         </div>
       </footer>
     </div>
-  );
+  )
 }
