@@ -25,15 +25,15 @@
   }
   
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0;
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0;
   }
   
   .btn-secondary {
-    @apply btn bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0;
+    @apply btn bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0;
   }
   
   .btn-accent {
-    @apply btn bg-accent-600 text-white hover:bg-accent-700 focus:ring-accent-500 shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0;
+    @apply btn bg-accent-600 text-white hover:bg-accent-700 focus:ring-accent-500 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0;
   }
   
   .btn-outline {
@@ -46,15 +46,15 @@
   
   /* Card Components */
   .card {
-    @apply bg-white rounded-xl shadow-soft border border-neutral-200 transition-all duration-200;
+    @apply bg-white rounded-xl shadow-md border border-neutral-200 transition-all duration-200;
   }
   
   .card-hover {
-    @apply card hover:shadow-medium hover:-translate-y-1;
+    @apply card hover:shadow-lg hover:-translate-y-1;
   }
   
   .card-interactive {
-    @apply card-hover cursor-pointer hover:border-primary-200 hover:shadow-glow;
+    @apply card-hover cursor-pointer hover:border-primary-200 hover:shadow-lg;
   }
   
   /* Input Components */
@@ -117,17 +117,17 @@
     @apply animate-pulse bg-neutral-200 rounded;
   }
   
-  /* Animation Classes */
-  .animate-fade-in {
-    @apply animate-fade-in;
+  /* Animation Classes - Direct usage in components */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
   }
   
-  .animate-slide-up {
-    @apply animate-slide-up;
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
   }
   
-  .animate-scale-in {
-    @apply animate-scale-in;
+  .scale-in {
+    animation: scaleIn 0.2s ease-out;
   }
   
   /* Utility Classes */
@@ -144,11 +144,11 @@
   }
   
   .shadow-glow-primary {
-    @apply shadow-glow;
+    @apply shadow-lg;
   }
   
   .shadow-glow-secondary {
-    @apply shadow-glow-purple;
+    @apply shadow-lg;
   }
 }
 
