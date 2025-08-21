@@ -27,10 +27,13 @@ interface ChatTask {
   id: string;
   title: string;
   description: string;
-  location: string;
+  address: string;
+  city: string;
+  province: string;
   status: string;
   creator: {
-    name: string;
+    firstName: string;
+    lastName: string;
     phone: string;
   };
 }
@@ -71,6 +74,43 @@ export default function Chat() {
           setSelectedTask(userTasks[0]);
           loadChatHistory(userTasks[0].id);
         }
+      } else {
+        // Mock data for demo
+        const mockTasks: ChatTask[] = [
+          {
+            id: '1',
+            title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
+            description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช',
+            address: 'โรงพยาบาลมหาราช',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            status: 'COMPLETED',
+            creator: {
+              firstName: 'สมศรี',
+              lastName: 'ใจดี',
+              phone: '081-234-5678'
+            }
+          },
+          {
+            id: '2',
+            title: 'พาไปทำบุญที่วัดพระแก้ว',
+            description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว',
+            address: 'วัดพระแก้ว',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            status: 'IN_PROGRESS',
+            creator: {
+              firstName: 'สมชาย',
+              lastName: 'รักดี',
+              phone: '082-345-6789'
+            }
+          }
+        ];
+        setTasks(mockTasks);
+        if (mockTasks.length > 0) {
+          setSelectedTask(mockTasks[0]);
+          loadChatHistory(mockTasks[0].id);
+        }
       }
     } catch (error) {
       console.error('Failed to load tasks:', error);
@@ -78,13 +118,13 @@ export default function Chat() {
   };
 
   const loadChatHistory = async (taskId: string) => {
-    // Mock chat history
+    // Mock chat history based on task
     const mockMessages: Message[] = [
       {
         id: '1',
         content: 'สวัสดีครับ ผมจะรับงานนี้ให้ครับ',
         senderId: user?.id || '',
-        senderName: user?.name || '',
+        senderName: user?.firstName || '',
         timestamp: new Date(Date.now() - 3600000),
         isOwn: true
       },
@@ -100,8 +140,24 @@ export default function Chat() {
         id: '3',
         content: 'พรุ่งนี้ช่วงบ่าย 2 โมงครับ',
         senderId: user?.id || '',
-        senderName: user?.name || '',
+        senderName: user?.firstName || '',
         timestamp: new Date(Date.now() - 900000),
+        isOwn: true
+      },
+      {
+        id: '4',
+        content: 'ดีครับ แล้วจะเตรียมของให้พร้อมครับ',
+        senderId: 'other',
+        senderName: 'ผู้สูงอายุ',
+        timestamp: new Date(Date.now() - 600000),
+        isOwn: false
+      },
+      {
+        id: '5',
+        content: 'ขอบคุณครับ แล้วเจอกันพรุ่งนี้นะครับ',
+        senderId: user?.id || '',
+        senderName: user?.firstName || '',
+        timestamp: new Date(Date.now() - 300000),
         isOwn: true
       }
     ];
@@ -115,7 +171,7 @@ export default function Chat() {
       id: Date.now().toString(),
       content: newMessage,
       senderId: user?.id || '',
-      senderName: user?.name || '',
+             senderName: user?.firstName || '',
       timestamp: new Date(),
       isOwn: true
     };
@@ -150,7 +206,7 @@ export default function Chat() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
           <p className="mt-4 text-lg text-white">กำลังโหลด...</p>
@@ -164,7 +220,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
       {/* Header */}
       <div className="glass-card mx-4 mt-4 p-4">
         <div className="flex items-center justify-between">
@@ -202,10 +258,10 @@ export default function Chat() {
                     <p className="text-white/70 text-sm mb-2 line-clamp-2">
                       {task.description}
                     </p>
-                    <div className="flex items-center text-white/60 text-xs">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {task.location}
-                    </div>
+                                         <div className="flex items-center text-white/60 text-xs">
+                       <MapPin className="w-3 h-3 mr-1" />
+                       {task.address}, {task.city}
+                     </div>
                     <div className={`inline-block px-2 py-1 rounded-full text-xs mt-2 ${
                       task.status === 'COMPLETED' ? 'bg-green-500/20 text-green-300' :
                       task.status === 'ACCEPTED' ? 'bg-blue-500/20 text-blue-300' :
@@ -242,10 +298,10 @@ export default function Chat() {
                   </div>
                   
                   <div className="mt-3 flex items-center space-x-4 text-sm text-white/60">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-1" />
-                      {selectedTask.creator.name}
-                    </div>
+                                         <div className="flex items-center">
+                       <User className="w-4 h-4 mr-1" />
+                       {selectedTask.creator.firstName} {selectedTask.creator.lastName}
+                     </div>
                     <div className="flex items-center">
                       <Phone className="w-4 h-4 mr-1" />
                       {selectedTask.creator.phone}

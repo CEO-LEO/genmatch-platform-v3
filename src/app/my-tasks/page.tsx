@@ -83,87 +83,165 @@ export default function MyTasks() {
         const userTasks = await response.json();
         setTasks(userTasks);
       } else {
-        // Mock data for demo
-        const mockTasks: Task[] = [
-          {
-            id: '1',
-            title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-            description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช',
-            address: 'โรงพยาบาลมหาราช',
-            city: 'กรุงเทพฯ',
-            province: 'กรุงเทพฯ',
-            postalCode: '10400',
-            status: 'COMPLETED',
-            createdAt: '2024-01-15T10:00:00Z',
-            scheduledDate: '2024-01-20',
-            scheduledTime: '09:00',
-            estimatedHours: 3,
-            budget: 500,
-            category: 'HOSPITAL',
-            creator: {
-              id: user?.id || '',
-              firstName: user?.firstName || '',
-              lastName: user?.lastName || '',
-              userType: user?.userType || 'ELDERLY'
-            },
-            accepter: {
-              id: 'student-1',
-              firstName: 'สมชาย',
-              lastName: 'ใจดี',
-              userType: 'STUDENT'
-            }
-          },
-          {
-            id: '2',
-            title: 'พาไปทำบุญที่วัดพระแก้ว',
-            description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว',
-            address: 'วัดพระแก้ว',
-            city: 'กรุงเทพฯ',
-            province: 'กรุงเทพฯ',
-            postalCode: '10200',
-            status: 'IN_PROGRESS',
-            createdAt: '2024-01-18T14:00:00Z',
-            scheduledDate: '2024-01-25',
-            scheduledTime: '08:00',
-            estimatedHours: 4,
-            budget: 300,
-            category: 'TEMPLE',
-            creator: {
-              id: user?.id || '',
-              firstName: user?.firstName || '',
-              lastName: user?.lastName || '',
-              userType: user?.userType || 'ELDERLY'
-            },
-            accepter: {
-              id: 'student-2',
-              firstName: 'สมหญิง',
-              lastName: 'รักดี',
-              userType: 'STUDENT'
-            }
-          },
-          {
-            id: '3',
-            title: 'ช่วยซ่อมคอมพิวเตอร์',
-            description: 'คอมพิวเตอร์เสีย ต้องการคนช่วยซ่อม',
-            address: 'บ้านผู้ใช้',
-            city: 'กรุงเทพฯ',
-            province: 'กรุงเทพฯ',
-            postalCode: '10400',
-            status: 'PENDING',
-            createdAt: '2024-01-20T16:00:00Z',
-            scheduledDate: '2024-01-30',
-            scheduledTime: '13:00',
-            estimatedHours: 2,
-            budget: 200,
-            category: 'REPAIR',
-            creator: {
-              id: user?.id || '',
-              firstName: user?.firstName || '',
-              lastName: user?.lastName || '',
-              userType: user?.userType || 'ELDERLY'
-            }
-          }
-        ];
+                 // Mock data for demo
+         const mockTasks: Task[] = [
+           {
+             id: '1',
+             title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
+             description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด ตรวจตา และตรวจสุขภาพทั่วไป',
+             address: 'โรงพยาบาลมหาราช',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10400',
+             status: 'COMPLETED',
+             createdAt: '2024-01-15T10:00:00Z',
+             scheduledDate: '2024-01-20',
+             scheduledTime: '09:00',
+             estimatedHours: 3,
+             budget: 500,
+             category: 'HOSPITAL',
+             creator: {
+               id: user?.id || '',
+               firstName: user?.firstName || '',
+               lastName: user?.lastName || '',
+               userType: user?.userType || 'ELDERLY'
+             },
+             accepter: {
+               id: 'student-1',
+               firstName: 'สมชาย',
+               lastName: 'ใจดี',
+               userType: 'STUDENT'
+             }
+           },
+           {
+             id: '2',
+             title: 'พาไปทำบุญที่วัดพระแก้ว',
+             description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว ไหว้พระ ทำบุญใส่บาตร และเดินชมความสวยงามของวัด',
+             address: 'วัดพระแก้ว',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10200',
+             status: 'IN_PROGRESS',
+             createdAt: '2024-01-18T14:00:00Z',
+             scheduledDate: '2024-01-25',
+             scheduledTime: '08:00',
+             estimatedHours: 4,
+             budget: 300,
+             category: 'TEMPLE',
+             creator: {
+               id: user?.id || '',
+               firstName: user?.firstName || '',
+               lastName: user?.lastName || '',
+               userType: user?.userType || 'ELDERLY'
+             },
+             accepter: {
+               id: 'student-2',
+               firstName: 'สมหญิง',
+               lastName: 'รักดี',
+               userType: 'STUDENT'
+             }
+           },
+           {
+             id: '3',
+             title: 'ช่วยซ่อมคอมพิวเตอร์',
+             description: 'คอมพิวเตอร์เสีย ต้องการคนช่วยซ่อม ตรวจสอบฮาร์ดแวร์ และติดตั้งโปรแกรมใหม่',
+             address: 'บ้านผู้ใช้',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10400',
+             status: 'PENDING',
+             createdAt: '2024-01-20T16:00:00Z',
+             scheduledDate: '2024-01-30',
+             scheduledTime: '13:00',
+             estimatedHours: 2,
+             budget: 200,
+             category: 'REPAIR',
+             creator: {
+               id: user?.id || '',
+               firstName: user?.firstName || '',
+               lastName: user?.lastName || '',
+               userType: user?.userType || 'ELDERLY'
+             }
+           },
+           {
+             id: '4',
+             title: 'ช่วยออกกำลังกายที่สวนสาธารณะ',
+             description: 'ต้องการคนช่วยออกกำลังกายที่สวนลุมพินี เดินเร็ว วิ่งเหยาะๆ และทำท่ากายบริหารเบาๆ',
+             address: 'สวนลุมพินี',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10400',
+             status: 'ACCEPTED',
+             createdAt: '2024-01-22T08:00:00Z',
+             scheduledDate: '2024-02-01',
+             scheduledTime: '06:00',
+             estimatedHours: 2,
+             budget: 150,
+             category: 'EXERCISE',
+             creator: {
+               id: user?.id || '',
+               firstName: user?.firstName || '',
+               lastName: user?.lastName || '',
+               userType: user?.userType || 'ELDERLY'
+             },
+             accepter: {
+               id: 'student-3',
+               firstName: 'สมชาย',
+               lastName: 'รักสุขภาพ',
+               userType: 'STUDENT'
+             }
+           },
+           {
+             id: '5',
+             title: 'ช่วยซื้อของที่ตลาด',
+             description: 'ต้องการคนพาไปซื้อของที่ตลาดคลองเตย ซื้อผัก ผลไม้ เนื้อสัตว์ และของใช้ในบ้าน',
+             address: 'ตลาดคลองเตย',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10110',
+             status: 'COMPLETED',
+             createdAt: '2024-01-10T07:00:00Z',
+             scheduledDate: '2024-01-15',
+             scheduledTime: '07:30',
+             estimatedHours: 2,
+             budget: 250,
+             category: 'EXERCISE',
+             creator: {
+               id: user?.id || '',
+               firstName: user?.firstName || '',
+               lastName: user?.lastName || '',
+               userType: user?.userType || 'ELDERLY'
+             },
+             accepter: {
+               id: 'student-4',
+               firstName: 'สมหญิง',
+               lastName: 'ใจดี',
+               userType: 'STUDENT'
+             }
+           },
+           {
+             id: '6',
+             title: 'ช่วยจัดระเบียบห้องสมุด',
+             description: 'ต้องการคนช่วยจัดระเบียบหนังสือในห้องสมุด จัดหมวดหมู่ และทำความสะอาดพื้นที่',
+             address: 'ห้องสมุดประชาชน',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10300',
+             status: 'CANCELLED',
+             createdAt: '2024-01-25T14:00:00Z',
+             scheduledDate: '2024-02-05',
+             scheduledTime: '14:00',
+             estimatedHours: 4,
+             budget: 350,
+             category: 'REPAIR',
+             creator: {
+               id: user?.id || '',
+               firstName: user?.firstName || '',
+               lastName: user?.lastName || '',
+               userType: user?.userType || 'ELDERLY'
+             }
+           }
+         ];
         setTasks(mockTasks);
       }
     } catch (error) {
@@ -254,7 +332,7 @@ export default function MyTasks() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
       {/* Header */}
       <div className="glass-card mx-4 mt-4 p-6">
         <div className="flex items-center justify-between">
