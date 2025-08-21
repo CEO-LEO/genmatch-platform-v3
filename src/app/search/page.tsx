@@ -24,7 +24,6 @@ interface Task {
   description: string;
   category: string;
   status: string;
-  budget: number;
   volunteerHours: number;
   estimatedHours: number;
   address: string;
@@ -125,7 +124,7 @@ export default function SearchPage() {
              description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
              category: 'EXERCISE',
              status: 'PENDING',
-             budget: 300,
+             
              volunteerHours: 2,
              estimatedHours: 2,
              address: 'เซ็นทรัลเวิลด์',
@@ -148,7 +147,7 @@ export default function SearchPage() {
              description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน เช่น Office, Chrome',
              category: 'REPAIR',
              status: 'PENDING',
-             budget: 400,
+
              volunteerHours: 3,
              estimatedHours: 3,
              address: 'บ้านผู้ใช้',
@@ -171,7 +170,7 @@ export default function SearchPage() {
              description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
              category: 'HOSPITAL',
              status: 'PENDING',
-             budget: 500,
+
              volunteerHours: 4,
              estimatedHours: 4,
              address: 'โรงพยาบาลมหาราช',
@@ -202,7 +201,7 @@ export default function SearchPage() {
            description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
            category: 'EXERCISE',
            status: 'PENDING',
-           budget: 300,
+           
            volunteerHours: 2,
            estimatedHours: 2,
            address: 'เซ็นทรัลเวิลด์',

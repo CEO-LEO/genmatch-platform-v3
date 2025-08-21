@@ -35,7 +35,7 @@ export default function AddTask() {
     estimatedHours: 2,
     volunteerHours: 2,
     requirements: '',
-    budget: 0
+
   });
 
   // Access control - only elderly users can add tasks
@@ -172,19 +172,7 @@ export default function AddTask() {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">
-                  งบประมาณ (บาท)
-                </label>
-                <input
-                  type="number"
-                  value={formData.budget}
-                  onChange={(e) => handleInputChange('budget', parseInt(e.target.value) || 0)}
-                  className="input-friendly"
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
+
             </div>
 
             {/* Address */}

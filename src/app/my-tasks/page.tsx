@@ -33,7 +33,7 @@ interface Task {
   scheduledDate: string;
   scheduledTime: string;
   estimatedHours: number;
-  budget?: number;
+
   category: string;
   creator: {
     id: string;
@@ -98,7 +98,7 @@ export default function MyTasks() {
              scheduledDate: '2024-01-20',
              scheduledTime: '09:00',
              estimatedHours: 3,
-             budget: 500,
+
              category: 'HOSPITAL',
              creator: {
                id: user?.id || '',
@@ -126,7 +126,7 @@ export default function MyTasks() {
              scheduledDate: '2024-01-25',
              scheduledTime: '08:00',
              estimatedHours: 4,
-             budget: 300,
+
              category: 'TEMPLE',
              creator: {
                id: user?.id || '',
@@ -154,7 +154,7 @@ export default function MyTasks() {
              scheduledDate: '2024-01-30',
              scheduledTime: '13:00',
              estimatedHours: 2,
-             budget: 200,
+
              category: 'REPAIR',
              creator: {
                id: user?.id || '',
@@ -176,7 +176,7 @@ export default function MyTasks() {
              scheduledDate: '2024-02-01',
              scheduledTime: '06:00',
              estimatedHours: 2,
-             budget: 150,
+
              category: 'EXERCISE',
              creator: {
                id: user?.id || '',
@@ -204,7 +204,7 @@ export default function MyTasks() {
              scheduledDate: '2024-01-15',
              scheduledTime: '07:30',
              estimatedHours: 2,
-             budget: 250,
+
              category: 'EXERCISE',
              creator: {
                id: user?.id || '',
@@ -232,7 +232,7 @@ export default function MyTasks() {
              scheduledDate: '2024-02-05',
              scheduledTime: '14:00',
              estimatedHours: 4,
-             budget: 350,
+
              category: 'REPAIR',
              creator: {
                id: user?.id || '',

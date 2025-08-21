@@ -24,7 +24,6 @@ interface Task {
   description: string;
   category: string;
   status: string;
-  budget: number;
   volunteerHours: number;
   estimatedHours: number;
   address: string;
@@ -77,7 +76,7 @@ export default function TaskDetailPage() {
         description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน เช่น ผักคะน้า ผักบุ้ง มะเขือเทศ แครอท แอปเปิ้ล ส้ม กล้วย และของใช้ในบ้าน เช่น น้ำยาล้างจาน แปรงสีฟัน สบู่ ผ้าขนหนู',
         category: 'EXERCISE',
         status: 'PENDING',
-        budget: 300,
+
         volunteerHours: 2,
         estimatedHours: 2,
         address: 'เซ็นทรัลเวิลด์',
@@ -216,12 +215,8 @@ export default function TaskDetailPage() {
                 </div>
               </div>
 
-              {/* Budget and Volunteer Hours */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-white/10 rounded-xl p-4">
-                  <p className="text-white/60 text-sm mb-2">งบประมาณ</p>
-                  <p className="text-2xl font-bold text-green-400">{task.budget} บาท</p>
-                </div>
+              {/* Volunteer Hours */}
+              <div className="grid grid-cols-1 gap-6 mb-6">
                 <div className="bg-white/10 rounded-xl p-4">
                   <p className="text-white/60 text-sm mb-2">ชั่วโมงจิตอาสา</p>
                   <p className="text-2xl font-bold text-blue-400">{task.volunteerHours} ชั่วโมง</p>

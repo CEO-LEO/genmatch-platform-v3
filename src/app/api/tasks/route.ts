@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
                     description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน เช่น ผักคะน้า ผักบุ้ง มะเขือเทศ แครอท แอปเปิ้ล ส้ม กล้วย และของใช้ในบ้าน เช่น น้ำยาล้างจาน แปรงสีฟัน สบู่ ผ้าขนหนู',
                     category: 'EXERCISE',
                     status: 'PENDING',
-                    budget: 300,
+                    
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'เซ็นทรัลเวิลด์',
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
                     description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน เช่น Office, Chrome, Photoshop และโปรแกรมอื่นๆ ที่จำเป็น',
                     category: 'REPAIR',
                     status: 'PENDING',
-                    budget: 400,
+
                     volunteerHours: 3,
                     estimatedHours: 3,
                     address: 'บ้านผู้ใช้',
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
                     description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด ตรวจตา และตรวจสุขภาพทั่วไป',
                     category: 'HOSPITAL',
                     status: 'PENDING',
-                    budget: 500,
+                    
                     volunteerHours: 4,
                     estimatedHours: 4,
                     address: 'โรงพยาบาลมหาราช',
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
                     description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว ไหว้พระ ทำบุญใส่บาตร และเดินชมความสวยงามของวัด',
                     category: 'TEMPLE',
                     status: 'PENDING',
-                    budget: 200,
+                    
                     volunteerHours: 3,
                     estimatedHours: 3,
                     address: 'วัดพระแก้ว',
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
                     description: 'ต้องการคนช่วยออกกำลังกายที่สวนลุมพินี เดินเร็ว วิ่งเหยาะๆ และทำท่ากายบริหารเบาๆ',
                     category: 'EXERCISE',
                     status: 'PENDING',
-                    budget: 150,
+                    
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'สวนลุมพินี',
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
                     description: 'เครื่องปรับอากาศไม่เย็น ต้องการคนช่วยตรวจสอบและซ่อมแซมเบื้องต้น หรือแนะนำช่างที่เชื่อถือได้',
                     category: 'REPAIR',
                     status: 'PENDING',
-                    budget: 600,
+                    
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'บ้านผู้ใช้',
@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
                     description: 'ต้องการคนพาไปซื้อของที่ตลาดคลองเตย ซื้อผัก ผลไม้ เนื้อสัตว์ และของใช้ในบ้าน',
                     category: 'EXERCISE',
                     status: 'PENDING',
-                    budget: 250,
+                    
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'ตลาดคลองเตย',
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
                     description: 'ต้องการคนช่วยจัดระเบียบหนังสือในห้องสมุด จัดหมวดหมู่ และทำความสะอาดพื้นที่',
                     category: 'REPAIR',
                     status: 'PENDING',
-                    budget: 350,
+                    
                     volunteerHours: 4,
                     estimatedHours: 4,
                     address: 'ห้องสมุดประชาชน',
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, description, category, address, city, province, postalCode, budget, scheduledDate, scheduledTime, estimatedHours } = await request.json();
+         const { title, description, category, address, city, province, postalCode, scheduledDate, scheduledTime, estimatedHours } = await request.json();
 
     if (!title || !description || !category) {
       return NextResponse.json(
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
       scheduledDate: scheduledDate ? new Date(scheduledDate) : new Date(),
       scheduledTime: scheduledTime || '09:00',
       estimatedHours: estimatedHours ? parseInt(estimatedHours) : 2,
-      budget: budget ? parseFloat(budget) : null,
+      
       volunteerHours: estimatedHours ? parseInt(estimatedHours) : 2,
       status: 'PENDING',
       createdAt: new Date().toISOString(),
