@@ -24,22 +24,27 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  location: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
   status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   createdAt: string;
-  date: string;
-  time: string;
-  duration: number;
+  scheduledDate: string;
+  scheduledTime: string;
+  estimatedHours: number;
   budget?: number;
   category: string;
   creator: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     userType: string;
   };
   accepter?: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     userType: string;
   };
 }
@@ -84,22 +89,27 @@ export default function MyTasks() {
             id: '1',
             title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
             description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช',
-            location: 'โรงพยาบาลมหาราช, กรุงเทพฯ',
+            address: 'โรงพยาบาลมหาราช',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            postalCode: '10400',
             status: 'COMPLETED',
             createdAt: '2024-01-15T10:00:00Z',
-            date: '2024-01-20',
-            time: '09:00',
-            duration: 3,
+            scheduledDate: '2024-01-20',
+            scheduledTime: '09:00',
+            estimatedHours: 3,
             budget: 500,
             category: 'HOSPITAL',
             creator: {
               id: user?.id || '',
-              name: user?.name || '',
+              firstName: user?.firstName || '',
+              lastName: user?.lastName || '',
               userType: user?.userType || 'ELDERLY'
             },
             accepter: {
               id: 'student-1',
-              name: 'คุณสมชาย ใจดี',
+              firstName: 'สมชาย',
+              lastName: 'ใจดี',
               userType: 'STUDENT'
             }
           },
@@ -107,22 +117,27 @@ export default function MyTasks() {
             id: '2',
             title: 'พาไปทำบุญที่วัดพระแก้ว',
             description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว',
-            location: 'วัดพระแก้ว, กรุงเทพฯ',
+            address: 'วัดพระแก้ว',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            postalCode: '10200',
             status: 'IN_PROGRESS',
             createdAt: '2024-01-18T14:00:00Z',
-            date: '2024-01-25',
-            time: '08:00',
-            duration: 4,
+            scheduledDate: '2024-01-25',
+            scheduledTime: '08:00',
+            estimatedHours: 4,
             budget: 300,
             category: 'TEMPLE',
             creator: {
               id: user?.id || '',
-              name: user?.name || '',
+              firstName: user?.firstName || '',
+              lastName: user?.lastName || '',
               userType: user?.userType || 'ELDERLY'
             },
             accepter: {
               id: 'student-2',
-              name: 'คุณสมหญิง รักดี',
+              firstName: 'สมหญิง',
+              lastName: 'รักดี',
               userType: 'STUDENT'
             }
           },
@@ -130,17 +145,21 @@ export default function MyTasks() {
             id: '3',
             title: 'ช่วยซ่อมคอมพิวเตอร์',
             description: 'คอมพิวเตอร์เสีย ต้องการคนช่วยซ่อม',
-            location: 'บ้านผู้ใช้, กรุงเทพฯ',
+            address: 'บ้านผู้ใช้',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            postalCode: '10400',
             status: 'PENDING',
             createdAt: '2024-01-20T16:00:00Z',
-            date: '2024-01-30',
-            time: '13:00',
-            duration: 2,
+            scheduledDate: '2024-01-30',
+            scheduledTime: '13:00',
+            estimatedHours: 2,
             budget: 200,
             category: 'REPAIR',
             creator: {
               id: user?.id || '',
-              name: user?.name || '',
+              firstName: user?.firstName || '',
+              lastName: user?.lastName || '',
               userType: user?.userType || 'ELDERLY'
             }
           }
@@ -167,7 +186,9 @@ export default function MyTasks() {
       filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.location.toLowerCase().includes(searchTerm.toLowerCase())
+        task.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.province.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -337,15 +358,15 @@ export default function MyTasks() {
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div className="flex items-center text-white/60">
                               <MapPin className="w-4 h-4 mr-2" />
-                              {task.location}
+                              {task.address}, {task.city}, {task.province}
                             </div>
                             <div className="flex items-center text-white/60">
                               <Calendar className="w-4 h-4 mr-2" />
-                              {new Date(task.date).toLocaleDateString('th-TH')} เวลา {task.time}
+                              {new Date(task.scheduledDate).toLocaleDateString('th-TH')} เวลา {task.scheduledTime}
                             </div>
                             <div className="flex items-center text-white/60">
                               <Clock className="w-4 h-4 mr-2" />
-                              {task.duration} ชั่วโมง
+                              {task.estimatedHours} ชั่วโมง
                             </div>
                           </div>
 
@@ -354,7 +375,7 @@ export default function MyTasks() {
                               <p className="text-white/70 text-sm mb-1">ผู้รับงาน:</p>
                               <div className="flex items-center text-white">
                                 <User className="w-4 h-4 mr-2" />
-                                {task.accepter.name} ({task.accepter.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'})
+                                {task.accepter.firstName} {task.accepter.lastName} ({task.accepter.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'})
                               </div>
                             </div>
                           )}

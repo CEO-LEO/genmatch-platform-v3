@@ -273,15 +273,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && !user && !loading) {
       // Auto-login with mock user for development
+      // You can change userType to 'ELDERLY' to test elderly features
       const mockUser: User = {
         id: '1',
-        firstName: 'สมชาย',
+        firstName: 'สมศรี',
         lastName: 'ใจดี',
-        email: 'somchai@example.com',
+        email: 'somsri@example.com',
         phone: '0812345678',
-        userType: 'STUDENT',
-        studentId: '6400000001',
-        university: 'มหาวิทยาลัยมหิดล',
+        userType: 'ELDERLY', // Change to 'STUDENT' to test student features
+        studentId: '',
+        university: '',
         address: 'กรุงเทพมหานคร',
         city: 'กรุงเทพมหานคร',
         province: 'กรุงเทพมหานคร',

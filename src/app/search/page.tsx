@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
@@ -22,17 +22,22 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  location: string;
-  status: string;
-  createdAt: string;
-  date: string;
-  time: string;
-  duration: number;
-  budget?: number;
   category: string;
+  status: string;
+  budget: number;
+  volunteerHours: number;
+  estimatedHours: number;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  createdAt: string;
   creator: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     userType: string;
   };
 }
@@ -66,37 +71,41 @@ export default function SearchPage() {
 
   useEffect(() => {
     filterTasks();
-  }, [tasks, searchTerm, categoryFilter, locationFilter]);
+  }, [filterTasks]);
 
   const loadTasks = async () => {
     try {
-      const response = await fetch('/api/tasks', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      console.log('Loading tasks...'); // Debug log
+      const response = await fetch('/api/tasks');
       
       if (response.ok) {
         const allTasks = await response.json();
+        console.log('Loaded tasks from API:', allTasks); // Debug log
         setTasks(allTasks);
       } else {
-        // Mock data for demo
+        console.error('Failed to load tasks:', response.status);
+        // Fallback to mock data
         const mockTasks: Task[] = [
           {
             id: '1',
             title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
             description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
-            location: 'โรงพยาบาลมหาราช, กรุงเทพฯ',
-            status: 'PENDING',
-            createdAt: '2024-01-15T10:00:00Z',
-            date: '2024-01-20',
-            time: '09:00',
-            duration: 3,
-            budget: 500,
             category: 'HOSPITAL',
+            status: 'PENDING',
+            budget: 500,
+            volunteerHours: 3,
+            estimatedHours: 3,
+            address: 'โรงพยาบาลมหาราช',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            postalCode: '10400',
+            scheduledDate: '2024-01-20',
+            scheduledTime: '09:00',
+            createdAt: '2024-01-15T10:00:00Z',
             creator: {
               id: 'elderly-1',
-              name: 'คุณสมศรี ใจดี',
+              firstName: 'สมศรี',
+              lastName: 'ใจดี',
               userType: 'ELDERLY'
             }
           },
@@ -104,17 +113,22 @@ export default function SearchPage() {
             id: '2',
             title: 'พาไปทำบุญที่วัดพระแก้ว',
             description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว ทำบุญตักบาตรและไหว้พระ',
-            location: 'วัดพระแก้ว, กรุงเทพฯ',
-            status: 'PENDING',
-            createdAt: '2024-01-18T14:00:00Z',
-            date: '2024-01-25',
-            time: '08:00',
-            duration: 4,
-            budget: 300,
             category: 'TEMPLE',
+            status: 'PENDING',
+            budget: 300,
+            volunteerHours: 4,
+            estimatedHours: 4,
+            address: 'วัดพระแก้ว',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            postalCode: '10200',
+            scheduledDate: '2024-01-25',
+            scheduledTime: '08:00',
+            createdAt: '2024-01-18T14:00:00Z',
             creator: {
               id: 'elderly-2',
-              name: 'คุณสมชาย รักดี',
+              firstName: 'สมชาย',
+              lastName: 'รักดี',
               userType: 'ELDERLY'
             }
           },
@@ -122,53 +136,22 @@ export default function SearchPage() {
             id: '3',
             title: 'ช่วยซ่อมคอมพิวเตอร์',
             description: 'คอมพิวเตอร์เสีย เปิดไม่ติด ต้องการคนช่วยซ่อมและติดตั้งโปรแกรม',
-            location: 'บ้านผู้ใช้, กรุงเทพฯ',
-            status: 'PENDING',
-            createdAt: '2024-01-20T16:00:00Z',
-            date: '2024-01-30',
-            time: '13:00',
-            duration: 2,
-            budget: 200,
             category: 'REPAIR',
+            status: 'PENDING',
+            budget: 200,
+            volunteerHours: 2,
+            estimatedHours: 2,
+            address: 'บ้านผู้ใช้',
+            city: 'กรุงเทพฯ',
+            province: 'กรุงเทพฯ',
+            postalCode: '10400',
+            scheduledDate: '2024-01-30',
+            scheduledTime: '13:00',
+            createdAt: '2024-01-20T16:00:00Z',
             creator: {
               id: 'elderly-3',
-              name: 'คุณสมศักดิ์ ใจเย็น',
-              userType: 'ELDERLY'
-            }
-          },
-          {
-            id: '4',
-            title: 'พาไปออกกำลังกายที่สวนลุมพินี',
-            description: 'ต้องการคนพาไปเดินออกกำลังกายที่สวนลุมพินี ช่วงเช้า',
-            location: 'สวนลุมพินี, กรุงเทพฯ',
-            status: 'PENDING',
-            createdAt: '2024-01-22T09:00:00Z',
-            date: '2024-02-01',
-            time: '06:00',
-            duration: 2,
-            budget: 150,
-            category: 'EXERCISE',
-            creator: {
-              id: 'elderly-4',
-              name: 'คุณสมหญิง สุขใจ',
-              userType: 'ELDERLY'
-            }
-          },
-          {
-            id: '5',
-            title: 'พาไปรับยาที่โรงพยาบาล',
-            description: 'ต้องการคนพาไปรับยาที่โรงพยาบาลรามาธิบดี',
-            location: 'โรงพยาบาลรามาธิบดี, กรุงเทพฯ',
-            status: 'PENDING',
-            createdAt: '2024-01-24T11:00:00Z',
-            date: '2024-02-05',
-            time: '10:00',
-            duration: 2,
-            budget: 250,
-            category: 'HOSPITAL',
-            creator: {
-              id: 'elderly-5',
-              name: 'คุณสมปอง มั่นคง',
+              firstName: 'สมศักดิ์',
+              lastName: 'ใจเย็น',
               userType: 'ELDERLY'
             }
           }
@@ -177,12 +160,40 @@ export default function SearchPage() {
       }
     } catch (error) {
       console.error('Failed to load tasks:', error);
+      // Fallback to mock data on error
+      console.log('Using fallback mock data...'); // Debug log
+      const mockTasks: Task[] = [
+        {
+          id: '1',
+          title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
+          description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
+          category: 'HOSPITAL',
+          status: 'PENDING',
+          budget: 500,
+          volunteerHours: 3,
+          estimatedHours: 3,
+          address: 'โรงพยาบาลมหาราช',
+          city: 'กรุงเทพฯ',
+          province: 'กรุงเทพฯ',
+          postalCode: '10400',
+          scheduledDate: '2024-01-20',
+          scheduledTime: '09:00',
+          createdAt: '2024-01-15T10:00:00Z',
+          creator: {
+            id: 'elderly-1',
+            firstName: 'สมศรี',
+            lastName: 'ใจดี',
+            userType: 'ELDERLY'
+          }
+        }
+      ];
+      setTasks(mockTasks);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filterTasks = () => {
+  const filterTasks = useCallback(() => {
     let filtered = tasks;
 
     // Filter by search term
@@ -190,7 +201,9 @@ export default function SearchPage() {
       filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.location.toLowerCase().includes(searchTerm.toLowerCase())
+        task.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.province.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -202,12 +215,14 @@ export default function SearchPage() {
     // Filter by location
     if (locationFilter) {
       filtered = filtered.filter(task =>
-        task.location.toLowerCase().includes(locationFilter.toLowerCase())
+        task.address.toLowerCase().includes(locationFilter.toLowerCase()) ||
+        task.city.toLowerCase().includes(locationFilter.toLowerCase()) ||
+        task.province.toLowerCase().includes(locationFilter.toLowerCase())
       );
     }
 
     setFilteredTasks(filtered);
-  };
+  }, [tasks, searchTerm, categoryFilter, locationFilter]);
 
   const getCategoryInfo = (category: string) => {
     const cat = categories.find(c => c.id === category);
@@ -326,6 +341,7 @@ export default function SearchPage() {
           <div className="glass-card p-12 text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-400 mx-auto mb-4"></div>
             <p className="text-white">กำลังโหลดงาน...</p>
+            <p className="text-white/60 text-sm mt-2">กรุณารอสักครู่</p>
           </div>
         ) : filteredTasks.length === 0 ? (
           <div className="glass-card p-12 text-center">
@@ -367,15 +383,15 @@ export default function SearchPage() {
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-white/60 text-sm">
                       <MapPin className="w-4 h-4 mr-2" />
-                      {task.location}
+                      {task.address}, {task.city}, {task.province}
                     </div>
                     <div className="flex items-center text-white/60 text-sm">
                       <Calendar className="w-4 h-4 mr-2" />
-                      {new Date(task.date).toLocaleDateString('th-TH')} เวลา {task.time}
+                      {new Date(task.scheduledDate).toLocaleDateString('th-TH')} เวลา {task.scheduledTime}
                     </div>
                     <div className="flex items-center text-white/60 text-sm">
                       <Clock className="w-4 h-4 mr-2" />
-                      {task.duration} ชั่วโมง
+                      {task.estimatedHours} ชั่วโมง
                     </div>
                   </div>
 
@@ -383,7 +399,7 @@ export default function SearchPage() {
                   <div className="flex items-center justify-between mb-4 p-3 bg-white/10 rounded-lg">
                     <div className="flex items-center text-white/70 text-sm">
                       <User className="w-4 h-4 mr-2" />
-                      {task.creator.name}
+                      {task.creator.firstName} {task.creator.lastName}
                     </div>
                     <div className="text-xs text-white/50">
                       {task.creator.userType === 'ELDERLY' ? 'ผู้สูงอายุ' : 'นักศึกษา'}

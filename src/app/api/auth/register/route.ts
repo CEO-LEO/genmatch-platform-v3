@@ -2,39 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { 
-      firstName, 
-      lastName, 
-      email, 
-      password, 
-      userType, 
-      phone, 
-      studentId, 
-      university, 
-      address, 
-      city, 
-      province, 
-      postalCode 
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      userType,
+      studentId,
+      university,
+      address,
+      city,
+      province,
+      postalCode
     } = await request.json();
 
     // Validate required fields
     if (!firstName || !lastName || !email || !password || !userType) {
       return NextResponse.json(
-        { message: 'First name, last name, email, password, and user type are required' },
-        { status: 400 }
-      );
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { message: 'Password must be at least 6 characters long' },
-        { status: 400 }
-      );
-    }
-
-    if (!['STUDENT', 'ELDERLY'].includes(userType)) {
-      return NextResponse.json(
-        { message: 'Invalid user type' },
+        { message: 'Missing required fields' },
         { status: 400 }
       );
     }
@@ -47,9 +33,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create demo user with enhanced data
-    const user = {
-      id: 'demo-user-' + Date.now(),
+    // For demo purposes, create mock user
+    // In production, save to database and hash password
+    const mockUser = {
+      id: 'user_' + Date.now(),
       firstName,
       lastName,
       email,
@@ -66,14 +53,15 @@ export async function POST(request: NextRequest) {
       totalHours: 0,
       completedTasks: 0,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
-    const token = 'demo-token-' + Date.now();
+    const mockToken = 'mock_jwt_token_' + Date.now();
 
     return NextResponse.json({
-      token,
-      user
+      user: mockUser,
+      token: mockToken,
+      message: 'Registration successful'
     }, { status: 201 });
   } catch (error) {
     console.error('Registration error:', error);

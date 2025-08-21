@@ -42,20 +42,20 @@ export default function AddTask() {
   if (user?.userType !== 'ELDERLY') {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
-        <div className="friendly-card p-8 text-center max-w-md">
-          <AlertCircle className="w-16 h-16 text-error-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-neutral-900 mb-4">เข้าถึงไม่ได้</h1>
-          <p className="text-neutral-600 mb-6">
-            เฉพาะผู้สูงอายุเท่านั้นที่สามารถโพสต์งานได้
-          </p>
-          <Link 
-            href="/dashboard" 
-            className="btn-friendly-primary inline-flex items-center"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            กลับไปหน้าแรก
-          </Link>
-        </div>
+              <div className="card p-8 text-center max-w-md">
+        <AlertCircle className="w-16 h-16 text-error-500 mx-auto mb-4" />
+        <h1 className="text-2xl font-bold text-neutral-900 mb-4">เข้าถึงไม่ได้</h1>
+        <p className="text-neutral-600 mb-6">
+          เฉพาะผู้สูงอายุเท่านั้นที่สามารถโพสต์งานได้
+        </p>
+        <Link 
+          href="/dashboard" 
+          className="btn-primary inline-flex items-center"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          กลับไปหน้าแรก
+        </Link>
+      </div>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function AddTask() {
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="bg-white border-b border-neutral-200 shadow-soft">
+      <div className="bg-white border-b border-neutral-200 shadow-md">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
