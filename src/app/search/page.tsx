@@ -117,109 +117,109 @@ export default function SearchPage() {
       } else {
         console.error('Failed to load tasks:', response.status);
         console.log('Using fallback mock data...'); // Debug log
-        // Fallback to mock data
-        const mockTasks: Task[] = [
-          {
-            id: '1',
-            title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-            description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
-            category: 'HOSPITAL',
-            status: 'PENDING',
-            budget: 500,
-            volunteerHours: 3,
-            estimatedHours: 3,
-            address: 'โรงพยาบาลมหาราช',
-            city: 'กรุงเทพฯ',
-            province: 'กรุงเทพฯ',
-            postalCode: '10400',
-            scheduledDate: '2024-01-20',
-            scheduledTime: '09:00',
-            createdAt: '2024-01-15T10:00:00Z',
-            creator: {
-              id: 'elderly-1',
-              firstName: 'สมศรี',
-              lastName: 'ใจดี',
-              userType: 'ELDERLY'
-            }
-          },
-          {
-            id: '2',
-            title: 'พาไปทำบุญที่วัดพระแก้ว',
-            description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว ทำบุญตักบาตรและไหว้พระ',
-            category: 'TEMPLE',
-            status: 'PENDING',
-            budget: 300,
-            volunteerHours: 4,
-            estimatedHours: 4,
-            address: 'วัดพระแก้ว',
-            city: 'กรุงเทพฯ',
-            province: 'กรุงเทพฯ',
-            postalCode: '10200',
-            scheduledDate: '2024-01-25',
-            scheduledTime: '08:00',
-            createdAt: '2024-01-18T14:00:00Z',
-            creator: {
-              id: 'elderly-2',
-              firstName: 'สมชาย',
-              lastName: 'รักดี',
-              userType: 'ELDERLY'
-            }
-          },
-          {
-            id: '3',
-            title: 'ช่วยซ่อมคอมพิวเตอร์',
-            description: 'คอมพิวเตอร์เสีย เปิดไม่ติด ต้องการคนช่วยซ่อมและติดตั้งโปรแกรม',
-            category: 'REPAIR',
-            status: 'PENDING',
-            budget: 200,
-            volunteerHours: 2,
-            estimatedHours: 2,
-            address: 'บ้านผู้ใช้',
-            city: 'กรุงเทพฯ',
-            province: 'กรุงเทพฯ',
-            postalCode: '10400',
-            scheduledDate: '2024-01-30',
-            scheduledTime: '13:00',
-            createdAt: '2024-01-20T16:00:00Z',
-            creator: {
-              id: 'elderly-3',
-              firstName: 'สมศักดิ์',
-              lastName: 'ใจเย็น',
-              userType: 'ELDERLY'
-            }
-          }
-        ];
+                 // Fallback to mock data
+         const mockTasks: Task[] = [
+           {
+             id: '1',
+             title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
+             description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
+             category: 'EXERCISE',
+             status: 'PENDING',
+             budget: 300,
+             volunteerHours: 2,
+             estimatedHours: 2,
+             address: 'เซ็นทรัลเวิลด์',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10330',
+             scheduledDate: '2024-01-22',
+             scheduledTime: '09:00',
+             createdAt: '2024-01-15T10:00:00Z',
+             creator: {
+               id: 'elderly-1',
+               firstName: 'สมศรี',
+               lastName: 'ใจดี',
+               userType: 'ELDERLY'
+             }
+           },
+           {
+             id: '2',
+             title: 'ช่วยติดตั้งคอมพิวเตอร์',
+             description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน เช่น Office, Chrome',
+             category: 'REPAIR',
+             status: 'PENDING',
+             budget: 400,
+             volunteerHours: 3,
+             estimatedHours: 3,
+             address: 'บ้านผู้ใช้',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10400',
+             scheduledDate: '2024-01-25',
+             scheduledTime: '13:00',
+             createdAt: '2024-01-18T14:00:00Z',
+             creator: {
+               id: 'elderly-2',
+               firstName: 'สมชาย',
+               lastName: 'รักดี',
+               userType: 'ELDERLY'
+             }
+           },
+           {
+             id: '3',
+             title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
+             description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
+             category: 'HOSPITAL',
+             status: 'PENDING',
+             budget: 500,
+             volunteerHours: 4,
+             estimatedHours: 4,
+             address: 'โรงพยาบาลมหาราช',
+             city: 'กรุงเทพฯ',
+             province: 'กรุงเทพฯ',
+             postalCode: '10400',
+             scheduledDate: '2024-01-28',
+             scheduledTime: '08:00',
+             createdAt: '2024-01-20T16:00:00Z',
+             creator: {
+               id: 'elderly-3',
+               firstName: 'สมศักดิ์',
+               lastName: 'ใจเย็น',
+               userType: 'ELDERLY'
+             }
+           }
+         ];
         setTasks(mockTasks);
       }
     } catch (error) {
       console.error('Failed to load tasks:', error);
       console.log('Using fallback mock data...'); // Debug log
-      // Fallback to mock data on error
-      const mockTasks: Task[] = [
-        {
-          id: '1',
-          title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-          description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
-          category: 'HOSPITAL',
-          status: 'PENDING',
-          budget: 500,
-          volunteerHours: 3,
-          estimatedHours: 3,
-          address: 'โรงพยาบาลมหาราช',
-          city: 'กรุงเทพฯ',
-          province: 'กรุงเทพฯ',
-          postalCode: '10400',
-          scheduledDate: '2024-01-20',
-          scheduledTime: '09:00',
-          createdAt: '2024-01-15T10:00:00Z',
-          creator: {
-            id: 'elderly-1',
-            firstName: 'สมศรี',
-            lastName: 'ใจดี',
-            userType: 'ELDERLY'
-          }
-        }
-      ];
+             // Fallback to mock data on error
+       const mockTasks: Task[] = [
+         {
+           id: '1',
+           title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
+           description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
+           category: 'EXERCISE',
+           status: 'PENDING',
+           budget: 300,
+           volunteerHours: 2,
+           estimatedHours: 2,
+           address: 'เซ็นทรัลเวิลด์',
+           city: 'กรุงเทพฯ',
+           province: 'กรุงเทพฯ',
+           postalCode: '10330',
+           scheduledDate: '2024-01-22',
+           scheduledTime: '09:00',
+           createdAt: '2024-01-15T10:00:00Z',
+           creator: {
+             id: 'elderly-1',
+             firstName: 'สมศรี',
+             lastName: 'ใจดี',
+             userType: 'ELDERLY'
+           }
+         }
+       ];
       setTasks(mockTasks);
     } finally {
       setIsLoading(false);

@@ -6,56 +6,51 @@ export async function GET(request: NextRequest) {
     const tasks = [
       {
         id: '1',
-        title: 'Help with grocery shopping',
-        description: 'Need assistance with grocery shopping at local market',
+        title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
+        description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
         category: 'EXERCISE',
         status: 'PENDING',
-        budget: 0,
+        budget: 300,
         volunteerHours: 2,
         estimatedHours: 2,
-        address: '123 Main St',
-        city: 'Bangkok',
-        province: 'Bangkok',
-        postalCode: '10400',
+        address: 'เซ็นทรัลเวิลด์',
+        city: 'กรุงเทพฯ',
+        province: 'กรุงเทพฯ',
+        postalCode: '10330',
         scheduledDate: new Date().toISOString(),
         scheduledTime: '09:00',
         createdAt: new Date().toISOString(),
         creator: {
           id: 'user-1',
-          firstName: 'John',
-          lastName: 'Doe',
+          firstName: 'สมศรี',
+          lastName: 'ใจดี',
           userType: 'ELDERLY'
         },
         accepter: null
       },
       {
         id: '2',
-        title: 'Computer setup assistance',
-        description: 'Help setting up new computer and installing software',
+        title: 'ช่วยติดตั้งคอมพิวเตอร์',
+        description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน เช่น Office, Chrome',
         category: 'REPAIR',
-        status: 'ACCEPTED',
-        budget: 0,
+        status: 'PENDING',
+        budget: 400,
         volunteerHours: 3,
         estimatedHours: 3,
-        address: '456 Oak Ave',
-        city: 'Bangkok',
-        province: 'Bangkok',
+        address: 'บ้านผู้ใช้',
+        city: 'กรุงเทพฯ',
+        province: 'กรุงเทพฯ',
         postalCode: '10400',
         scheduledDate: new Date().toISOString(),
-        scheduledTime: '14:00',
+        scheduledTime: '13:00',
         createdAt: new Date().toISOString(),
         creator: {
           id: 'user-2',
-          firstName: 'Jane',
-          lastName: 'Smith',
+          firstName: 'สมชาย',
+          lastName: 'รักดี',
           userType: 'ELDERLY'
         },
-        accepter: {
-          id: 'user-3',
-          firstName: 'Mike',
-          lastName: 'Johnson',
-          userType: 'STUDENT'
-        }
+        accepter: null
       }
     ];
 
