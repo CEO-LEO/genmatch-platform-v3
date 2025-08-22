@@ -258,31 +258,31 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
+    <div className="min-h-screen genmatch-bg">
       {/* Header */}
-      <div className="glass-card mx-4 mt-4 p-6">
+      <div className="genmatch-card mx-4 mt-4 p-6">
         <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-pink-300 transition-colors">
+          <Link href="/dashboard" className="genmatch-text-primary hover:text-indigo-600 transition-colors">
             <ArrowLeft className="w-5 h-5 inline mr-2" />
             กลับไปหน้าแรก
           </Link>
-          <h1 className="text-3xl font-bold text-white">ค้นหางาน</h1>
+          <h1 className="text-3xl font-bold genmatch-text-primary">ค้นหางาน</h1>
           <div className="w-32"></div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto py-6 px-4">
         {/* Search and Filters */}
-        <div className="glass-card p-6 mb-6">
+        <div className="genmatch-card p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
                 placeholder="ค้นหางาน..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="genmatch-input pl-10 pr-4 py-3 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
@@ -290,7 +290,7 @@ export default function SearchPage() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="genmatch-input px-4 py-3 focus:ring-2 focus:ring-indigo-500"
               >
                 {categories.map(category => (
                   <option key={category.id} value={category.id}>
@@ -306,30 +306,30 @@ export default function SearchPage() {
                 placeholder="ค้นหาตามที่อยู่..."
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
-                className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="genmatch-input px-4 py-3 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div className="text-right">
-              <p className="text-white/70 text-sm mb-1">งานทั้งหมด</p>
-              <p className="text-2xl font-bold text-white">{filteredTasks.length}</p>
+              <p className="genmatch-text-light text-sm mb-1">งานทั้งหมด</p>
+              <p className="text-2xl font-bold genmatch-text-primary">{filteredTasks.length}</p>
             </div>
           </div>
         </div>
 
         {/* Tasks List */}
         {isLoading ? (
-          <div className="glass-card p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-400 mx-auto mb-4"></div>
-            <p className="text-white">กำลังโหลดงาน...</p>
+          <div className="genmatch-card p-12 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+            <p className="genmatch-text-primary">กำลังโหลดงาน...</p>
           </div>
         ) : filteredTasks.length === 0 ? (
-          <div className="glass-card p-12 text-center">
-            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-10 h-10 text-white/40" />
+          <div className="genmatch-card p-12 text-center">
+            <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="w-10 h-10 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">ไม่พบงาน</h3>
-            <p className="text-white/60 mb-6">
+            <h3 className="text-xl font-semibold genmatch-text-primary mb-2">ไม่พบงาน</h3>
+            <p className="genmatch-text-secondary mb-6">
               ลองเปลี่ยนคำค้นหาหรือตัวกรองดูครับ
             </p>
           </div>
@@ -339,7 +339,7 @@ export default function SearchPage() {
               const categoryInfo = getCategoryInfo(task.category);
 
               return (
-                <div key={task.id} className="glass-card p-6">
+                <div key={task.id} className="genmatch-task-card p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Task Info */}
                     <div className="flex-1">
@@ -350,36 +350,36 @@ export default function SearchPage() {
                         
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-semibold text-white">{task.title}</h3>
+                            <h3 className="text-xl font-semibold genmatch-text-primary">{task.title}</h3>
                             <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-300">
                               รอการรับงาน
                             </span>
                           </div>
                           
-                          <p className="text-white/70 mb-3 line-clamp-2">{task.description}</p>
+                          <p className="genmatch-text-secondary mb-3 line-clamp-2">{task.description}</p>
                           
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                            <div className="flex items-center text-white/60">
+                            <div className="flex items-center genmatch-text-light">
                               <MapPin className="w-4 h-4 mr-2" />
                               <span className="line-clamp-1">{task.address}, {task.city}, {task.province}</span>
                             </div>
-                            <div className="flex items-center text-white/60">
+                            <div className="flex items-center genmatch-text-light">
                               <Calendar className="w-4 h-4 mr-2" />
                               {new Date(task.scheduledDate).toLocaleDateString('th-TH')}
                             </div>
-                            <div className="flex items-center text-white/60">
+                            <div className="flex items-center genmatch-text-light">
                               <Clock className="w-4 h-4 mr-2" />
                               {task.scheduledTime}
                             </div>
-                            <div className="flex items-center text-white/60">
+                            <div className="flex items-center genmatch-text-light">
                               <Star className="w-4 h-4 mr-2" />
                               {task.estimatedHours} ชั่วโมง
                             </div>
                           </div>
 
-                          <div className="mt-3 p-3 bg-white/10 rounded-lg">
-                            <p className="text-white/70 text-sm mb-1">ผู้สร้างงาน:</p>
-                            <div className="flex items-center text-white">
+                          <div className="mt-3 p-3 bg-slate-100 rounded-lg">
+                            <p className="genmatch-text-light text-sm mb-1">ผู้สร้างงาน:</p>
+                            <div className="flex items-center genmatch-text-primary">
                               <User className="w-4 h-4 mr-2" />
                               {task.creator.firstName} {task.creator.lastName} ({task.creator.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'})
                             </div>
@@ -392,7 +392,7 @@ export default function SearchPage() {
                     <div className="flex flex-col gap-2 min-w-fit">
                       <Link
                         href={`/chat?task=${task.id}`}
-                        className="glass-button-secondary px-4 py-2 text-center flex items-center justify-center"
+                        className="genmatch-btn-secondary px-4 py-2 text-center flex items-center justify-center"
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
                         แชท
@@ -400,7 +400,7 @@ export default function SearchPage() {
                       
                       <Link
                         href={`/task/${task.id}`}
-                        className="glass-button px-4 py-2 text-center flex items-center justify-center"
+                        className="genmatch-btn-primary px-4 py-2 text-center flex items-center justify-center"
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         ดูรายละเอียด
@@ -408,7 +408,7 @@ export default function SearchPage() {
 
                       <button
                         onClick={() => handleAcceptTask(task.id)}
-                        className="glass-button px-4 py-2 text-center flex items-center justify-center"
+                        className="genmatch-btn-primary px-4 py-2 text-center flex items-center justify-center"
                       >
                         <Heart className="w-4 h-4 mr-2" />
                         รับงาน
