@@ -1,0 +1,126 @@
+{
+  "students": [
+    {
+      "id": "student_001",
+      "email": "student1@test.com",
+      "password": "test123",
+      "name": "นางสาวสมศรี ใจดี",
+      "userType": "STUDENT",
+      "phone": "0812345678",
+      "university": "มหาวิทยาลัยมหิดล",
+      "faculty": "คณะแพทยศาสตร์",
+      "major": "แพทยศาสตร์",
+      "year": 3,
+      "skills": ["การดูแลผู้สูงอายุ", "การสื่อสาร", "การช่วยเหลือ"],
+      "interests": ["งานอาสา", "การดูแลสุขภาพ", "การช่วยเหลือสังคม"],
+      "availability": ["จันทร์", "พุธ", "ศุกร์", "เสาร์", "อาทิตย์"],
+      "rating": 4.8,
+      "completedTasks": 12,
+      "volunteerHours": 48,
+      "createdAt": "2024-01-15T08:00:00Z"
+    },
+    {
+      "id": "student_002",
+      "email": "student2@test.com",
+      "password": "test123",
+      "name": "นายวิชัย มุ่งมั่น",
+      "userType": "STUDENT",
+      "phone": "0823456789",
+      "university": "จุฬาลงกรณ์มหาวิทยาลัย",
+      "faculty": "คณะวิศวกรรมศาสตร์",
+      "major": "วิศวกรรมคอมพิวเตอร์",
+      "year": 2,
+      "skills": ["เทคโนโลยี", "การแก้ปัญหา", "การสอน"],
+      "interests": ["การสอน", "เทคโนโลยี", "การช่วยเหลือ"],
+      "availability": ["อังคาร", "พฤหัสบดี", "เสาร์"],
+      "rating": 4.6,
+      "completedTasks": 8,
+      "volunteerHours": 32,
+      "createdAt": "2024-01-20T09:00:00Z"
+    },
+    {
+      "id": "student_003",
+      "email": "student3@test.com",
+      "password": "test123",
+      "name": "นางสาวนิดา รักการช่วยเหลือ",
+      "userType": "STUDENT",
+      "phone": "0834567890",
+      "university": "มหาวิทยาลัยเกษตรศาสตร์",
+      "faculty": "คณะพยาบาลศาสตร์",
+      "major": "พยาบาลศาสตร์",
+      "year": 4,
+      "skills": ["การพยาบาล", "การดูแลสุขภาพ", "การให้คำปรึกษา"],
+      "interests": ["การดูแลสุขภาพ", "การช่วยเหลือผู้สูงอายุ", "งานอาสา"],
+      "availability": ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์"],
+      "rating": 4.9,
+      "completedTasks": 20,
+      "volunteerHours": 80,
+      "createdAt": "2024-01-10T07:00:00Z"
+    }
+  ],
+  "elderly": [
+    {
+      "id": "elderly_001",
+      "email": "elderly1@test.com",
+      "password": "test123",
+      "name": "คุณยายสมศรี ใจดี",
+      "userType": "ELDERLY",
+      "phone": "0845678901",
+      "age": 72,
+      "address": "123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110",
+      "healthConditions": ["เบาหวาน", "ความดันโลหิตสูง"],
+      "preferences": ["ต้องการความช่วยเหลือในการซื้อของ", "ต้องการคนพาไปตรวจสุขภาพ"],
+      "emergencyContact": {
+        "name": "นางสาวสมใจ ลูกสาว",
+        "phone": "0856789012",
+        "relationship": "ลูกสาว"
+      },
+      "createdTasks": 5,
+      "completedTasks": 3,
+      "rating": 4.7,
+      "createdAt": "2024-01-12T10:00:00Z"
+    },
+    {
+      "id": "elderly_002",
+      "email": "elderly2@test.com",
+      "password": "test123",
+      "name": "คุณตาวิชัย ใจเย็น",
+      "userType": "ELDERLY",
+      "phone": "0856789012",
+      "age": 68,
+      "address": "456 ถนนรัชดาภิเษก แขวงดินแดง เขตดินแดง กรุงเทพฯ 10400",
+      "healthConditions": ["โรคหัวใจ"],
+      "preferences": ["ต้องการคนช่วยทำความสะอาดบ้าน", "ต้องการคนพาไปเดินเล่น"],
+      "emergencyContact": {
+        "name": "นายวิชัย ลูกชาย",
+        "phone": "0867890123",
+        "relationship": "ลูกชาย"
+      },
+      "createdTasks": 3,
+      "completedTasks": 2,
+      "rating": 4.5,
+      "createdAt": "2024-01-18T11:00:00Z"
+    },
+    {
+      "id": "elderly_003",
+      "email": "elderly3@test.com",
+      "password": "test123",
+      "name": "คุณยายนิดา รักการอ่าน",
+      "userType": "ELDERLY",
+      "phone": "0867890123",
+      "age": 75,
+      "address": "789 ถนนลาดพร้าว แขวงลาดพร้าว เขตลาดพร้าว กรุงเทพฯ 10230",
+      "healthConditions": ["สายตาไม่ดี"],
+      "preferences": ["ต้องการคนอ่านหนังสือให้ฟัง", "ต้องการคนช่วยเขียนจดหมาย"],
+      "emergencyContact": {
+        "name": "นางสาวนิดา หลานสาว",
+        "phone": "0878901234",
+        "relationship": "หลานสาว"
+      },
+      "createdTasks": 4,
+      "completedTasks": 3,
+      "rating": 4.8,
+      "createdAt": "2024-01-25T14:00:00Z"
+    }
+  ]
+}
