@@ -1,0 +1,216 @@
+/* GenMatch Theme - อ่านง่าย สบายตา */
+.genmatch-theme {
+  /* พื้นหลัง - สีอ่อน อ่านง่าย */
+  --genmatch-bg-primary: #f8fafc;
+  --genmatch-bg-secondary: #e2e8f0;
+  --genmatch-bg-accent: #cbd5e1;
+  
+  /* การ์ด - สีขาวโปร่งใส อ่านง่าย */
+  --genmatch-card-bg: rgba(255, 255, 255, 0.95);
+  --genmatch-card-border: rgba(148, 163, 184, 0.2);
+  --genmatch-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  
+  /* ตัวอักษร - สีเข้ม อ่านง่าย */
+  --genmatch-text-primary: #1e293b;
+  --genmatch-text-secondary: #475569;
+  --genmatch-text-light: #64748b;
+  --genmatch-text-white: #ffffff;
+  
+  /* ปุ่ม - สีสดใส ใช้งานง่าย */
+  --genmatch-btn-primary: #7c3aed;
+  --genmatch-btn-primary-hover: #6d28d9;
+  --genmatch-btn-secondary: #64748b;
+  --genmatch-btn-secondary-hover: #475569;
+  
+  /* สถานะ - สีที่เข้าใจง่าย */
+  --genmatch-success: #10b981;
+  --genmatch-warning: #f59e0b;
+  --genmatch-error: #ef4444;
+  --genmatch-info: #3b82f6;
+}
+
+/* พื้นหลังหลัก - สีอ่อน อ่านง่าย */
+.genmatch-bg {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+/* การ์ดหลัก - สีขาวโปร่งใส อ่านง่าย */
+.genmatch-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.genmatch-card-hover {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* ตัวอักษร - สีเข้ม อ่านง่าย */
+.genmatch-text-primary {
+  color: #1e293b;
+}
+
+.genmatch-text-secondary {
+  color: #475569;
+}
+
+.genmatch-text-light {
+  color: #64748b;
+}
+
+.genmatch-text-white {
+  color: #ffffff;
+}
+
+/* ปุ่มหลัก - สีม่วง สดใส */
+.genmatch-btn-primary {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
+  transition: all 0.3s ease;
+}
+
+.genmatch-btn-primary:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ปุ่มรอง - สีเทา สบายตา */
+.genmatch-btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #475569;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  transition: all 0.3s ease;
+}
+
+.genmatch-btn-secondary:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(148, 163, 184, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* สถานะ - สีที่เข้าใจง่าย */
+.genmatch-status-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+}
+
+.genmatch-status-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+}
+
+.genmatch-status-error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+}
+
+.genmatch-status-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+}
+
+/* การ์ดงาน - สีขาว อ่านง่าย */
+.genmatch-task-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.genmatch-task-card:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(148, 163, 184, 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* การ์ดสถิติ - สีขาว อ่านง่าย */
+.genmatch-stats-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* การ์ดแชท - สีขาว อ่านง่าย */
+.genmatch-chat-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* การ์ดโปรไฟล์ - สีขาว อ่านง่าย */
+.genmatch-profile-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* การ์ดฟอร์ม - สีขาว อ่านง่าย */
+.genmatch-form-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+/* Input fields - สีขาว อ่านง่าย */
+.genmatch-input {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+.genmatch-input:focus {
+  background: rgba(255, 255, 255, 1);
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  outline: none;
+}
+
+/* Navigation - สีขาว อ่านง่าย */
+.genmatch-nav {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+/* Header - สีขาว อ่านง่าย */
+.genmatch-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+/* Footer - สีขาว อ่านง่าย */
+.genmatch-footer {
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(8px);
+}

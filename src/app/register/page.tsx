@@ -232,25 +232,23 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {/* Phone Field (only for students) */}
-            {userType === 'STUDENT' && (
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  <Phone className="w-4 h-4 inline mr-2 text-purple-500" />
-                  เบอร์โทรศัพท์
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="081-234-5678"
-                  required
-                />
-              </div>
-            )}
+            {/* Phone Field (for all users) */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                <Phone className="w-4 h-4 inline mr-2 text-purple-500" />
+                เบอร์โทรศัพท์
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
+                placeholder="081-234-5678"
+                required
+              />
+            </div>
 
 
 

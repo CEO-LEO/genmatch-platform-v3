@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import GenMatch Theme */
+@import '../styles/genmatch-theme.css';
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
@@ -162,6 +165,55 @@
   
   .shadow-glow-secondary {
     @apply shadow-lg;
+  }
+  
+  /* GenMatch Theme - อ่านง่าย สบายตา */
+  .genmatch-bg {
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50;
+  }
+  
+  .genmatch-card {
+    @apply bg-white/95 backdrop-blur-sm border border-slate-200/50 rounded-xl shadow-lg;
+  }
+  
+  .genmatch-card-hover {
+    @apply genmatch-card hover:shadow-xl hover:border-slate-300/50 transition-all duration-300;
+  }
+  
+  .genmatch-text-primary {
+    @apply text-slate-800;
+  }
+  
+  .genmatch-text-secondary {
+    @apply text-slate-600;
+  }
+  
+  .genmatch-text-light {
+    @apply text-slate-500;
+  }
+  
+  .genmatch-button-primary {
+    @apply bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+  
+  .genmatch-button-secondary {
+    @apply bg-white/90 text-slate-700 px-6 py-3 rounded-xl font-semibold border-2 border-slate-200 hover:bg-white hover:border-slate-300 transition-all duration-300 shadow-md hover:shadow-lg;
+  }
+  
+  .genmatch-accent {
+    @apply bg-gradient-to-r from-amber-500 to-orange-500;
+  }
+  
+  .genmatch-success {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-500;
+  }
+  
+  .genmatch-warning {
+    @apply bg-gradient-to-r from-amber-500 to-yellow-500;
+  }
+  
+  .genmatch-error {
+    @apply bg-gradient-to-r from-red-500 to-pink-500;
   }
 }
 
