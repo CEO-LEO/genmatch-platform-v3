@@ -26,7 +26,14 @@ import {
   EyeOff,
   CheckCircle,
   AlertCircle,
-  Info
+  Info,
+  Zap,
+  Crown,
+  Shield,
+  Building,
+  GraduationCap,
+  Globe,
+  Wrench
 } from 'lucide-react';
 
 interface StatCard {
@@ -82,39 +89,35 @@ export default function StatisticsPage() {
   const statCards: StatCard[] = [
     {
       title: 'งานที่เสร็จสิ้น',
-      value: 23,
-      change: 12.5,
+      value: 24,
+      change: 12,
       changeType: 'increase',
       icon: CheckCircle,
-      color: 'from-green-500 to-emerald-500',
-      description: 'งานที่เสร็จสิ้นในเดือนนี้'
+      color: 'from-green-500 to-green-600'
     },
     {
       title: 'ชั่วโมงจิตอาสา',
-      value: 45,
-      change: 8.2,
+      value: 156,
+      change: 8,
       changeType: 'increase',
       icon: Clock,
-      color: 'from-blue-500 to-indigo-500',
-      description: 'ชั่วโมงที่ใช้ในการช่วยเหลือ'
+      color: 'from-blue-500 to-blue-600'
     },
     {
-      title: 'คะแนนที่ได้รับ',
-      value: 275,
-      change: -2.1,
-      changeType: 'decrease',
-      icon: Star,
-      color: 'from-yellow-500 to-orange-500',
-      description: 'คะแนนรวมจากความสำเร็จ'
-    },
-    {
-      title: 'คะแนนความพึงพอใจ',
+      title: 'คะแนนรวม',
       value: 4.8,
-      change: 0.3,
+      change: 0.2,
       changeType: 'increase',
-      icon: Heart,
-      color: 'from-pink-500 to-rose-500',
-      description: 'คะแนนเฉลี่ยจากผู้รับบริการ'
+      icon: Star,
+      color: 'from-yellow-500 to-yellow-600'
+    },
+    {
+      title: 'ผู้ใช้ที่ติดต่อ',
+      value: 18,
+      change: 5,
+      changeType: 'increase',
+      icon: Users,
+      color: 'from-purple-500 to-purple-600'
     }
   ];
 

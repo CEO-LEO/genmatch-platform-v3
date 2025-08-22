@@ -7,7 +7,9 @@ import {
   Home, 
   RefreshCw, 
   ArrowLeft,
-  Heart
+  Users,
+  Target,
+  Award
 } from 'lucide-react';
 
 export default function Error({
@@ -34,7 +36,7 @@ export default function Error({
       <div className="relative z-10 text-center max-w-2xl">
         {/* Logo */}
         <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-8">
-          <Heart className="w-12 h-12 text-white" />
+          <Users className="w-12 h-12 text-white" />
         </div>
 
         {/* Error Icon */}
@@ -42,19 +44,15 @@ export default function Error({
           <AlertTriangle className="w-16 h-16 text-white" />
         </div>
 
-        {/* Error Message */}
-        <h1 className="text-6xl font-bold text-white mb-6">
-          อุ๊ปส์!
-        </h1>
-        
-        <h2 className="text-3xl font-semibold text-white mb-4">
-          เกิดข้อผิดพลาดที่ไม่คาดคิด
-        </h2>
-        
-        <p className="text-xl text-white/70 mb-8 leading-relaxed">
-          ขออภัย เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง<br />
-          หากปัญหายังคงเกิดขึ้น กรุณาติดต่อทีมสนับสนุน
-        </p>
+        <div className="text-center">
+          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Users className="w-12 h-12 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">เกิดข้อผิดพลาด</h1>
+          <p className="text-lg text-gray-600 mb-8">
+            ขออภัย เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง
+          </p>
+        </div>
 
         {/* Error Details (Development Only) */}
         {process.env.NODE_ENV === 'development' && (

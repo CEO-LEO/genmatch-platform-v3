@@ -9,7 +9,6 @@ import {
   Filter, 
   MapPin, 
   Clock, 
-  Heart, 
   Star, 
   ChevronRight,
   ArrowLeft,
@@ -17,7 +16,6 @@ import {
   X,
   Building,
   Globe,
-  Heart as HeartIcon,
   Wrench
 } from 'lucide-react'
 
@@ -77,11 +75,12 @@ export default function SearchPage() {
   ]
 
   const categories = [
-    { id: 'hospital', name: 'โรงพยาบาล', icon: <Building className="w-5 h-5" />, color: 'bg-red-500' },
-    { id: 'temple', name: 'วัด', icon: <Globe className="w-5 h-5" />, color: 'bg-yellow-500' },
-    { id: 'exercise', name: 'ออกกำลังกาย', icon: <HeartIcon className="w-5 h-5" />, color: 'bg-green-500' },
-    { id: 'repair', name: 'งานซ่อม', icon: <Wrench className="w-5 h-5" />, color: 'bg-blue-500' },
-    { id: 'shopping', name: 'ซื้อของ', icon: <Heart className="w-5 h-5" />, color: 'bg-purple-500' }
+    { id: 'elderly-care', name: 'การดูแลผู้สูงอายุ', icon: <Users className="w-5 h-5" />, color: 'bg-blue-500' },
+    { id: 'education', name: 'การศึกษา', icon: <GraduationCap className="w-5 h-5" />, color: 'bg-green-500' },
+    { id: 'exercise', name: 'ออกกำลังกาย', icon: <TrendingUp className="w-5 h-5" />, color: 'bg-green-500' },
+    { id: 'household', name: 'งานบ้าน', icon: <Building className="w-5 h-5" />, color: 'bg-purple-500' },
+    { id: 'shopping', name: 'ซื้อของ', icon: <Globe className="w-5 h-5" />, color: 'bg-purple-500' },
+    { id: 'repair', name: 'งานซ่อม', icon: <Wrench className="w-5 h-5" />, color: 'bg-orange-500' }
   ]
 
   const locations = ['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'นครปฐม']

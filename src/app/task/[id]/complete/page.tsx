@@ -4,21 +4,30 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
-  ArrowLeft,
-  CheckCircle,
-  Camera,
-  Upload,
-  Star,
-  MessageCircle,
-  Clock,
+  ArrowLeft, 
+  Camera, 
+  Upload, 
+  X, 
+  Star, 
+  Users, 
+  Calendar, 
+  Clock, 
   MapPin,
-  Calendar,
-  Heart,
+  CheckCircle,
   AlertCircle,
-  ChevronRight,
-  Image as ImageIcon,
-  X
-} from 'lucide-react';
+  Image,
+  FileText,
+  Target,
+  Award,
+  TrendingUp,
+  Zap,
+  Crown,
+  Shield,
+  Building,
+  GraduationCap,
+  Globe,
+  Wrench
+} from 'lucide-react'
 import Link from 'next/link';
 
 interface Task {

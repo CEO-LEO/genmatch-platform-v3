@@ -4,18 +4,33 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  ArrowLeft,
-  Settings,
-  Bell,
-  Lock,
-  Shield,
-  Eye,
-  EyeOff,
+  ArrowLeft, 
+  Bell, 
+  Eye, 
+  EyeOff, 
+  Lock, 
+  Shield, 
+  Palette, 
+  Settings as SettingsIcon,
+  Users,
+  Star,
+  Award,
+  TrendingUp,
+  Target,
+  Zap,
+  Crown,
+  Building,
+  GraduationCap,
+  Globe,
+  Wrench,
   CheckCircle,
   AlertCircle,
+  Info,
+  HelpCircle,
+  LogOut,
   ChevronRight,
   User,
-  Globe,
+  Globe as GlobeIcon,
   Moon,
   Sun,
   Smartphone,
@@ -26,12 +41,9 @@ import {
   VolumeX,
   Download,
   Trash2,
-  HelpCircle,
-  Info,
-  LogOut,
   Save,
   X
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface SettingSection {
   id: string;
@@ -229,7 +241,7 @@ export default function SettingsPage() {
     {
       id: 'appearance',
       title: 'การแสดงผล',
-      icon: Settings,
+      icon: SettingsIcon,
       color: 'from-purple-500 to-pink-500',
       items: [
         {
@@ -263,7 +275,7 @@ export default function SettingsPage() {
     {
       id: 'general',
       title: 'ทั่วไป',
-      icon: Settings,
+      icon: SettingsIcon,
       color: 'from-gray-500 to-gray-600',
       items: [
         {
@@ -501,7 +513,7 @@ export default function SettingsPage() {
           <div className="px-4 py-4 border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
+                <Users className="w-5 h-5 text-white" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">บัญชีผู้ใช้</h3>

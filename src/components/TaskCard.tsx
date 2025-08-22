@@ -20,7 +20,9 @@ import {
   XCircle,
   Play,
   Pause,
-  AlertCircle
+  AlertCircle,
+  ThumbsUp,
+  ThumbsDown
 } from 'lucide-react';
 
 export interface Task {
@@ -368,14 +370,14 @@ export default function TaskCard({
         {/* Social Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-white/20">
           <div className="flex items-center space-x-6">
-            <button
+            <button 
               onClick={handleLike}
-              className={`flex items-center transition-colors ${
-                isLiked ? 'text-pink-400' : 'text-white/60 hover:text-pink-400'
+              className={`flex items-center text-gray-500 hover:text-red-500 transition-colors ${
+                isLiked ? 'text-red-500' : ''
               }`}
             >
-              <Heart className={`w-5 h-5 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-              {task.likeCount || 0}
+              <ThumbsUp className={`w-5 h-5 mr-2 ${isLiked ? 'fill-current' : ''}`} />
+              <span className="text-sm">{task.likeCount || 0}</span>
             </button>
             
             <Link href={`/task/${task.id}#comments`} className="flex items-center text-white/60 hover:text-blue-400 transition-colors">
@@ -473,14 +475,14 @@ export default function TaskCard({
       {showActions && (
         <div className="flex items-center justify-between pt-4 border-t border-white/20">
           <div className="flex items-center space-x-4">
-            <button
+            <button 
               onClick={handleLike}
-              className={`flex items-center transition-colors ${
-                isLiked ? 'text-pink-400' : 'text-white/60 hover:text-pink-400'
+              className={`flex items-center text-gray-500 hover:text-red-500 transition-colors ${
+                isLiked ? 'text-red-500' : ''
               }`}
             >
-              <Heart className={`w-4 h-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
-              {task.likeCount || 0}
+              <ThumbsUp className={`w-4 h-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
+              <span className="text-xs">{task.likeCount || 0}</span>
             </button>
             
             <Link href={`/task/${task.id}#comments`} className="flex items-center text-white/60 hover:text-blue-400 transition-colors">

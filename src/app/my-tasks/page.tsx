@@ -22,7 +22,6 @@ import {
   ChevronRight,
   Building,
   Globe,
-  Heart,
   Wrench
 } from 'lucide-react';
 import Link from 'next/link';

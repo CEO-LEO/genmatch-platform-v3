@@ -23,7 +23,14 @@ import {
   ChevronRight,
   Building,
   Globe,
-  Wrench
+  Wrench,
+  Users,
+  Clock as ClockIcon,
+  Star as StarIcon,
+  Users as UsersIcon,
+  TrendingUp,
+  Award,
+  Target
 } from 'lucide-react';
 import Link from 'next/link';
 

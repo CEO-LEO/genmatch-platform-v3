@@ -18,7 +18,6 @@ import {
   ChevronRight,
   Building,
   Globe,
-  Heart,
   Wrench,
   Camera,
   Upload

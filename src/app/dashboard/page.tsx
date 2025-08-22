@@ -14,18 +14,18 @@ import {
   MapPin, 
   Clock, 
   CheckCircle, 
-  Heart, 
   Star, 
-  Trophy, 
   MessageCircle,
   Home,
-  Heart as HeartIcon,
-  Wrench,
-  Building,
-  Globe,
   ChevronRight,
   Menu,
-  X
+  X,
+  Building,
+  Wrench,
+  Globe,
+  Users,
+  TrendingUp,
+  Award
 } from 'lucide-react'
 import LogoIcon from '@/components/LogoIcon'
 
@@ -83,7 +83,7 @@ export default function DashboardPage() {
       id: 'exercise',
       title: 'ออกกำลังกาย',
       description: 'กิจกรรมออกกำลังกาย',
-      icon: <HeartIcon className="w-8 h-8 text-white" />,
+      icon: <Users className="w-8 h-8 text-white" />,
       bgColor: 'bg-gradient-to-br from-green-500 to-green-600',
       href: '/search?category=exercise',
       emoji: '💪'
@@ -96,6 +96,37 @@ export default function DashboardPage() {
       bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
       href: '/search?category=repair',
       emoji: '🔧'
+    }
+  ]
+
+  const quickActions = [
+    {
+      title: 'ค้นหางาน',
+      description: 'หางานจิตอาสาที่เหมาะสม',
+      icon: <Search className="w-8 h-8 text-white" />,
+      color: 'bg-blue-500',
+      href: '/search'
+    },
+    {
+      title: 'เพิ่มงาน',
+      description: 'สร้างงานใหม่สำหรับจิตอาสา',
+      icon: <Plus className="w-8 h-8 text-white" />,
+      color: 'bg-green-500',
+      href: '/add-task'
+    },
+    {
+      title: 'แชท',
+      description: 'ติดต่อกับผู้ใช้คนอื่น',
+      icon: <MessageCircle className="w-8 h-8 text-white" />,
+      color: 'bg-purple-500',
+      href: '/chat'
+    },
+    {
+      title: 'โปรไฟล์',
+      description: 'จัดการข้อมูลส่วนตัว',
+      icon: <User className="w-8 h8 text-white" />,
+      color: 'bg-orange-500',
+      href: '/profile'
     }
   ]
 
@@ -341,7 +372,7 @@ export default function DashboardPage() {
                   : 'text-gray-400 hover:text-indigo-600'
               }`}
             >
-              <Heart className="w-6 h-6 mb-1" />
+              <Users className="w-6 h-6 mb-1" />
               <span className="text-xs">งานของฉัน</span>
             </button>
           )}

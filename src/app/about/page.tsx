@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft,
   Info,
-  Heart,
   Users,
   Target,
   Award,
@@ -25,7 +24,12 @@ import {
   Clock,
   Download,
   Share2,
-  MessageCircle
+  MessageCircle,
+  Heart as HeartIcon,
+  Building,
+  GraduationCap,
+  Zap,
+  Crown
 } from 'lucide-react';
 
 interface TeamMember {
@@ -205,7 +209,7 @@ export default function AboutPage() {
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl p-6 text-center">
           <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-10 h-10" />
+            <HeartIcon className="w-10 h-10" />
           </div>
           <h2 className="text-2xl font-bold mb-2">GenMatch</h2>
           <p className="text-indigo-100 mb-4">

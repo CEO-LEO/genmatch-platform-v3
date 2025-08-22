@@ -4,24 +4,27 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  ArrowLeft,
-  Bell,
-  Check,
-  X,
-  Star,
-  Heart,
+  ArrowLeft, 
+  Search, 
+  Filter, 
+  Bell, 
+  CheckCircle, 
+  AlertCircle, 
+  Info, 
   Clock,
-  MapPin,
-  User,
-  MessageCircle,
+  Users,
+  Star,
   Award,
-  AlertCircle,
-  ChevronRight,
-  Filter,
-  Search,
-  Trash2,
-  Settings
-} from 'lucide-react';
+  TrendingUp,
+  Target,
+  Zap,
+  Crown,
+  Shield,
+  Building,
+  GraduationCap,
+  Globe,
+  Wrench
+} from 'lucide-react'
 import Link from 'next/link';
 
 interface Notification {
@@ -198,9 +201,9 @@ export default function NotificationsPage() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'TASK_ACCEPTED':
-        return <Check className="w-5 h-5" />;
+        return <CheckCircle className="w-5 h-5" />;
       case 'NEW_MESSAGE':
-        return <MessageCircle className="w-5 h-5" />;
+        return <Info className="w-5 h-5" />;
       case 'ACHIEVEMENT':
         return <Award className="w-5 h-5" />;
       case 'REMINDER':
@@ -208,7 +211,7 @@ export default function NotificationsPage() {
       case 'TASK_COMPLETED':
         return <Star className="w-5 h-5" />;
       case 'SYSTEM':
-        return <Settings className="w-5 h-5" />;
+        return <Wrench className="w-5 h-5" />;
       default:
         return <Bell className="w-5 h-5" />;
     }
@@ -261,11 +264,11 @@ export default function NotificationsPage() {
                   onClick={markAllAsRead}
                   className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"
                 >
-                  <Check className="w-5 h-5" />
+                  <CheckCircle className="w-5 h-5" />
                 </button>
               )}
               <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                <Settings className="w-5 h-5" />
+                <Wrench className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -383,14 +386,14 @@ export default function NotificationsPage() {
                             onClick={() => markAsRead(notification.id)}
                             className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"
                           >
-                            <Check className="w-4 h-4" />
+                            <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
                         <button
                           onClick={() => deleteNotification(notification.id)}
                           className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Wrench className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -404,7 +407,7 @@ export default function NotificationsPage() {
                           className="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-200 transition-colors"
                         >
                           ดูรายละเอียด
-                          <ChevronRight className="w-4 h-4 ml-1" />
+                          <Wrench className="w-4 h-4 ml-1" />
                         </Link>
                       </div>
                     )}

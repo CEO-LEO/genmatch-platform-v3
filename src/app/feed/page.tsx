@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft,
-  Heart,
   MessageCircle,
   Share2,
   MoreVertical,
@@ -21,7 +20,12 @@ import {
   ChevronRight,
   Eye,
   ThumbsUp,
-  Bookmark
+  Bookmark,
+  Users,
+  Calendar,
+  Send,
+  Image,
+  Smile
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -471,16 +475,14 @@ export default function FeedPage() {
                 <div className="px-4 py-3 border-t border-gray-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-6">
-                      <button
+                      <button 
                         onClick={() => handleLike(item.id)}
-                        className={`flex items-center space-x-2 transition-colors ${
-                          item.isLiked 
-                            ? 'text-red-500' 
-                            : 'text-gray-500 hover:text-red-500'
+                        className={`flex items-center text-gray-500 hover:text-red-500 transition-colors ${
+                          item.isLiked ? 'text-red-500' : ''
                         }`}
                       >
-                        <Heart className={`w-5 h-5 ${item.isLiked ? 'fill-current' : ''}`} />
-                        <span className="text-sm">{item.likes}</span>
+                        <ThumbsUp className={`w-5 h-5 ${item.isLiked ? 'fill-current' : ''}`} />
+                        <span className="ml-1 text-sm">{item.likes}</span>
                       </button>
                       
                       <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors">

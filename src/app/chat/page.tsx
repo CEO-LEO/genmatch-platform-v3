@@ -4,23 +4,36 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  ArrowLeft,
-  Send,
-  MoreVertical,
-  Phone,
-  Video,
-  Image as ImageIcon,
+  ArrowLeft, 
+  Search, 
+  Send, 
+  MoreHorizontal, 
+  Phone, 
+  Video, 
+  Image, 
   Paperclip,
-  Smile,
-  Search,
-  Filter,
-  ChevronRight,
+  Users,
+  Star,
+  Award,
+  TrendingUp,
+  Target,
+  Zap,
+  Crown,
+  Shield,
+  Building,
+  GraduationCap,
+  Globe,
+  Wrench,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  HelpCircle,
+  MessageCircle,
   User,
-  Check,
-  CheckCheck,
   Clock,
-  MessageCircle
-} from 'lucide-react';
+  MapPin,
+  Calendar
+} from 'lucide-react'
 import Link from 'next/link';
 
 interface ChatMessage {
@@ -239,7 +252,7 @@ export default function ChatPage() {
                     <Search className="w-5 h-5" />
                   </button>
                   <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                    <Filter className="w-5 h-5" />
+                    <MoreHorizontal className="w-5 h-5" />
                   </button>
                 </div>
               </div>

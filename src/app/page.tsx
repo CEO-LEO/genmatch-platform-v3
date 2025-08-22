@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
-  Heart, 
   Users, 
   Clock, 
   Star, 
@@ -28,7 +27,8 @@ import {
   X,
   Building,
   Globe,
-  Wrench
+  Wrench,
+  GraduationCap
 } from 'lucide-react';
 import LogoIcon from '@/components/LogoIcon'
 
@@ -39,32 +39,36 @@ export default function HomePage() {
   // Service categories for mobile
   const serviceCategories = [
     {
+      id: 'elderly-care',
+      name: 'การดูแลผู้สูงอายุ',
+      description: 'ช่วยเหลือและดูแลผู้สูงอายุในชีวิตประจำวัน',
+      icon: <Users className="w-8 h-8 text-white" />,
+      color: 'bg-blue-500',
+      href: '/search?category=elderly-care'
+    },
+    {
+      id: 'education',
+      name: 'การศึกษา',
+      description: 'สอนหนังสือและให้ความรู้ในด้านต่างๆ',
+      icon: <GraduationCap className="w-8 h-8 text-white" />,
+      color: 'bg-green-500',
+      href: '/search?category=education'
+    },
+    {
+      id: 'household',
+      name: 'งานบ้าน',
+      description: 'ช่วยงานบ้านและงานซ่อมแซมต่างๆ',
       icon: <Building className="w-8 h-8 text-white" />,
-      title: 'โรงพยาบาล',
-      description: 'ช่วยเหลือในโรงพยาบาล',
-      bgColor: 'bg-gradient-to-br from-red-500 to-red-600',
-      emoji: '🏥'
+      color: 'bg-purple-500',
+      href: '/search?category=household'
     },
     {
-      icon: <Globe className="w-8 h-8 text-white" />,
-      title: 'วัด',
-      description: 'กิจกรรมจิตอาสาในวัด',
-      bgColor: 'bg-gradient-to-br from-yellow-500 to-yellow-600',
-      emoji: '🏛️'
-    },
-    {
-      icon: <Heart className="w-8 h-8 text-white" />,
-      title: 'ออกกำลังกาย',
-      description: 'กิจกรรมออกกำลังกาย',
-      bgColor: 'bg-gradient-to-br from-green-500 to-green-600',
-      emoji: '💪'
-    },
-    {
-      icon: <Wrench className="w-8 h-8 text-white" />,
-      title: 'งานซ่อม',
-      description: 'งานซ่อมและปรับปรุง',
-      bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
-      emoji: '🔧'
+      id: 'volunteer',
+      name: 'จิตอาสา',
+      description: 'กิจกรรมเพื่อสังคมและชุมชน',
+      icon: <Star className="w-8 h-8 text-white" />,
+      color: 'bg-orange-500',
+      href: '/search?category=volunteer'
     }
   ]
 
@@ -228,7 +232,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8">
             <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Heart className="w-10 h-10 md:w-12 md:h-12 text-white" />
+              <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
             </div>
             
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
@@ -289,10 +293,10 @@ export default function HomePage() {
             {serviceCategories.map((category, index) => (
               <div
                 key={index}
-                className={`${category.bgColor} rounded-2xl p-6 text-center text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer`}
+                className={`${category.color} rounded-2xl p-6 text-center text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer`}
               >
-                <div className="text-3xl mb-3">{category.emoji}</div>
-                <h3 className="text-lg font-semibold mb-2">{category.title}</h3>
+                <div className="text-3xl mb-3">{category.icon}</div>
+                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
                 <p className="text-sm text-white/90">{category.description}</p>
               </div>
             ))}

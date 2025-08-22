@@ -16,7 +16,23 @@ import {
   MapPin,
   GraduationCap,
   Building,
-  CheckCircle
+  CheckCircle,
+  Users,
+  Star,
+  Award,
+  TrendingUp,
+  Target,
+  Zap,
+  Crown,
+  Shield,
+  Globe,
+  Wrench,
+  CheckCircle as CheckCircleIcon,
+  Info,
+  HelpCircle,
+  MessageCircle,
+  Clock,
+  Calendar
 } from 'lucide-react'
 import LogoIcon from '@/components/LogoIcon'
 
@@ -34,7 +50,7 @@ export default function RegisterPage() {
     phone: '',
     password: '',
     confirmPassword: '',
-    userType: '',
+    userType: '' as 'STUDENT' | 'ELDERLY',
     studentId: '',
     university: '',
     address: '',

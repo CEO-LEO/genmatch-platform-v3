@@ -4,7 +4,34 @@ import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, EyeOff, Lock, Mail, ArrowLeft, AlertCircle } from 'lucide-react'
+import { 
+  Eye, 
+  EyeOff, 
+  Lock, 
+  Mail, 
+  ArrowLeft, 
+  AlertCircle,
+  Users,
+  Star,
+  Award,
+  TrendingUp,
+  Target,
+  Zap,
+  Crown,
+  Shield,
+  Building,
+  GraduationCap,
+  Globe,
+  Wrench,
+  CheckCircle,
+  Info,
+  HelpCircle,
+  MessageCircle,
+  User,
+  Clock,
+  MapPin,
+  Calendar
+} from 'lucide-react'
 import LogoIcon from '@/components/LogoIcon'
 
 export default function LoginPage() {

@@ -4,30 +4,31 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  ArrowLeft,
-  Shield,
-  Lock,
-  Eye,
-  EyeOff,
+  ArrowLeft, 
+  Shield, 
+  Eye, 
+  EyeOff, 
+  Lock, 
+  Users, 
+  Star, 
+  Award, 
+  TrendingUp, 
+  Target,
+  Zap,
+  Crown,
+  Building,
+  GraduationCap,
+  Globe,
+  Wrench,
   CheckCircle,
   AlertCircle,
-  ChevronRight,
-  User,
-  MapPin,
-  Camera,
-  Phone,
-  Mail,
-  Users,
-  Globe,
-  Building,
-  FileText,
-  Download,
-  Trash2,
-  Settings,
   Info,
   HelpCircle,
-  ExternalLink
-} from 'lucide-react';
+  ExternalLink,
+  Download,
+  Share2,
+  MessageCircle
+} from 'lucide-react'
 
 interface PrivacySection {
   id: string;
@@ -111,7 +112,7 @@ export default function PrivacyPage() {
       id: 'profile',
       title: 'การแสดงโปรไฟล์',
       description: 'ควบคุมการแสดงข้อมูลส่วนตัวของคุณ',
-      icon: User,
+      icon: Users,
       color: 'from-blue-500 to-indigo-500',
       items: [
         {
