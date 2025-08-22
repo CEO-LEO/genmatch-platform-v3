@@ -1,450 +1,492 @@
 'use client'
 
 import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, EyeOff, Lock, Mail, User, Phone, GraduationCap, Building, MapPin, ArrowLeft, CheckCircle } from 'lucide-react'
+import { 
+  Eye, 
+  EyeOff, 
+  Lock, 
+  Mail, 
+  ArrowLeft, 
+  AlertCircle, 
+  User, 
+  Phone,
+  MapPin,
+  GraduationCap,
+  Building,
+  CheckCircle
+} from 'lucide-react'
 import LogoIcon from '@/components/LogoIcon'
 
 export default function RegisterPage() {
+  const { register } = useAuth()
+  const router = useRouter()
+  const [currentStep, setCurrentStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [userType, setUserType] = useState<'STUDENT' | 'ELDERLY'>('STUDENT')
   const [isLoading, setIsLoading] = useState(false)
-  
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
-    phone: '',
+    userType: '',
     studentId: '',
     university: '',
     address: '',
-    city: '',
-    province: '',
+    city: 'กรุงเทพมหานคร',
+    province: 'กรุงเทพมหานคร',
     postalCode: ''
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      alert('รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง')
-      return
-    }
-    
-    if (formData.password.length < 8) {
-      alert('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร')
-      return
-    }
-    
-    if (!formData.firstName || !formData.lastName) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน')
-      return
-    }
-    
-    // Student validation
-    if (userType === 'STUDENT') {
-      if (!formData.email || !formData.phone || !formData.studentId || !formData.university) {
-        alert('กรุณากรอกข้อมูลนักศึกษาให้ครบถ้วน')
+  const handleNext = () => {
+    if (currentStep === 1) {
+      if (!formData.userType) {
+        setError('กรุณาเลือกประเภทผู้ใช้')
+        return
+      }
+    } else if (currentStep === 2) {
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+        setError('กรุณากรอกข้อมูลให้ครบถ้วน')
+        return
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        setError('รูปแบบอีเมลไม่ถูกต้อง')
         return
       }
     }
+    setError('')
+    setCurrentStep(currentStep + 1)
+  }
+
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1)
+    setError('')
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
     
-    // Address validation
-    if (!formData.address || !formData.city || !formData.province || !formData.postalCode) {
-      alert('กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วน')
+    if (!formData.password || formData.password.length < 6) {
+      setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร')
       return
     }
     
+    if (formData.password !== formData.confirmPassword) {
+      setError('รหัสผ่านไม่ตรงกัน')
+      return
+    }
+
+    if (formData.userType === 'STUDENT' && !formData.studentId) {
+      setError('กรุณากรอกรหัสนักศึกษา')
+      return
+    }
+
     setIsLoading(true)
     
     try {
-      // Simulate registration process
-      console.log('กำลังสร้างบัญชี...', { userType, ...formData })
+      const success = await register(formData)
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Show success message
-      alert(`สร้างบัญชีสำเร็จ! ยินดีต้อนรับเข้าสู่ชุมชนจิตอาสา GenMatch`)
-      
-      // Reset form
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        phone: '',
-        studentId: '',
-        university: '',
-        address: '',
-        city: '',
-        province: '',
-        postalCode: ''
-      })
-      
-      // Redirect to login page after successful registration
-      setTimeout(() => {
-        window.location.href = '/login'
-      }, 1500)
-      
+      if (success) {
+        router.push('/dashboard')
+      } else {
+        setError('ไม่สามารถสมัครสมาชิกได้ กรุณาลองใหม่อีกครั้ง')
+      }
     } catch (error) {
-      console.error('Registration error:', error)
-      alert('เกิดข้อผิดพลาดในการสร้างบัญชี กรุณาลองใหม่อีกครั้ง')
+      console.error('Register error:', error)
+      setError('เกิดข้อผิดพลาดในการสมัครสมาชิก กรุณาลองใหม่อีกครั้ง')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-purple-300/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-300/30 to-blue-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-100/30 to-blue-200/20 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Status Bar */}
+      <div className="bg-white px-4 py-3 text-sm text-gray-600 text-center border-b border-gray-100 md:hidden">
+        <div className="flex items-center justify-between">
+          <span>9:41</span>
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          </div>
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto">
-        {/* Back to Home */}
-        <Link 
-          href="/" 
-          className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          กลับหน้าหลัก
-        </Link>
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={currentStep > 1 ? handleBack : () => router.push('/')}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-lg font-semibold text-gray-900">สมัครสมาชิก</h1>
+          </div>
+          <div className="text-sm text-gray-500">
+            {currentStep}/3
+          </div>
+        </div>
+      </header>
 
-        {/* Register Card */}
-        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-200/50 p-8">
-          {/* Logo and Title */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <LogoIcon className="w-10 h-10 text-white" />
+      {/* Progress Bar */}
+      <div className="bg-white px-4 py-3 border-b border-gray-200">
+        <div className="flex items-center space-x-2">
+          {[1, 2, 3].map((step) => (
+            <div key={step} className="flex-1">
+              <div className={`h-2 rounded-full transition-all duration-300 ${
+                step <= currentStep ? 'bg-indigo-600' : 'bg-gray-200'
+              }`}></div>
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-800 bg-clip-text text-transparent">
-              สร้างบัญชีใหม่
-            </h1>
-            <p className="text-gray-600 mt-2">
-              เข้าร่วมชุมชนจิตอาสาของเรา
+          ))}
+        </div>
+        <div className="mt-2 text-center">
+          <span className="text-sm text-gray-600">
+            {currentStep === 1 && 'เลือกประเภทผู้ใช้'}
+            {currentStep === 2 && 'ข้อมูลส่วนตัว'}
+            {currentStep === 3 && 'รหัสผ่านและที่อยู่'}
+          </span>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="px-4 py-8">
+        <div className="max-w-md mx-auto">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <LogoIcon className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              เข้าร่วม GenMatch
+            </h2>
+            <p className="text-gray-600 text-sm">
+              สร้างบัญชีเพื่อเริ่มต้นการเป็นจิตอาสา
             </p>
           </div>
 
-          {/* User Type Selection */}
-          <div className="mb-8">
-            <label className="block text-lg font-semibold text-gray-900 mb-4 text-center">
-              เลือกประเภทผู้ใช้
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-              <button
-                type="button"
-                onClick={() => setUserType('STUDENT')}
-                className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
-                  userType === 'STUDENT'
-                    ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-lg'
-                    : 'border-gray-300 bg-white text-gray-600 hover:border-purple-300 hover:bg-purple-50'
-                }`}
-              >
-                <div className="flex items-center justify-center space-x-3">
-                  <GraduationCap className="w-6 h-6" />
-                  <span className="font-semibold">นักศึกษา กยศ.</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setUserType('ELDERLY')}
-                className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
-                  userType === 'ELDERLY'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-lg'
-                    : 'border-gray-300 bg-white text-gray-600 hover:border-blue-300 hover:bg-blue-50'
-                }`}
-              >
-                <div className="flex items-center justify-center space-x-3">
-                  <User className="w-6 h-6" />
-                  <span className="font-semibold">ผู้สูงอายุ</span>
-                </div>
-              </button>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+              <p className="text-red-700 text-sm">{error}</p>
             </div>
-          </div>
+          )}
 
-          {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                  ชื่อ
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="ชื่อ"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                  นามสกุล
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="นามสกุล"
-                  required
-                />
-              </div>
-            </div>
+          <form onSubmit={handleSubmit}>
+            {/* Step 1: User Type Selection */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  คุณเป็นใคร?
+                </h3>
+                
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, userType: 'STUDENT' })}
+                    className={`w-full p-6 border-2 rounded-2xl transition-all duration-200 text-left ${
+                      formData.userType === 'STUDENT'
+                        ? 'border-indigo-500 bg-indigo-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        formData.userType === 'STUDENT'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <GraduationCap className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900">นักศึกษา</h4>
+                        <p className="text-sm text-gray-600">
+                          ต้องการทำงานจิตอาสาเพื่อสะสมชั่วโมง
+                        </p>
+                      </div>
+                      {formData.userType === 'STUDENT' && (
+                        <CheckCircle className="w-6 h-6 text-indigo-600" />
+                      )}
+                    </div>
+                  </button>
 
-            {/* Email Field (only for students) */}
-            {userType === 'STUDENT' && (
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  <Mail className="w-4 h-4 inline mr-2 text-purple-500" />
-                  อีเมล
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="example@email.com"
-                  required
-                />
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, userType: 'ELDERLY' })}
+                    className={`w-full p-6 border-2 rounded-2xl transition-all duration-200 text-left ${
+                      formData.userType === 'ELDERLY'
+                        ? 'border-purple-500 bg-purple-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        formData.userType === 'ELDERLY'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <User className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900">ผู้สูงอายุ</h4>
+                        <p className="text-sm text-gray-600">
+                          ต้องการความช่วยเหลือจากนักศึกษา
+                        </p>
+                      </div>
+                      {formData.userType === 'ELDERLY' && (
+                        <CheckCircle className="w-6 h-6 text-purple-600" />
+                      )}
+                    </div>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-full mt-8 py-4 bg-indigo-600 text-white rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50"
+                  disabled={!formData.userType}
+                >
+                  ถัดไป
+                </button>
               </div>
             )}
 
-            {/* Phone Field (for all users) */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                <Phone className="w-4 h-4 inline mr-2 text-purple-500" />
-                เบอร์โทรศัพท์
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                placeholder="081-234-5678"
-                required
-              />
-            </div>
+            {/* Step 2: Personal Information */}
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  ข้อมูลส่วนตัว
+                </h3>
 
-
-
-
-
-            {/* Student-specific fields */}
-            {userType === 'STUDENT' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="studentId" className="block text-sm font-medium text-gray-700 mb-2">
-                    รหัสนักศึกษา
-                  </label>
-                  <input
-                    type="text"
-                    id="studentId"
-                    name="studentId"
-                    value={formData.studentId}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                    placeholder="รหัสนักศึกษา"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ชื่อ
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                      placeholder="ชื่อ"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      นามสกุล
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                      placeholder="นามสกุล"
+                      required
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <label htmlFor="university" className="block text-sm font-medium text-gray-700 mb-2">
-                    <Building className="w-4 h-4 inline mr-2 text-purple-500" />
-                    มหาวิทยาลัย
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    อีเมล
                   </label>
-                  <input
-                    type="text"
-                    id="university"
-                    name="university"
-                    value={formData.university}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                    placeholder="ชื่อมหาวิทยาลัย"
-                    required
-                  />
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                      placeholder="อีเมลของคุณ"
+                      required
+                    />
+                  </div>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    เบอร์โทรศัพท์
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                      placeholder="0x-xxxx-xxxx"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {formData.userType === 'STUDENT' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        รหัสนักศึกษา
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.studentId}
+                        onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                        placeholder="6xxxxxxxxx"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        มหาวิทยาลัย
+                      </label>
+                      <div className="relative">
+                        <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          type="text"
+                          value={formData.university}
+                          onChange={(e) => setFormData({ ...formData, university: e.target.value })}
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                          placeholder="ชื่อมหาวิทยาลัย"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-full mt-8 py-4 bg-indigo-600 text-white rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-all duration-200"
+                >
+                  ถัดไป
+                </button>
               </div>
             )}
 
-            {/* Address Fields */}
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                <MapPin className="w-4 h-4 inline mr-2 text-purple-500" />
-                ที่อยู่
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                placeholder="ที่อยู่"
-                required
-              />
-            </div>
+            {/* Step 3: Password and Address */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  รหัสผ่านและที่อยู่
+                </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                  อำเภอ/เขต
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="อำเภอ/เขต"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-2">
-                  จังหวัด
-                </label>
-                <input
-                  type="text"
-                  id="province"
-                  name="province"
-                  value={formData.province}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="จังหวัด"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-2">
-                  รหัสไปรษณีย์
-                </label>
-                <input
-                  type="text"
-                  id="postalCode"
-                  name="postalCode"
-                  value={formData.postalCode}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                  placeholder="รหัสไปรษณีย์"
-                  required
-                />
-              </div>
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    รหัสผ่าน
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                      placeholder="อย่างน้อย 6 ตัวอักษร"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
 
-            {/* Password Fields - Moved to bottom */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  รหัสผ่าน
-                </label>
-                <div className="relative">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ยืนยันรหัสผ่าน
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                      placeholder="ยืนยันรหัสผ่าน"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ที่อยู่
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <textarea
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      rows={3}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 resize-none"
+                      placeholder="ที่อยู่ของคุณ"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    รหัสไปรษณีย์
+                  </label>
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full pr-12 px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                    placeholder="รหัสผ่านอย่างน้อย 8 ตัวอักษร"
-                    minLength={8}
-                    required
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                    placeholder="10xxx"
+                    maxLength={5}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-500 hover:text-purple-700 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
                 </div>
-              </div>
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  ยืนยันรหัสผ่าน
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full pr-12 px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-white/50 backdrop-blur-sm"
-                    placeholder="ยืนยันรหัสผ่าน"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-500 hover:text-purple-700 transition-colors"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-            </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 text-lg ${
-                isLoading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-500 to-blue-700 hover:from-purple-600 hover:to-blue-800 hover:shadow-xl hover:scale-105'
-              } text-white`}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  กำลังสร้างบัญชี...
-                </div>
-              ) : (
-                'สร้างบัญชี'
-              )}
-            </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full mt-8 py-4 bg-indigo-600 text-white rounded-xl font-semibold text-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      กำลังสมัครสมาชิก...
+                    </div>
+                  ) : (
+                    'สมัครสมาชิก'
+                  )}
+                </button>
+              </div>
+            )}
           </form>
 
           {/* Login Link */}
-          <div className="text-center mt-8">
+          <div className="mt-8 text-center">
             <p className="text-gray-600">
-              มีบัญชีอยู่แล้ว?{' '}
+              มีบัญชีแล้ว?{' '}
               <Link 
                 href="/login" 
-                className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
+                className="text-indigo-600 hover:text-indigo-500 font-medium transition-colors"
               >
-                เข้าสู่ระบบเลย
+                เข้าสู่ระบบ
               </Link>
             </p>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Mobile Safe Area */}
+      <div className="h-6 bg-gray-50 md:hidden"></div>
     </div>
   )
 }

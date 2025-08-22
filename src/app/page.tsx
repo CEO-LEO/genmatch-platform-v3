@@ -1,286 +1,270 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Logo from '@/components/Logo';
+import { useRouter } from 'next/navigation';
 import { 
   Heart, 
   Users, 
-  MapPin, 
   Clock, 
   Star, 
-  ArrowRight, 
+  Award, 
+  Target, 
+  Shield, 
+  Zap,
+  ChevronDown,
+  ArrowRight,
   Play,
-  Shield,
   CheckCircle,
-  TrendingUp,
-  Award,
   MessageCircle,
-  Calendar,
+  Phone,
+  Mail,
+  MapPin,
+  Facebook,
+  Twitter,
+  Instagram,
+  Youtube,
+  Menu,
+  X,
   Building,
-  GraduationCap,
-  ChevronRight,
-  Sparkles,
-  Target,
   Globe,
-  User
+  Wrench
 } from 'lucide-react';
 import LogoIcon from '@/components/LogoIcon'
 
 export default function HomePage() {
-  const features = [
-    {
-      icon: <Users className="w-10 h-10 text-white" />,
-      title: 'เชื่อมโยงจิตอาสา',
-      description: 'เชื่อมต่อระหว่างนักศึกษา กยศ. และผู้สูงอายุอย่างมีประสิทธิภาพ',
-      bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600'
-    },
-    {
-      icon: <Target className="w-10 h-10 text-white" />,
-      title: 'ระบบจัดการงาน',
-      description: 'ติดตามและจัดการงานจิตอาสาได้อย่างเป็นระบบ',
-      bgColor: 'bg-gradient-to-br from-purple-600 to-purple-700'
-    },
-    {
-      icon: <Clock className="w-10 h-10 text-white" />,
-      title: 'สะสมชั่วโมง',
-      description: 'นักศึกษาสามารถสะสมชั่วโมงจิตอาสาได้',
-      bgColor: 'bg-gradient-to-br from-blue-600 to-blue-700'
-    },
-    {
-      icon: <Award className="w-10 h-10 text-white" />,
-      title: 'รีวิวและคะแนน',
-      description: 'ระบบรีวิวและคะแนนความพึงพอใจ',
-      bgColor: 'bg-gradient-to-br from-blue-700 to-blue-800'
-    }
-  ]
+  const router = useRouter()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const categories = [
+  // Service categories for mobile
+  const serviceCategories = [
     {
-      icon: <Heart className="w-8 h-8 text-white" />,
+      icon: <Building className="w-8 h-8 text-white" />,
       title: 'โรงพยาบาล',
-      description: 'ช่วยเหลือในโรงพยาบาลและสถานพยาบาล',
+      description: 'ช่วยเหลือในโรงพยาบาล',
       bgColor: 'bg-gradient-to-br from-red-500 to-red-600',
-      iconBg: 'bg-red-500'
+      emoji: '🏥'
     },
     {
       icon: <Globe className="w-8 h-8 text-white" />,
       title: 'วัด',
-      description: 'กิจกรรมจิตอาสาในวัดและศาสนสถาน',
+      description: 'กิจกรรมจิตอาสาในวัด',
       bgColor: 'bg-gradient-to-br from-yellow-500 to-yellow-600',
-      iconBg: 'bg-yellow-500'
+      emoji: '🏛️'
     },
     {
-      icon: <Target className="w-8 h-8 text-white" />,
+      icon: <Heart className="w-8 h-8 text-white" />,
       title: 'ออกกำลังกาย',
-      description: 'กิจกรรมออกกำลังกายและกีฬา',
+      description: 'กิจกรรมออกกำลังกาย',
       bgColor: 'bg-gradient-to-br from-green-500 to-green-600',
-      iconBg: 'bg-green-500'
+      emoji: '💪'
     },
     {
-      icon: <Sparkles className="w-8 h-8 text-white" />,
-      title: 'ซ่อมแซม',
-      description: 'งานซ่อมแซมและปรับปรุงสถานที่',
+      icon: <Wrench className="w-8 h-8 text-white" />,
+      title: 'งานซ่อม',
+      description: 'งานซ่อมและปรับปรุง',
       bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
-      iconBg: 'bg-blue-500'
+      emoji: '🔧'
+    }
+  ]
+
+  const features = [
+    {
+      icon: <Users className="w-8 h-8" />,
+      title: 'เชื่อมโยงจิตอาสา',
+      description: 'เชื่อมต่อนักศึกษาและผู้สูงอายุ',
+      color: 'text-purple-600'
+    },
+    {
+      icon: <Clock className="w-8 h-8" />,
+      title: 'สะสมชั่วโมง',
+      description: 'นักศึกษาสะสมชั่วโมงจิตอาสา',
+      color: 'text-blue-600'
+    },
+    {
+      icon: <Shield className="w-8 h-8" />,
+      title: 'ปลอดภัย',
+      description: 'ระบบปลอดภัยและน่าเชื่อถือ',
+      color: 'text-green-600'
     }
   ]
 
   const stats = [
-    {
-      icon: <Users className="w-10 h-10 text-purple-600" />,
-      value: '1,500+',
-      label: 'จิตอาสา',
-      bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100',
-      borderColor: 'border-purple-200'
-    },
-    {
-      icon: <CheckCircle className="w-10 h-10 text-purple-600" />,
-      value: '500+',
-      label: 'งานเสร็จสิ้น',
-      bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100',
-      borderColor: 'border-purple-200'
-    },
-    {
-      icon: <Clock className="w-10 h-10 text-blue-600" />,
-      value: '2,000+',
-      label: 'ชั่วโมงจิตอาสา',
-      bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100',
-      borderColor: 'border-blue-200'
-    },
-    {
-      icon: <Star className="w-10 h-10 text-blue-600" />,
-      value: '4.8',
-      label: 'คะแนนความพึงพอใจ',
-      bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100',
-      borderColor: 'border-blue-200'
-    }
-  ]
-
-  const steps = [
-    {
-      number: '1',
-      icon: <GraduationCap className="w-12 h-12 text-white" />,
-      title: 'นักศึกษา กยศ.',
-      description: 'ลงทะเบียนและเลือกงานจิตอาสา',
-      bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600'
-    },
-    {
-      number: '2',
-      icon: <User className="w-12 h-12 text-white" />,
-      title: 'ผู้สูงอายุ',
-      description: 'โพสต์งานที่ต้องการความช่วยเหลือ',
-      bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600'
-    },
-    {
-      number: '3',
-      icon: <GraduationCap className="w-12 h-12 text-white" />,
-      title: 'จิตอาสา',
-      description: 'ทำงานและได้รับประสบการณ์',
-      bgColor: 'bg-gradient-to-br from-purple-600 to-blue-700'
-    }
+    { number: '1000+', label: 'นักศึกษา' },
+    { number: '500+', label: 'ผู้สูงอายุ' },
+    { number: '5000+', label: 'ชั่วโมงอาสา' },
+    { number: '98%', label: 'ความพึงพอใจ' }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      {/* Navigation */}
-      <nav className="bg-white/90 backdrop-blur-md border-b border-purple-200/50 shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                <LogoIcon className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-600 font-medium">Generation Matching</div>
-                <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-800 bg-clip-text text-transparent">
-                  GenMatch
-                </div>
-              </div>
+    <div className="min-h-screen bg-white">
+      {/* Mobile Status Bar */}
+      <div className="bg-white px-4 py-3 text-sm text-gray-600 text-center border-b border-gray-100 md:hidden">
+        <div className="flex items-center justify-between">
+          <span>9:41</span>
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <LogoIcon className="w-8 h-8" />
+              <span className="text-xl font-bold text-gray-900">GenMatch</span>
             </div>
-            <div className="hidden lg:flex items-center space-x-8">
-              <Link href="#features" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link href="#features" className="text-gray-600 hover:text-indigo-600 transition-colors">
                 คุณสมบัติ
               </Link>
-              <Link href="#how-it-works" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-                วิธีการทํางาน
+              <Link href="#how-it-works" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                วิธีใช้งาน
               </Link>
-              <Link href="#about" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+              <Link href="#about" className="text-gray-600 hover:text-indigo-600 transition-colors">
                 เกี่ยวกับเรา
               </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-purple-600 hover:text-purple-700 font-semibold px-4 py-2 rounded-lg hover:bg-purple-50 transition-all duration-200">
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+
+            {/* Desktop Auth Buttons */}
+            <div className="hidden md:flex items-center space-x-3">
+              <Link 
+                href="/login"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
                 เข้าสู่ระบบ
               </Link>
-              <Link href="/register" className="bg-gradient-to-r from-purple-500 to-blue-700 hover:from-purple-600 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
-                ลงทะเบียน
+              <Link 
+                href="/register"
+                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                สมัครสมาชิก
               </Link>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-purple-300/20 rounded-full blur-3xl"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-300/30 to-blue-400/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-br from-purple-100/30 to-blue-200/20 rounded-full blur-3xl"></div>
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden">
+          <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center space-x-3">
+                  <LogoIcon className="w-8 h-8" />
+                  <span className="text-xl font-bold text-gray-900">GenMatch</span>
+                </div>
+                <button 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <nav className="space-y-4 mb-8">
+                <Link 
+                  href="#features" 
+                  className="block py-3 text-gray-700 hover:text-indigo-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  คุณสมบัติ
+                </Link>
+                <Link 
+                  href="#how-it-works" 
+                  className="block py-3 text-gray-700 hover:text-indigo-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  วิธีใช้งาน
+                </Link>
+                <Link 
+                  href="#about" 
+                  className="block py-3 text-gray-700 hover:text-indigo-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เกี่ยวกับเรา
+                </Link>
+              </nav>
+
+              <div className="space-y-3">
+                <Link 
+                  href="/login"
+                  className="block w-full py-3 text-center text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เข้าสู่ระบบ
+                </Link>
+                <Link 
+                  href="/register"
+                  className="block w-full py-3 text-center bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  สมัครสมาชิก
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="relative z-10 max-w-7xl mx-auto text-center">
+      {/* Hero Section - Mobile First */}
+      <section className="px-4 py-12 md:py-20">
+        <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight">
-              <span className="block bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 bg-clip-text text-transparent animate-pulse">
-                แพลตฟอร์ม
-              </span>
-              <span className="block bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 bg-clip-text text-transparent">
-                เชื่อมโยง
-              </span>
-              <span className="block bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
-                นักศึกษา กยศ.
-              </span>
-              <span className="block bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">
-                และผู้สูงอายุ
-              </span>
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Heart className="w-10 h-10 md:w-12 md:h-12 text-white" />
+            </div>
+            
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+              เชื่อมโยง<span className="text-indigo-600">จิตอาสา</span><br />
+              สร้าง<span className="text-purple-600">สังคมดี</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed">
-              แพลตฟอร์มเชื่อมโยงระหว่างนักศึกษา กยศ. และผู้สูงอายุ เพื่อการช่วยเหลือและแลกเปลี่ยนเรียนรู้ซึ่งกันและกัน
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link href="/search" className="group bg-gradient-to-r from-purple-500 to-blue-700 hover:from-purple-600 hover:to-blue-800 text-white font-semibold px-8 py-4 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center">
-                ดูงานอาสา
-                <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link href="/register" className="group border-2 border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 inline-flex items-center">
-                ลงทะเบียนเป็นจิตอาสา
-                <ChevronRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Steps Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              วิธีการทำงาน
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              ง่ายๆ เพียง 3 ขั้นตอน
+            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+              แพลตฟอร์มเชื่อมโยงนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step, index) => (
-              <div key={index} className="text-center">
-                <div className={`w-24 h-24 ${step.bgColor} rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl`}>
-                  <span className="text-3xl font-bold text-white">{step.number}</span>
-                </div>
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  {step.icon}
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {step.description}
-                </p>
-                <div className="flex justify-center mt-4 space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-purple-500 fill-current" />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+          {/* CTA Buttons */}
+          <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mb-12">
+            <Link 
+              href="/register"
+              className="w-full md:w-auto px-8 py-4 bg-indigo-600 text-white rounded-xl font-semibold text-lg hover:bg-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              เริ่มต้นใช้งาน
+            </Link>
+            <Link 
+              href="/login"
+              className="w-full md:w-auto px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold text-lg hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200"
+            >
+              เข้าสู่ระบบ
+            </Link>
+          </div>
+
+          {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <div
-                key={index}
-                className={`group p-6 text-center rounded-2xl border-2 ${stat.bgColor} ${stat.borderColor} hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
-              >
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-white rounded-xl shadow-md group-hover:scale-110 transition-transform duration-300">
-                    {stat.icon}
-                  </div>
+              <div key={index} className="text-center">
+                <div className="text-2xl md:text-3xl font-bold text-indigo-600 mb-2">
+                  {stat.number}
                 </div>
-                <div className="text-3xl font-bold text-purple-700 mb-2 group-hover:scale-110 transition-transform duration-300">
-                  {stat.value}
-                </div>
-                <div className="text-base text-gray-700 font-medium">
+                <div className="text-sm md:text-base text-gray-600">
                   {stat.label}
                 </div>
               </div>
@@ -289,31 +273,57 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              คุณสมบัติเด่น
+      {/* Service Categories - Mobile First */}
+      <section className="px-4 py-12 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+              หมวดหมู่งานจิตอาสา
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              แพลตฟอร์มที่ออกแบบมาเพื่อการใช้งานที่ง่ายและมีประสิทธิภาพ
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              ค้นหางานจิตอาสาที่เหมาะกับคุณในหมวดหมู่ต่างๆ
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {serviceCategories.map((category, index) => (
               <div
                 key={index}
-                className="group p-6 text-center rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className={`${category.bgColor} rounded-2xl p-6 text-center text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer`}
               >
-                <div className={`w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  {feature.icon}
+                <div className="text-3xl mb-3">{category.emoji}</div>
+                <h3 className="text-lg font-semibold mb-2">{category.title}</h3>
+                <p className="text-sm text-white/90">{category.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features - Mobile First */}
+      <section id="features" className="px-4 py-12 md:py-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+              ทำไมต้อง GenMatch?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              เราคือแพลตฟอร์มที่ทำให้การเป็นจิตอาสาง่ายและมีประสิทธิภาพ
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className={`w-16 h-16 ${feature.color} bg-opacity-10 rounded-2xl flex items-center justify-center mx-auto mb-6`}>
+                  <div className={feature.color}>
+                    {feature.icon}
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed text-sm">
+                <p className="text-gray-600 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -322,88 +332,152 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-blue-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              หมวดหม่างานจิตอาสา
+      {/* How it Works - Mobile First */}
+      <section id="how-it-works" className="px-4 py-12 md:py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+              วิธีใช้งาน
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              เลือกงานจิตอาสาตามความสนใจและความสามารถของคุณ
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              เริ่มต้นใช้งาน GenMatch ได้ง่ายๆ ใน 3 ขั้นตอน
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
-              <div
-                key={index}
-                className={`group p-6 text-center rounded-2xl ${category.bgColor} hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
-              >
-                <div className={`w-14 h-14 ${category.iconBg} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  {category.icon}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">
-                  {category.title}
-                </h3>
-                <p className="text-white/90 leading-relaxed text-sm">
-                  {category.description}
-                </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+                1
               </div>
-            ))}
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                สมัครสมาชิก
+              </h3>
+              <p className="text-gray-600">
+                สร้างบัญชีผู้ใช้ใหม่ ระบุประเภทเป็นนักศึกษาหรือผู้สูงอายุ
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+                2
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                ค้นหาหรือสร้างงาน
+              </h3>
+              <p className="text-gray-600">
+                นักศึกษาค้นหางาน ผู้สูงอายุสร้างงานที่ต้องการความช่วยเหลือ
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+                3
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                ทำงานและรับรางวัล
+              </h3>
+              <p className="text-gray-600">
+                ทำงานจิตอาสาและรับชั่วโมงอาสาสำหรับการสมัครงานและกู้กยศ.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* CTA Section - Mobile First */}
+      <section className="px-4 py-12 md:py-20 bg-gradient-to-r from-indigo-600 to-purple-600">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">
+            พร้อมเริ่มต้นแล้วหรือยัง?
+          </h2>
+          <p className="text-lg md:text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+            เข้าร่วมกับเราวันนี้ และเป็นส่วนหนึ่งของการสร้างสังคมที่ดีขึ้น
+          </p>
+          
+          <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+            <Link 
+              href="/register"
+              className="w-full md:w-auto px-8 py-4 bg-white text-indigo-600 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all duration-200 shadow-lg"
+            >
+              สมัครสมาชิกฟรี
+            </Link>
+            <Link 
+              href="/login"
+              className="w-full md:w-auto px-8 py-4 border-2 border-white text-white rounded-xl font-semibold text-lg hover:bg-white hover:text-indigo-600 transition-all duration-200"
+            >
+              เข้าสู่ระบบ
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer - Mobile First */}
+      <footer className="bg-gray-900 text-white px-4 py-12">
+        <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-700 rounded-xl flex items-center justify-center">
-                  <LogoIcon className="w-6 h-6 text-white" />
-                </div>
+            {/* Logo and Description */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-3 mb-4">
+                <LogoIcon className="w-8 h-8" />
                 <span className="text-xl font-bold">GenMatch</span>
               </div>
-              <p className="text-gray-400 leading-relaxed text-sm">
-                แพลตฟอร์มเชื่อมโยงจิตอาสาเพื่อสังคมที่ดี
+              <p className="text-gray-400 mb-6 leading-relaxed">
+                แพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ
               </p>
+              <div className="flex space-x-4">
+                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-indigo-600 transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+                  <Twitter className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+              </div>
             </div>
-            
+
+            {/* Quick Links */}
             <div>
               <h3 className="text-lg font-semibold mb-4">ลิงก์ด่วน</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/about" className="hover:text-white transition-colors">เกี่ยวกับเรา</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">ติดต่อเรา</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">ความเป็นส่วนตัว</Link></li>
+              <ul className="space-y-2">
+                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">คุณสมบัติ</a></li>
+                <li><a href="#how-it-works" className="text-gray-400 hover:text-white transition-colors">วิธีใช้งาน</a></li>
+                <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">เกี่ยวกับเรา</a></li>
+                <li><Link href="/login" className="text-gray-400 hover:text-white transition-colors">เข้าสู่ระบบ</Link></li>
               </ul>
             </div>
-            
+
+            {/* Contact */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">บริการ</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/search" className="hover:text-white transition-colors">ค้นหางาน</Link></li>
-                <li><Link href="/register" className="hover:text-white transition-colors">ลงทะเบียน</Link></li>
-                <li><Link href="/dashboard" className="hover:text-white transition-colors">แดชบอร์ด</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">ติดต่อ</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li>อีเมล: info@genmatch.com</li>
-                <li>โทร: 02-123-4567</li>
-                <li>ที่อยู่: กรุงเทพมหานคร</li>
+              <h3 className="text-lg font-semibold mb-4">ติดต่อเรา</h3>
+              <ul className="space-y-2">
+                <li className="flex items-center space-x-2">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-400">info@genmatch.com</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <Phone className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-400">02-xxx-xxxx</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-400">กรุงเทพมหานคร</span>
+                </li>
               </ul>
             </div>
           </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 GenMatch. สงวนลิขสิทธิ์ทั้งหมด.</p>
+
+          <div className="border-t border-gray-800 pt-8 mt-8 text-center">
+            <p className="text-gray-400">
+              © 2024 GenMatch. สงวนลิขสิทธิ์.
+            </p>
           </div>
         </div>
       </footer>
+
+      {/* Mobile Safe Area */}
+      <div className="h-6 bg-gray-900 md:hidden"></div>
     </div>
   )
 }

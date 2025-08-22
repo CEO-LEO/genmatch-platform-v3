@@ -4,19 +4,26 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  Clock, 
-  MapPin, 
-  User, 
-  Calendar, 
-  CheckCircle, 
-  XCircle,
-  Play,
-  Pause,
   ArrowLeft,
-  Filter,
+  Plus,
   Search,
+  Filter,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  MapPin,
+  Calendar,
+  Star,
+  User,
   Eye,
-  MessageCircle
+  MessageCircle,
+  MoreVertical,
+  ChevronRight,
+  Building,
+  Globe,
+  Heart,
+  Wrench
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,491 +31,541 @@ interface Task {
   id: string;
   title: string;
   description: string;
+  category: string;
+  status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  volunteerHours: number;
+  estimatedHours: number;
   address: string;
   city: string;
-  province: string;
-  postalCode: string;
-  status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  createdAt: string;
   scheduledDate: string;
   scheduledTime: string;
-  estimatedHours: number;
-
-  category: string;
+  createdAt: string;
   creator: {
     id: string;
     firstName: string;
     lastName: string;
     userType: string;
+    rating: number;
   };
-  accepter?: {
+  volunteer?: {
     id: string;
     firstName: string;
     lastName: string;
-    userType: string;
+    rating: number;
   };
 }
 
-export default function MyTasks() {
+export default function MyTasksPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'completed' | 'cancelled'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
+      return;
     }
     if (user) {
-      loadUserTasks();
+      loadMyTasks();
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    filterTasks();
-  }, [tasks, statusFilter, searchTerm]);
-
-  const loadUserTasks = async () => {
+  const loadMyTasks = async () => {
     try {
-      const response = await fetch('/api/tasks/my-tasks', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      // Mock data based on user type
+      const mockTasks: Task[] = user?.userType === 'STUDENT' ? [
+        // Tasks accepted by student
+        {
+          id: '1',
+          title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
+          description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
+          category: 'EXERCISE',
+          status: 'ACCEPTED',
+          volunteerHours: 2,
+          estimatedHours: 2,
+          address: 'เซ็นทรัลเวิลด์',
+          city: 'กรุงเทพฯ',
+          scheduledDate: '2024-01-22',
+          scheduledTime: '09:00',
+          createdAt: '2024-01-15T10:00:00Z',
+          creator: {
+            id: 'elderly-1',
+            firstName: 'สมศรี',
+            lastName: 'ใจดี',
+            userType: 'ELDERLY',
+            rating: 4.8
+          },
+          volunteer: {
+            id: user?.id || 'student-1',
+            firstName: user?.firstName || 'สมชาย',
+            lastName: user?.lastName || 'ใจดี',
+            rating: 4.9
+          }
+        },
+        {
+          id: '2',
+          title: 'ช่วยติดตั้งคอมพิวเตอร์',
+          description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน',
+          category: 'REPAIR',
+          status: 'IN_PROGRESS',
+          volunteerHours: 4,
+          estimatedHours: 4,
+          address: 'สุขุมวิท 55',
+          city: 'กรุงเทพฯ',
+          scheduledDate: '2024-01-25',
+          scheduledTime: '14:00',
+          createdAt: '2024-01-16T09:00:00Z',
+          creator: {
+            id: 'elderly-2',
+            firstName: 'ประยุทธ',
+            lastName: 'สมบูรณ์',
+            userType: 'ELDERLY',
+            rating: 4.5
+          },
+          volunteer: {
+            id: user?.id || 'student-1',
+            firstName: user?.firstName || 'สมชาย',
+            lastName: user?.lastName || 'ใจดี',
+            rating: 4.9
+          }
+        },
+        {
+          id: '3',
+          title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
+          description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
+          category: 'HOSPITAL',
+          status: 'COMPLETED',
+          volunteerHours: 4,
+          estimatedHours: 4,
+          address: 'โรงพยาบาลมหาราช',
+          city: 'กรุงเทพฯ',
+          scheduledDate: '2024-01-20',
+          scheduledTime: '08:00',
+          createdAt: '2024-01-18T16:00:00Z',
+          creator: {
+            id: 'elderly-3',
+            firstName: 'สมศักดิ์',
+            lastName: 'ใจเย็น',
+            userType: 'ELDERLY',
+            rating: 4.7
+          },
+          volunteer: {
+            id: user?.id || 'student-1',
+            firstName: user?.firstName || 'สมชาย',
+            lastName: user?.lastName || 'ใจดี',
+            rating: 4.9
+          }
         }
-      });
+      ] : [
+        // Tasks created by elderly
+        {
+          id: '1',
+          title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
+          description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
+          category: 'EXERCISE',
+          status: 'ACCEPTED',
+          volunteerHours: 2,
+          estimatedHours: 2,
+          address: 'เซ็นทรัลเวิลด์',
+          city: 'กรุงเทพฯ',
+          scheduledDate: '2024-01-22',
+          scheduledTime: '09:00',
+          createdAt: '2024-01-15T10:00:00Z',
+          creator: {
+            id: user?.id || 'elderly-1',
+            firstName: user?.firstName || 'สมศรี',
+            lastName: user?.lastName || 'ใจดี',
+            userType: 'ELDERLY',
+            rating: 4.8
+          },
+          volunteer: {
+            id: 'student-1',
+            firstName: 'สมชาย',
+            lastName: 'ใจดี',
+            rating: 4.9
+          }
+        },
+        {
+          id: '2',
+          title: 'ช่วยติดตั้งคอมพิวเตอร์',
+          description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน',
+          category: 'REPAIR',
+          status: 'PENDING',
+          volunteerHours: 4,
+          estimatedHours: 4,
+          address: 'สุขุมวิท 55',
+          city: 'กรุงเทพฯ',
+          scheduledDate: '2024-01-25',
+          scheduledTime: '14:00',
+          createdAt: '2024-01-16T09:00:00Z',
+          creator: {
+            id: user?.id || 'elderly-2',
+            firstName: user?.firstName || 'ประยุทธ',
+            lastName: user?.lastName || 'สมบูรณ์',
+            userType: 'ELDERLY',
+            rating: 4.5
+          }
+        }
+      ];
       
-      if (response.ok) {
-        const userTasks = await response.json();
-        setTasks(userTasks);
-      } else {
-                 // Mock data for demo
-         const mockTasks: Task[] = [
-           {
-             id: '1',
-             title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-             description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด ตรวจตา และตรวจสุขภาพทั่วไป',
-             address: 'โรงพยาบาลมหาราช',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10400',
-             status: 'COMPLETED',
-             createdAt: '2024-01-15T10:00:00Z',
-             scheduledDate: '2024-01-20',
-             scheduledTime: '09:00',
-             estimatedHours: 3,
-
-             category: 'HOSPITAL',
-             creator: {
-               id: user?.id || '',
-               firstName: user?.firstName || '',
-               lastName: user?.lastName || '',
-               userType: user?.userType || 'ELDERLY'
-             },
-             accepter: {
-               id: 'student-1',
-               firstName: 'สมชาย',
-               lastName: 'ใจดี',
-               userType: 'STUDENT'
-             }
-           },
-           {
-             id: '2',
-             title: 'พาไปทำบุญที่วัดพระแก้ว',
-             description: 'ต้องการคนพาไปทำบุญที่วัดพระแก้ว ไหว้พระ ทำบุญใส่บาตร และเดินชมความสวยงามของวัด',
-             address: 'วัดพระแก้ว',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10200',
-             status: 'IN_PROGRESS',
-             createdAt: '2024-01-18T14:00:00Z',
-             scheduledDate: '2024-01-25',
-             scheduledTime: '08:00',
-             estimatedHours: 4,
-
-             category: 'TEMPLE',
-             creator: {
-               id: user?.id || '',
-               firstName: user?.firstName || '',
-               lastName: user?.lastName || '',
-               userType: user?.userType || 'ELDERLY'
-             },
-             accepter: {
-               id: 'student-2',
-               firstName: 'สมหญิง',
-               lastName: 'รักดี',
-               userType: 'STUDENT'
-             }
-           },
-           {
-             id: '3',
-             title: 'ช่วยซ่อมคอมพิวเตอร์',
-             description: 'คอมพิวเตอร์เสีย ต้องการคนช่วยซ่อม ตรวจสอบฮาร์ดแวร์ และติดตั้งโปรแกรมใหม่',
-             address: 'บ้านผู้ใช้',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10400',
-             status: 'PENDING',
-             createdAt: '2024-01-20T16:00:00Z',
-             scheduledDate: '2024-01-30',
-             scheduledTime: '13:00',
-             estimatedHours: 2,
-
-             category: 'REPAIR',
-             creator: {
-               id: user?.id || '',
-               firstName: user?.firstName || '',
-               lastName: user?.lastName || '',
-               userType: user?.userType || 'ELDERLY'
-             }
-           },
-           {
-             id: '4',
-             title: 'ช่วยออกกำลังกายที่สวนสาธารณะ',
-             description: 'ต้องการคนช่วยออกกำลังกายที่สวนลุมพินี เดินเร็ว วิ่งเหยาะๆ และทำท่ากายบริหารเบาๆ',
-             address: 'สวนลุมพินี',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10400',
-             status: 'ACCEPTED',
-             createdAt: '2024-01-22T08:00:00Z',
-             scheduledDate: '2024-02-01',
-             scheduledTime: '06:00',
-             estimatedHours: 2,
-
-             category: 'EXERCISE',
-             creator: {
-               id: user?.id || '',
-               firstName: user?.firstName || '',
-               lastName: user?.lastName || '',
-               userType: user?.userType || 'ELDERLY'
-             },
-             accepter: {
-               id: 'student-3',
-               firstName: 'สมชาย',
-               lastName: 'รักสุขภาพ',
-               userType: 'STUDENT'
-             }
-           },
-           {
-             id: '5',
-             title: 'ช่วยซื้อของที่ตลาด',
-             description: 'ต้องการคนพาไปซื้อของที่ตลาดคลองเตย ซื้อผัก ผลไม้ เนื้อสัตว์ และของใช้ในบ้าน',
-             address: 'ตลาดคลองเตย',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10110',
-             status: 'COMPLETED',
-             createdAt: '2024-01-10T07:00:00Z',
-             scheduledDate: '2024-01-15',
-             scheduledTime: '07:30',
-             estimatedHours: 2,
-
-             category: 'EXERCISE',
-             creator: {
-               id: user?.id || '',
-               firstName: user?.firstName || '',
-               lastName: user?.lastName || '',
-               userType: user?.userType || 'ELDERLY'
-             },
-             accepter: {
-               id: 'student-4',
-               firstName: 'สมหญิง',
-               lastName: 'ใจดี',
-               userType: 'STUDENT'
-             }
-           },
-           {
-             id: '6',
-             title: 'ช่วยจัดระเบียบห้องสมุด',
-             description: 'ต้องการคนช่วยจัดระเบียบหนังสือในห้องสมุด จัดหมวดหมู่ และทำความสะอาดพื้นที่',
-             address: 'ห้องสมุดประชาชน',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10300',
-             status: 'CANCELLED',
-             createdAt: '2024-01-25T14:00:00Z',
-             scheduledDate: '2024-02-05',
-             scheduledTime: '14:00',
-             estimatedHours: 4,
-
-             category: 'REPAIR',
-             creator: {
-               id: user?.id || '',
-               firstName: user?.firstName || '',
-               lastName: user?.lastName || '',
-               userType: user?.userType || 'ELDERLY'
-             }
-           }
-         ];
-        setTasks(mockTasks);
-      }
+      setTasks(mockTasks);
     } catch (error) {
-      console.error('Failed to load tasks:', error);
+      console.error('Error loading tasks:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filterTasks = () => {
-    let filtered = tasks;
-
-    // Filter by status
-    if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(task => task.status === statusFilter);
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(task =>
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.province.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredTasks(filtered);
-  };
-
   const getStatusInfo = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return { text: 'รอการรับงาน', color: 'bg-yellow-500/20 text-yellow-300', icon: Clock };
+        return { label: 'รออาสาสมัคร', color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="w-4 h-4" /> };
       case 'ACCEPTED':
-        return { text: 'รับงานแล้ว', color: 'bg-blue-500/20 text-blue-300', icon: CheckCircle };
+        return { label: 'ถูกยอมรับ', color: 'bg-blue-100 text-blue-800', icon: <CheckCircle className="w-4 h-4" /> };
       case 'IN_PROGRESS':
-        return { text: 'กำลังดำเนินการ', color: 'bg-purple-500/20 text-purple-300', icon: Play };
+        return { label: 'กำลังดำเนินการ', color: 'bg-orange-100 text-orange-800', icon: <Clock className="w-4 h-4" /> };
       case 'COMPLETED':
-        return { text: 'เสร็จสิ้น', color: 'bg-green-500/20 text-green-300', icon: CheckCircle };
+        return { label: 'เสร็จสิ้น', color: 'bg-green-100 text-green-800', icon: <CheckCircle className="w-4 h-4" /> };
       case 'CANCELLED':
-        return { text: 'ยกเลิก', color: 'bg-red-500/20 text-red-300', icon: XCircle };
+        return { label: 'ถูกยกเลิก', color: 'bg-red-100 text-red-800', icon: <XCircle className="w-4 h-4" /> };
       default:
-        return { text: 'ไม่ทราบสถานะ', color: 'bg-gray-500/20 text-gray-300', icon: Clock };
+        return { label: 'ไม่ทราบสถานะ', color: 'bg-gray-100 text-gray-800', icon: <AlertCircle className="w-4 h-4" /> };
     }
   };
 
   const getCategoryInfo = (category: string) => {
     switch (category) {
       case 'HOSPITAL':
-        return { name: 'โรงพยาบาล', color: 'from-red-500 to-pink-500' };
+        return { name: 'โรงพยาบาล', emoji: '🏥', color: 'from-red-500 to-pink-500' };
       case 'TEMPLE':
-        return { name: 'วัด', color: 'from-yellow-500 to-orange-500' };
+        return { name: 'วัด', emoji: '🏛️', color: 'from-yellow-500 to-orange-500' };
       case 'EXERCISE':
-        return { name: 'ออกกำลังกาย', color: 'from-green-500 to-teal-500' };
+        return { name: 'ออกกำลังกาย', emoji: '💪', color: 'from-green-500 to-teal-500' };
       case 'REPAIR':
-        return { name: 'งานซ่อม', color: 'from-blue-500 to-indigo-500' };
+        return { name: 'งานซ่อม', emoji: '🔧', color: 'from-blue-500 to-indigo-500' };
       default:
-        return { name: 'อื่นๆ', color: 'from-gray-500 to-gray-600' };
+        return { name: 'อื่นๆ', emoji: '📋', color: 'from-gray-500 to-gray-600' };
     }
   };
 
-  const handleStatusChange = async (taskId: string, newStatus: string) => {
-    try {
-      // In a real app, this would call an API
-      setTasks(prev => prev.map(task =>
-        task.id === taskId ? { ...task, status: newStatus as Task['status'] } : task
-      ));
-    } catch (error) {
-      console.error('Failed to update task status:', error);
+  const getFilteredTasks = () => {
+    let filtered = tasks;
+    
+    // Apply filter
+    if (filter === 'pending') {
+      filtered = filtered.filter(task => task.status === 'PENDING');
+    } else if (filter === 'accepted') {
+      filtered = filtered.filter(task => task.status === 'ACCEPTED');
+    } else if (filter === 'completed') {
+      filtered = filtered.filter(task => task.status === 'COMPLETED');
+    } else if (filter === 'cancelled') {
+      filtered = filtered.filter(task => task.status === 'CANCELLED');
     }
+    
+    // Apply search
+    if (searchQuery) {
+      filtered = filtered.filter(task => 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.address.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered;
   };
 
-  if (loading) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatTime = (timeString: string) => {
+    return timeString;
+  };
+
+  if (loading || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
-          <p className="mt-4 text-lg text-white">กำลังโหลด...</p>
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลด...</p>
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  const filteredTasks = getFilteredTasks();
+  const stats = {
+    total: tasks.length,
+    pending: tasks.filter(t => t.status === 'PENDING').length,
+    accepted: tasks.filter(t => t.status === 'ACCEPTED').length,
+    completed: tasks.filter(t => t.status === 'COMPLETED').length
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
-      {/* Header */}
-      <div className="glass-card mx-4 mt-4 p-6">
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Status Bar */}
+      <div className="bg-white px-4 py-3 text-sm text-gray-600 text-center border-b border-gray-100 md:hidden">
         <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-pink-300 transition-colors">
-            <ArrowLeft className="w-5 h-5 inline mr-2" />
-            กลับไปหน้าแรก
-          </Link>
-          <h1 className="text-3xl font-bold text-white">งานของฉัน</h1>
-          <Link href="/add-task" className="glass-button px-4 py-2">
-            เพิ่มงานใหม่
-          </Link>
+          <span>9:41</span>
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-6 px-4">
-        {/* Filters and Search */}
-        <div className="glass-card p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-              <input
-                type="text"
-                placeholder="ค้นหางาน..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white/20 text-white placeholder-white/50 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
-              />
-            </div>
-
-            <div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
-              >
-                <option value="ALL">สถานะทั้งหมด</option>
-                <option value="PENDING">รอการรับงาน</option>
-                <option value="ACCEPTED">รับงานแล้ว</option>
-                <option value="IN_PROGRESS">กำลังดำเนินการ</option>
-                <option value="COMPLETED">เสร็จสิ้น</option>
-                <option value="CANCELLED">ยกเลิก</option>
-              </select>
-            </div>
-
-            <div className="text-right">
-              <p className="text-white/70 text-sm mb-1">งานทั้งหมด</p>
-              <p className="text-2xl font-bold text-white">{filteredTasks.length}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Tasks List */}
-        {isLoading ? (
-          <div className="glass-card p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-400 mx-auto mb-4"></div>
-            <p className="text-white">กำลังโหลดงาน...</p>
-          </div>
-        ) : filteredTasks.length === 0 ? (
-          <div className="glass-card p-12 text-center">
-            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Clock className="w-10 h-10 text-white/40" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">ไม่มีงาน</h3>
-            <p className="text-white/60 mb-6">
-              {statusFilter === 'ALL' 
-                ? 'คุณยังไม่มีงานใดๆ' 
-                : `ไม่มีงานที่มีสถานะ "${getStatusInfo(statusFilter).text}"`
-              }
-            </p>
-            <Link href="/add-task" className="glass-button px-6 py-3">
-              สร้างงานใหม่
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            
+            <h1 className="text-lg font-semibold text-gray-900">
+              {user?.userType === 'STUDENT' ? 'งานที่รับไว้' : 'งานที่สร้าง'}
+            </h1>
+            
+            <Link
+              href="/add-task"
+              className="p-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
             </Link>
           </div>
+        </div>
+      </header>
+
+      {/* Stats */}
+      <div className="bg-white px-4 py-4 border-b border-gray-200">
+        <div className="grid grid-cols-4 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+            <div className="text-sm text-gray-600">ทั้งหมด</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-sm text-gray-600">รอ</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-600">{stats.accepted}</div>
+            <div className="text-sm text-gray-600">ยอมรับ</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+            <div className="text-sm text-gray-600">เสร็จ</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="bg-white px-4 py-3 border-b border-gray-200">
+        <div className="space-y-3">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ค้นหางาน..."
+              className="w-full pl-10 pr-4 py-3 bg-gray-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+            />
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'all'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              ทั้งหมด
+            </button>
+            <button
+              onClick={() => setFilter('pending')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'pending'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              รอ
+            </button>
+            <button
+              onClick={() => setFilter('accepted')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'accepted'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              ยอมรับ
+            </button>
+            <button
+              onClick={() => setFilter('completed')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'completed'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              เสร็จ
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1">
+        {filteredTasks.length === 0 ? (
+          <div className="text-center py-12 px-4">
+            <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {searchQuery ? 'ไม่พบงานที่ค้นหา' : 'ไม่มีงาน'}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {searchQuery 
+                ? 'ลองเปลี่ยนคำค้นหาหรือล้างตัวกรอง'
+                : user?.userType === 'STUDENT'
+                  ? 'คุณยังไม่ได้รับงานใดๆ'
+                  : 'คุณยังไม่สร้างงานใดๆ'
+              }
+            </p>
+            {user?.userType === 'ELDERLY' && (
+              <Link
+                href="/add-task"
+                className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                สร้างงานใหม่
+              </Link>
+            )}
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 p-4">
             {filteredTasks.map((task) => {
               const statusInfo = getStatusInfo(task.status);
               const categoryInfo = getCategoryInfo(task.category);
-              const StatusIcon = statusInfo.icon;
-
+              
               return (
-                <div key={task.id} className="glass-card p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    {/* Task Info */}
-                    <div className="flex-1">
-                      <div className="flex items-start gap-4">
-                        <div className={`w-16 h-16 bg-gradient-to-r ${categoryInfo.color} rounded-2xl flex items-center justify-center text-white text-2xl font-bold`}>
-                          {categoryInfo.name.charAt(0)}
+                <div
+                  key={task.id}
+                  className="bg-white rounded-2xl shadow-sm overflow-hidden"
+                >
+                  {/* Task Header */}
+                  <div className="p-4 border-b border-gray-100">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-12 h-12 bg-gradient-to-r ${categoryInfo.color} rounded-xl flex items-center justify-center text-2xl`}>
+                          {categoryInfo.emoji}
                         </div>
-                        
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-semibold text-white">{task.title}</h3>
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusInfo.color}`}>
-                              {statusInfo.text}
-                            </span>
-                          </div>
-                          
-                          <p className="text-white/70 mb-3">{task.description}</p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                            <div className="flex items-center text-white/60">
-                              <MapPin className="w-4 h-4 mr-2" />
-                              {task.address}, {task.city}, {task.province}
-                            </div>
-                            <div className="flex items-center text-white/60">
-                              <Calendar className="w-4 h-4 mr-2" />
-                              {new Date(task.scheduledDate).toLocaleDateString('th-TH')} เวลา {task.scheduledTime}
-                            </div>
-                            <div className="flex items-center text-white/60">
-                              <Clock className="w-4 h-4 mr-2" />
-                              {task.estimatedHours} ชั่วโมง
-                            </div>
-                          </div>
-
-                          {task.accepter && (
-                            <div className="mt-3 p-3 bg-white/10 rounded-lg">
-                              <p className="text-white/70 text-sm mb-1">ผู้รับงาน:</p>
-                              <div className="flex items-center text-white">
-                                <User className="w-4 h-4 mr-2" />
-                                {task.accepter.firstName} {task.accepter.lastName} ({task.accepter.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'})
-                              </div>
-                            </div>
-                          )}
+                          <h3 className="font-semibold text-gray-900 mb-1 leading-tight">
+                            {task.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {categoryInfo.name}
+                          </p>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-col gap-2 min-w-fit">
-                      <Link
-                        href={`/chat?task=${task.id}`}
-                        className="glass-button-secondary px-4 py-2 text-center flex items-center justify-center"
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        แชท
-                      </Link>
                       
-                      <Link
-                        href={`/task/${task.id}`}
-                        className="glass-button px-4 py-2 text-center flex items-center justify-center"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        ดูรายละเอียด
-                      </Link>
+                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusInfo.color}`}>
+                        {statusInfo.icon}
+                        <span className="ml-1">{statusInfo.label}</span>
+                      </div>
+                    </div>
+                    
+                    <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                      {task.description}
+                    </p>
+                  </div>
 
-                      {/* Status Actions */}
-                      {task.status === 'ACCEPTED' && (
-                        <button
-                          onClick={() => handleStatusChange(task.id, 'IN_PROGRESS')}
-                          className="glass-button px-4 py-2 text-center flex items-center justify-center"
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          เริ่มงาน
-                        </button>
-                      )}
+                  {/* Task Details */}
+                  <div className="px-4 py-3 bg-gray-50">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-700">{task.address}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-700">
+                          {formatDate(task.scheduledDate)} {formatTime(task.scheduledTime)}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-700">{task.estimatedHours} ชม.</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Star className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-700">{task.volunteerHours} ชม.</span>
+                      </div>
+                    </div>
+                  </div>
 
-                      {task.status === 'IN_PROGRESS' && (
-                        <button
-                          onClick={() => handleStatusChange(task.id, 'COMPLETED')}
-                          className="glass-button px-4 py-2 text-center flex items-center justify-center"
+                  {/* User Info */}
+                  <div className="px-4 py-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {user?.userType === 'STUDENT' 
+                              ? `${task.creator.firstName} ${task.creator.lastName}`
+                              : task.volunteer 
+                                ? `${task.volunteer.firstName} ${task.volunteer.lastName}`
+                                : 'ยังไม่มีอาสาสมัคร'
+                            }
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {user?.userType === 'STUDENT' 
+                              ? 'ผู้สร้างงาน'
+                              : 'อาสาสมัคร'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        {task.status === 'ACCEPTED' && (
+                          <Link
+                            href={`/chat?task=${task.id}`}
+                            className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                          </Link>
+                        )}
+                        
+                        <Link
+                          href={`/task/${task.id}`}
+                          className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
                         >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          เสร็จสิ้น
+                          <Eye className="w-5 h-5" />
+                        </Link>
+                        
+                        <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
+                          <MoreVertical className="w-5 h-5" />
                         </button>
-                      )}
-
-                      {(task.status === 'PENDING' || task.status === 'ACCEPTED') && (
-                        <button
-                          onClick={() => handleStatusChange(task.id, 'CANCELLED')}
-                          className="glass-button-secondary px-4 py-2 text-center flex items-center justify-center text-red-300 hover:text-red-200"
-                        >
-                          <XCircle className="w-4 h-4 mr-2" />
-                          ยกเลิก
-                        </button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -516,7 +573,10 @@ export default function MyTasks() {
             })}
           </div>
         )}
-      </div>
+      </main>
+
+      {/* Mobile Safe Area */}
+      <div className="h-6 bg-gray-50 md:hidden"></div>
     </div>
   );
 }

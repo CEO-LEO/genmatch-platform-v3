@@ -14,7 +14,16 @@ import {
   MessageCircle,
   Eye,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Phone,
+  Mail,
+  Share2,
+  Bookmark,
+  Flag,
+  ChevronRight,
+  Building,
+  Globe,
+  Wrench
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -38,6 +47,8 @@ interface Task {
     firstName: string;
     lastName: string;
     userType: string;
+    rating?: number;
+    totalTasks?: number;
   };
 }
 
@@ -47,13 +58,18 @@ export default function TaskDetailPage() {
   const { user, loading } = useAuth();
   const [task, setTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const categories = [
-    { id: 'HOSPITAL', name: 'โรงพยาบาล', color: 'from-red-500 to-pink-500' },
-    { id: 'TEMPLE', name: 'วัด', color: 'from-yellow-500 to-orange-500' },
-    { id: 'EXERCISE', name: 'ออกกำลังกาย', color: 'from-green-500 to-teal-500' },
-    { id: 'REPAIR', name: 'งานซ่อม', color: 'from-blue-500 to-indigo-500' }
+    { id: 'HOSPITAL', name: 'โรงพยาบาล', color: 'from-red-500 to-pink-500', emoji: '🏥' },
+    { id: 'TEMPLE', name: 'วัด', color: 'from-yellow-500 to-orange-500', emoji: '🏛️' },
+    { id: 'EXERCISE', name: 'ออกกำลังกาย', color: 'from-green-500 to-teal-500', emoji: '💪' },
+    { id: 'REPAIR', name: 'งานซ่อม', color: 'from-blue-500 to-indigo-500', emoji: '🔧' }
   ];
+
+  const getCategoryInfo = (categoryId: string) => {
+    return categories.find(cat => cat.id === categoryId) || categories[0];
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -67,7 +83,7 @@ export default function TaskDetailPage() {
 
   const loadTask = async () => {
     try {
-      console.log('Loading task with ID:', params.id); // Debug log
+      console.log('Loading task with ID:', params.id);
       
       // Mock data based on task ID
       const mockTasks = {
@@ -90,7 +106,9 @@ export default function TaskDetailPage() {
             id: 'elderly-1',
             firstName: 'สมศรี',
             lastName: 'ใจดี',
-            userType: 'ELDERLY'
+            userType: 'ELDERLY',
+            rating: 4.8,
+            totalTasks: 15
           }
         },
         '2': {
@@ -99,235 +117,287 @@ export default function TaskDetailPage() {
           description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน เช่น Office, Chrome, Photoshop และโปรแกรมอื่นๆ ที่จำเป็น',
           category: 'REPAIR',
           status: 'PENDING',
-          volunteerHours: 3,
-          estimatedHours: 3,
-          address: 'บ้านผู้ใช้',
-          city: 'กรุงเทพฯ',
-          province: 'กรุงเทพฯ',
-          postalCode: '10400',
-          scheduledDate: '2024-01-25',
-          scheduledTime: '13:00',
-          createdAt: '2024-01-18T14:00:00Z',
-          creator: {
-            id: 'elderly-2',
-            firstName: 'สมชาย',
-            lastName: 'รักดี',
-            userType: 'ELDERLY'
-          }
-        },
-        '3': {
-          id: '3',
-          title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-          description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด ตรวจตา และตรวจสุขภาพทั่วไป',
-          category: 'HOSPITAL',
-          status: 'PENDING',
           volunteerHours: 4,
           estimatedHours: 4,
-          address: 'โรงพยาบาลมหาราช',
+          address: 'สุขุมวิท 55',
           city: 'กรุงเทพฯ',
           province: 'กรุงเทพฯ',
-          postalCode: '10400',
-          scheduledDate: '2024-01-28',
-          scheduledTime: '08:00',
-          createdAt: '2024-01-20T16:00:00Z',
+          postalCode: '10110',
+          scheduledDate: '2024-01-25',
+          scheduledTime: '14:00',
+          createdAt: '2024-01-16T09:00:00Z',
           creator: {
-            id: 'elderly-3',
-            firstName: 'สมศักดิ์',
-            lastName: 'ใจเย็น',
-            userType: 'ELDERLY'
+            id: 'elderly-2',
+            firstName: 'ประยุทธ',
+            lastName: 'สมบูรณ์',
+            userType: 'ELDERLY',
+            rating: 4.5,
+            totalTasks: 8
           }
         }
       };
-      
-      const taskId = params.id as string;
-      const mockTask = mockTasks[taskId as keyof typeof mockTasks];
-      
-      if (mockTask) {
-        console.log('Mock task loaded:', mockTask); // Debug log
-        setTask(mockTask);
-      } else {
-        console.log('Task not found for ID:', taskId);
-        setTask(null);
+
+      const taskData = mockTasks[params.id as keyof typeof mockTasks];
+      if (taskData) {
+        setTask(taskData);
       }
     } catch (error) {
-      console.error('Failed to load task:', error);
+      console.error('Error loading task:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getCategoryInfo = (category: string) => {
-    const cat = categories.find(c => c.id === category);
-    return cat || categories[0];
-  };
-
-  const handleAcceptTask = async () => {
-    try {
-      // In a real app, this would call an API
-      setTask(prev => prev ? { ...prev, status: 'ACCEPTED' } : null);
-      alert('รับงานสำเร็จ! คุณสามารถติดต่อผู้สร้างงานผ่านระบบแชทได้');
-    } catch (error) {
-      console.error('Failed to accept task:', error);
+  const handleAcceptTask = () => {
+    if (task) {
+      router.push(`/task/${task.id}/complete`);
     }
   };
 
-     if (loading) {
-     return (
-       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
-         <div className="text-center">
-           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
-           <p className="mt-4 text-lg text-white">กรุณารอสักครู่...</p>
-         </div>
-       </div>
-     );
-   }
+  const handleContactCreator = () => {
+    // Handle contact creator
+    console.log('Contacting creator...');
+  };
 
-  if (!user) {
-    return null;
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatTime = (timeString: string) => {
+    return timeString;
+  };
+
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลด...</p>
+        </div>
+      </div>
+    );
   }
 
-     if (isLoading) {
-     return (
-       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
-         <div className="text-center">
-           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
-           <p className="mt-4 text-lg text-white">กำลังโหลดรายละเอียดงาน...</p>
-         </div>
-       </div>
-     );
-   }
-
-     if (!task) {
-     return (
-       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700 flex items-center justify-center">
-         <div className="glass-card p-8 text-center max-w-md">
-           <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-           <h1 className="text-xl font-bold text-white mb-4">ไม่พบงาน</h1>
-           <p className="text-white/70 mb-6">งานที่คุณค้นหาอาจถูกลบหรือไม่มีอยู่</p>
-           <Link href="/search" className="glass-button px-6 py-3">
-             กลับไปค้นหางาน
-           </Link>
-         </div>
-       </div>
-     );
-   }
+  if (!task) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center px-4">
+          <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">ไม่พบงาน</h2>
+          <p className="text-gray-600 mb-6">งานที่คุณค้นหาอาจถูกลบหรือไม่มีอยู่</p>
+          <Link 
+            href="/search"
+            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับไปค้นหา
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const categoryInfo = getCategoryInfo(task.category);
 
   return (
-         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
-       {/* Header */}
-       <div className="glass-card mx-4 mt-4 p-6">
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Status Bar */}
+      <div className="bg-white px-4 py-3 text-sm text-gray-600 text-center border-b border-gray-100 md:hidden">
         <div className="flex items-center justify-between">
-          <Link href="/search" className="text-white hover:text-pink-300 transition-colors">
-            <ArrowLeft className="w-5 h-5 inline mr-2" />
-            กลับไปค้นหางาน
-          </Link>
-          <h1 className="text-3xl font-bold text-white">รายละเอียดงาน</h1>
-          <div className="w-32"></div>
+          <span>9:41</span>
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto py-6 px-4">
-        {/* Task Detail Card */}
-        <div className="glass-card p-8 mb-6">
-          <div className="flex items-start gap-6">
-            {/* Category Icon */}
-            <div className={`w-24 h-24 bg-gradient-to-r ${categoryInfo.color} rounded-3xl flex items-center justify-center text-white text-4xl font-bold`}>
-              {categoryInfo.name.charAt(0)}
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            
+            <h1 className="text-lg font-semibold text-gray-900">รายละเอียดงาน</h1>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsBookmarked(!isBookmarked)}
+                className={`p-2 rounded-lg transition-colors ${
+                  isBookmarked 
+                    ? 'text-red-500 hover:bg-red-50' 
+                    : 'text-gray-400 hover:bg-gray-100'
+                }`}
+              >
+                <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
+              </button>
+              <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
+                <Share2 className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="px-4 py-6 space-y-6">
+        {/* Task Header */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className={`w-12 h-12 bg-gradient-to-r ${categoryInfo.color} rounded-xl flex items-center justify-center text-2xl`}>
+                  {categoryInfo.emoji}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 leading-tight">
+                    {task.title}
+                  </h2>
+                  <p className="text-sm text-gray-600">{categoryInfo.name}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{task.estimatedHours} ชม.</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatDate(task.scheduledDate)}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{formatTime(task.scheduledTime)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Status Badge */}
+          <div className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+            รออาสาสมัคร
+          </div>
+        </div>
+
+        {/* Creator Info */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">ผู้สร้างงาน</h3>
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-gray-900">
+                {task.creator.firstName} {task.creator.lastName}
+              </h4>
+              <p className="text-sm text-gray-600 mb-2">
+                {task.creator.userType === 'ELDERLY' ? 'ผู้สูงอายุ' : 'นักศึกษา'}
+              </p>
+              <div className="flex items-center space-x-4 text-sm">
+                <div className="flex items-center space-x-1">
+                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                  <span className="text-gray-700">{task.creator.rating}</span>
+                </div>
+                <div className="text-gray-600">
+                  งานที่สร้าง {task.creator.totalTasks} งาน
+                </div>
+              </div>
+            </div>
+            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Task Details */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">รายละเอียดงาน</h3>
+          <p className="text-gray-700 leading-relaxed mb-6">
+            {task.description}
+          </p>
+          
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+              <MapPin className="w-5 h-5 text-gray-400" />
+              <div>
+                <p className="font-medium text-gray-900">{task.address}</p>
+                <p className="text-sm text-gray-600">{task.city}, {task.province} {task.postalCode}</p>
+              </div>
             </div>
             
-            {/* Task Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-3xl font-bold text-white">{task.title}</h2>
-                <span className="px-4 py-2 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
-                  รอการรับงาน
-                </span>
+            <div className="flex items-center space-x-3">
+              <Clock className="w-5 h-5 text-gray-400" />
+              <div>
+                <p className="font-medium text-gray-900">วันที่และเวลา</p>
+                <p className="text-sm text-gray-600">
+                  {formatDate(task.scheduledDate)} เวลา {formatTime(task.scheduledTime)}
+                </p>
               </div>
-              
-              <p className="text-white/80 text-lg leading-relaxed mb-6">{task.description}</p>
-              
-              {/* Task Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="flex items-center text-white/70">
-                  <MapPin className="w-5 h-5 mr-3 text-pink-400" />
-                  <span className="text-lg">{task.address}, {task.city}, {task.province}</span>
-                </div>
-                <div className="flex items-center text-white/70">
-                  <Calendar className="w-5 h-5 mr-3 text-pink-400" />
-                  <span className="text-lg">{new Date(task.scheduledDate).toLocaleDateString('th-TH')}</span>
-                </div>
-                <div className="flex items-center text-white/70">
-                  <Clock className="w-5 h-5 mr-3 text-pink-400" />
-                  <span className="text-lg">{task.scheduledTime}</span>
-                </div>
-                <div className="flex items-center text-white/70">
-                  <Star className="w-5 h-5 mr-3 text-pink-400" />
-                  <span className="text-lg">{task.estimatedHours} ชั่วโมง</span>
-                </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <Heart className="w-5 h-5 text-gray-400" />
+              <div>
+                <p className="font-medium text-gray-900">ชั่วโมงอาสา</p>
+                <p className="text-sm text-gray-600">{task.volunteerHours} ชั่วโมง</p>
               </div>
+            </div>
+          </div>
+        </div>
 
-              {/* Volunteer Hours */}
-              <div className="grid grid-cols-1 gap-6 mb-6">
-                <div className="bg-white/10 rounded-xl p-4">
-                  <p className="text-white/60 text-sm mb-2">ชั่วโมงจิตอาสา</p>
-                  <p className="text-2xl font-bold text-blue-400">{task.volunteerHours} ชั่วโมง</p>
-                </div>
-              </div>
-
-              {/* Creator Info */}
-              <div className="bg-white/10 rounded-xl p-4">
-                <p className="text-white/70 text-sm mb-2">ผู้สร้างงาน</p>
-                <div className="flex items-center text-white">
-                  <User className="w-5 h-5 mr-3 text-pink-400" />
-                  <span className="text-lg">{task.creator.firstName} {task.creator.lastName}</span>
-                  <span className="ml-3 px-3 py-1 rounded-full text-sm bg-purple-500/20 text-purple-300">
-                    {task.creator.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'}
-                  </span>
-                </div>
-              </div>
+        {/* Requirements */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">ความต้องการ</h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <span className="text-gray-700">อายุ 18 ปีขึ้นไป</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <span className="text-gray-700">มีประสบการณ์ในงานที่เกี่ยวข้อง</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <span className="text-gray-700">สามารถเดินทางไปยังสถานที่ได้</span>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="glass-card p-6">
-          <h3 className="text-xl font-semibold text-white mb-4">ดำเนินการ</h3>
-          <div className="flex flex-col sm:flex-row gap-4">
-                         <button
-               onClick={handleAcceptTask}
-               className="glass-button flex-1 px-8 py-4 text-lg font-semibold flex items-center justify-center"
-             >
-               รับงาน
-             </button>
-            
-            <Link
-              href={`/chat?task=${task.id}`}
-              className="glass-button-secondary flex-1 px-8 py-4 text-lg font-semibold flex items-center justify-center"
-            >
-              <MessageCircle className="w-6 h-6 mr-3" />
-              แชทกับผู้สร้างงาน
-            </Link>
-            
-                         <Link
-               href={`/task/${task.id}/complete`}
-               className="glass-button flex-1 px-8 py-4 text-lg font-semibold flex items-center justify-center"
-             >
-               <CheckCircle className="w-6 h-6 mr-3" />
-               ปิดงาน
-             </Link>
-             
-             <Link
-               href="/search"
-               className="glass-button-secondary flex-1 px-8 py-4 text-lg font-semibold flex items-center justify-center"
-             >
-               <Eye className="w-6 h-6 mr-3" />
-               ดูงานอื่นๆ
-             </Link>
-          </div>
+        <div className="space-y-3 pb-6">
+          <button
+            onClick={handleAcceptTask}
+            className="w-full py-4 bg-indigo-600 text-white rounded-xl font-semibold text-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all duration-200 active:scale-95"
+          >
+            รับงานนี้
+          </button>
+          
+          <button
+            onClick={handleContactCreator}
+            className="w-full py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold text-lg hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 active:scale-95"
+          >
+            <MessageCircle className="w-5 h-5 inline mr-2" />
+            ติดต่อผู้สร้างงาน
+          </button>
         </div>
-      </div>
+      </main>
+
+      {/* Mobile Safe Area */}
+      <div className="h-6 bg-gray-50 md:hidden"></div>
     </div>
   );
 }

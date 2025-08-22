@@ -4,423 +4,512 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  GraduationCap, 
-  Building,
+  ArrowLeft,
   Edit,
-  Save,
-  X,
+  Camera,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Star,
   Award,
   Clock,
-  Star,
-  Calendar,
   Heart,
-  TrendingUp
+  Settings,
+  LogOut,
+  ChevronRight,
+  Shield,
+  HelpCircle,
+  Info,
+  Bell,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
 interface UserProfile {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
-  address: string;
+  userType: string;
   studentId?: string;
   university?: string;
-  userType: 'STUDENT' | 'ELDERLY';
-  createdAt: string;
-  totalHours: number;
-  completedTasks: number;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  joinDate: string;
   rating: number;
-  achievements: Achievement[];
+  totalTasks: number;
+  completedTasks: number;
+  volunteerHours: number;
+  achievements: string[];
 }
 
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  unlockedAt: string;
-}
-
-export default function Profile() {
-  const { user, loading } = useAuth();
+export default function ProfilePage() {
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [editForm, setEditForm] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     phone: '',
     address: '',
-    studentId: '',
-    university: ''
+    city: '',
+    province: '',
+    postalCode: ''
   });
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
+      return;
     }
     if (user) {
-      loadUserProfile();
+      loadProfile();
     }
   }, [user, loading, router]);
 
-  const loadUserProfile = async () => {
+  const loadProfile = async () => {
     try {
       // Mock profile data
       const mockProfile: UserProfile = {
-        id: user?.id || '',
-                 name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'ผู้ใช้',
-        email: user?.email || '',
+        id: user?.id || '1',
+        firstName: user?.firstName || 'สมชาย',
+        lastName: user?.lastName || 'ใจดี',
+        email: user?.email || 'somchai@example.com',
         phone: '081-234-5678',
-        address: '123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110',
-        studentId: user?.userType === 'STUDENT' ? '6400000001' : '',
-        university: user?.userType === 'STUDENT' ? 'มหาวิทยาลัยมหิดล' : '',
         userType: user?.userType || 'STUDENT',
-        createdAt: user?.createdAt || new Date().toISOString(),
-        totalHours: 24,
-        completedTasks: 12,
+        studentId: user?.userType === 'STUDENT' ? '6xxxxxxxxx' : undefined,
+        university: user?.userType === 'STUDENT' ? 'มหาวิทยาลัยมหิดล' : undefined,
+        address: '123 ถนนสุขุมวิท',
+        city: 'กรุงเทพฯ',
+        province: 'กรุงเทพฯ',
+        postalCode: '10110',
+        joinDate: '2024-01-01',
         rating: 4.8,
-                 achievements: [
-           {
-             id: '1',
-             title: 'จิตอาสาครั้งแรก',
-             description: 'เสร็จสิ้นงานจิตอาสาครั้งแรก',
-             icon: '🌟',
-             unlockedAt: '2024-01-15'
-           },
-           {
-             id: '2',
-             title: 'ผู้ช่วยเหลือยอดเยี่ยม',
-             description: 'ได้รับคะแนนความพึงพอใจ 5 ดาว',
-             icon: '⭐',
-             unlockedAt: '2024-02-20'
-           },
-           {
-             id: '3',
-             title: 'จิตอาสา 10 ชั่วโมง',
-             description: 'สะสมชั่วโมงจิตอาสาได้ 10 ชั่วโมง',
-             icon: '🏆',
-             unlockedAt: '2024-03-10'
-           },
-           {
-             id: '4',
-             title: 'จิตอาสา 25 ชั่วโมง',
-             description: 'สะสมชั่วโมงจิตอาสาได้ 25 ชั่วโมง',
-             icon: '🎖️',
-             unlockedAt: '2024-04-15'
-           },
-           {
-             id: '5',
-             title: 'ผู้ช่วยเหลือ 5 งาน',
-             description: 'ช่วยเหลือผู้สูงอายุครบ 5 งาน',
-             icon: '💝',
-             unlockedAt: '2024-05-01'
-           },
-           {
-             id: '6',
-             title: 'จิตอาสา 50 ชั่วโมง',
-             description: 'สะสมชั่วโมงจิตอาสาได้ 50 ชั่วโมง',
-             icon: '👑',
-             unlockedAt: '2024-06-10'
-           },
-           {
-             id: '7',
-             title: 'ผู้ช่วยเหลือยอดเยี่ยม 10 ครั้ง',
-             description: 'ได้รับคะแนนความพึงพอใจ 5 ดาว ครบ 10 ครั้ง',
-             icon: '🏅',
-             unlockedAt: '2024-07-20'
-           },
-           {
-             id: '8',
-             title: 'จิตอาสา 100 ชั่วโมง',
-             description: 'สะสมชั่วโมงจิตอาสาได้ 100 ชั่วโมง',
-             icon: '💎',
-             unlockedAt: '2024-08-30'
-           }
-         ]
+        totalTasks: 25,
+        completedTasks: 23,
+        volunteerHours: 47,
+        achievements: ['จิตอาสาดีเด่น', 'ผู้ช่วยเหลือยอดเยี่ยม', 'อาสาสมัครประจำเดือน']
       };
       
       setProfile(mockProfile);
       setEditForm({
-        name: mockProfile.name,
+        firstName: mockProfile.firstName,
+        lastName: mockProfile.lastName,
         phone: mockProfile.phone,
         address: mockProfile.address,
-        studentId: mockProfile.studentId || '',
-        university: mockProfile.university || ''
+        city: mockProfile.city,
+        province: mockProfile.province,
+        postalCode: mockProfile.postalCode
       });
     } catch (error) {
-      console.error('Failed to load profile:', error);
+      console.error('Error loading profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSave = () => {
-    if (profile) {
-      setProfile({
-        ...profile,
-        name: editForm.name,
-        phone: editForm.phone,
-        address: editForm.address,
-        studentId: editForm.studentId,
-        university: editForm.university
-      });
+  const handleSaveProfile = async () => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (profile) {
+        setProfile({
+          ...profile,
+          ...editForm
+        });
+      }
+      
       setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
     }
   };
 
-  const handleCancel = () => {
-    if (profile) {
-      setEditForm({
-        name: profile.name,
-        phone: profile.phone,
-        address: profile.address,
-        studentId: profile.studentId || '',
-        university: profile.university || ''
-      });
-      setIsEditing(false);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
     }
   };
 
-  if (loading) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if (loading || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
-          <p className="mt-4 text-lg text-white">กำลังโหลด...</p>
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลด...</p>
         </div>
       </div>
     );
   }
 
-  if (!user || !profile) {
-    return null;
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700">
-      {/* Header */}
-      <div className="glass-card mx-4 mt-4 p-6">
-        <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-pink-300 transition-colors">
-            ← กลับไปหน้าแรก
-          </Link>
-          <h1 className="text-3xl font-bold text-white">โปรไฟล์</h1>
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center px-4">
+          <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">ไม่พบข้อมูลโปรไฟล์</h2>
+          <p className="text-gray-600 mb-6">ไม่สามารถโหลดข้อมูลโปรไฟล์ได้</p>
           <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="glass-button-secondary px-4 py-2 flex items-center space-x-2"
+            onClick={() => router.back()}
+            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
           >
-            {isEditing ? (
-              <>
-                <X className="w-4 h-4" />
-                ยกเลิก
-              </>
-            ) : (
-              <>
-                <Edit className="w-4 h-4" />
-                แก้ไข
-              </>
-            )}
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            กลับไป
           </button>
         </div>
       </div>
+    );
+  }
 
-      <div className="max-w-6xl mx-auto py-6 px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Info */}
-          <div className="lg:col-span-2">
-            <div className="glass-card p-8 mb-6">
-              <h2 className="text-2xl font-bold text-white mb-6">ข้อมูลส่วนตัว</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-white/70 text-sm mb-2">ชื่อ</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                      className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                    />
-                  ) : (
-                    <div className="flex items-center text-white">
-                      <User className="w-5 h-5 mr-3 text-pink-400" />
-                      {profile.name}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-white/70 text-sm mb-2">อีเมล</label>
-                  <div className="flex items-center text-white">
-                    <Mail className="w-5 h-5 mr-3 text-pink-400" />
-                    {profile.email}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white/70 text-sm mb-2">เบอร์โทรศัพท์</label>
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      value={editForm.phone}
-                      onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                      className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                    />
-                  ) : (
-                    <div className="flex items-center text-white">
-                      <Phone className="w-5 h-5 mr-3 text-pink-400" />
-                      {profile.phone}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-white/70 text-sm mb-2">ประเภทผู้ใช้</label>
-                  <div className="flex items-center text-white">
-                    <Heart className="w-5 h-5 mr-3 text-pink-400" />
-                    {profile.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'}
-                  </div>
-                </div>
-
-                {profile.userType === 'STUDENT' && (
-                  <>
-                    <div>
-                      <label className="block text-white/70 text-sm mb-2">รหัสนิสิต</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.studentId}
-                          onChange={(e) => setEditForm({...editForm, studentId: e.target.value})}
-                          className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                        />
-                      ) : (
-                        <div className="flex items-center text-white">
-                          <GraduationCap className="w-5 h-5 mr-3 text-pink-400" />
-                          {profile.studentId}
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-white/70 text-sm mb-2">มหาวิทยาลัย</label>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.university}
-                          onChange={(e) => setEditForm({...editForm, university: e.target.value})}
-                          className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                        />
-                      ) : (
-                        <div className="flex items-center text-white">
-                          <Building className="w-5 h-5 mr-3 text-pink-400" />
-                          {profile.university}
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                <div className="md:col-span-2">
-                  <label className="block text-white/70 text-sm mb-2">ที่อยู่</label>
-                  {isEditing ? (
-                    <textarea
-                      value={editForm.address}
-                      onChange={(e) => setEditForm({...editForm, address: e.target.value})}
-                      rows={3}
-                      className="w-full bg-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                    />
-                  ) : (
-                    <div className="flex items-start text-white">
-                      <MapPin className="w-5 h-5 mr-3 text-pink-400 mt-1" />
-                      {profile.address}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {isEditing && (
-                <div className="flex justify-end space-x-4 mt-6">
-                  <button
-                    onClick={handleCancel}
-                    className="glass-button-secondary px-6 py-2"
-                  >
-                    ยกเลิก
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="glass-button px-6 py-2"
-                  >
-                    <Save className="w-4 h-4 inline mr-2" />
-                    บันทึก
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Statistics */}
-            <div className="glass-card p-8">
-              <h2 className="text-2xl font-bold text-white mb-6">สถิติการใช้งาน</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-6 bg-white/10 rounded-lg">
-                  <Clock className="w-12 h-12 text-pink-400 mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-white mb-2">{profile.totalHours}</div>
-                  <div className="text-white/70">ชั่วโมงจิตอาสา</div>
-                </div>
-                
-                <div className="text-center p-6 bg-white/10 rounded-lg">
-                  <Award className="w-12 h-12 text-purple-400 mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-white mb-2">{profile.completedTasks}</div>
-                  <div className="text-white/70">งานเสร็จสิ้น</div>
-                </div>
-                
-                <div className="text-center p-6 bg-white/10 rounded-lg">
-                  <Star className="w-12 h-12 text-yellow-400 mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-white mb-2">{profile.rating}</div>
-                  <div className="text-white/70">คะแนนความพึงพอใจ</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Member Since */}
-            <div className="glass-card p-6 mb-6">
-              <h3 className="text-lg font-semibold text-white mb-4">สมาชิกตั้งแต่</h3>
-              <div className="flex items-center text-white">
-                <Calendar className="w-5 h-5 mr-3 text-pink-400" />
-                {new Date(profile.createdAt).toLocaleDateString('th-TH')}
-              </div>
-            </div>
-
-            {/* Achievements */}
-            <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">ความสำเร็จ</h3>
-              
-              <div className="space-y-3">
-                {profile.achievements.map((achievement) => (
-                  <div key={achievement.id} className="p-3 bg-white/10 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-2xl">{achievement.icon}</div>
-                      <div className="flex-1">
-                        <h4 className="text-white font-medium text-sm">{achievement.title}</h4>
-                        <p className="text-white/60 text-xs">{achievement.description}</p>
-                        <p className="text-white/40 text-xs mt-1">
-                          {new Date(achievement.unlockedAt).toLocaleDateString('th-TH')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Status Bar */}
+      <div className="bg-white px-4 py-3 text-sm text-gray-600 text-center border-b border-gray-100 md:hidden">
+        <div className="flex items-center justify-between">
+          <span>9:41</span>
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
           </div>
         </div>
       </div>
+
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            
+            <h1 className="text-lg font-semibold text-gray-900">โปรไฟล์</h1>
+            
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"
+            >
+              <Edit className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="px-4 py-6 space-y-6">
+        {/* Profile Header */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm text-center">
+          <div className="relative inline-block mb-4">
+            <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-3xl text-white">
+              {profile.firstName.charAt(0)}
+            </div>
+            <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 transition-colors">
+              <Camera className="w-4 h-4" />
+            </button>
+          </div>
+          
+          <h2 className="text-xl font-bold text-gray-900 mb-1">
+            {profile.firstName} {profile.lastName}
+          </h2>
+          <p className="text-gray-600 mb-3">
+            {profile.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'}
+          </p>
+          
+          <div className="flex items-center justify-center space-x-1 mb-4">
+            <Star className="w-5 h-5 text-yellow-500 fill-current" />
+            <span className="text-gray-700 font-medium">{profile.rating}</span>
+            <span className="text-gray-500">({profile.totalTasks} รีวิว)</span>
+          </div>
+          
+          <div className="text-sm text-gray-500">
+            เข้าร่วมเมื่อ {formatDate(profile.joinDate)}
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <Clock className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 mb-1">
+              {profile.volunteerHours}
+            </div>
+            <div className="text-sm text-gray-600">ชั่วโมงอาสา</div>
+          </div>
+          
+          <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 mb-1">
+              {profile.completedTasks}
+            </div>
+            <div className="text-sm text-gray-600">งานเสร็จ</div>
+          </div>
+          
+          <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <Award className="w-6 h-6 text-purple-600" />
+            </div>
+            <div className="text-2xl font-bold text-gray-900 mb-1">
+              {profile.achievements.length}
+            </div>
+            <div className="text-sm text-gray-600">รางวัล</div>
+          </div>
+        </div>
+
+        {/* Personal Information */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">ข้อมูลส่วนตัว</h3>
+          
+          {isEditing ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">ชื่อ</label>
+                  <input
+                    type="text"
+                    value={editForm.firstName}
+                    onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">นามสกุล</label>
+                  <input
+                    type="text"
+                    value={editForm.lastName}
+                    onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                <input
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ที่อยู่</label>
+                <textarea
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 resize-none"
+                />
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">เมือง</label>
+                  <input
+                    type="text"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">จังหวัด</label>
+                  <input
+                    type="text"
+                    value={editForm.province}
+                    onChange={(e) => setEditForm({ ...editForm, province: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">รหัสไปรษณีย์</label>
+                  <input
+                    type="text"
+                    value={editForm.postalCode}
+                    onChange={(e) => setEditForm({ ...editForm, postalCode: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 pt-4">
+                <button
+                  onClick={handleSaveProfile}
+                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+                >
+                  บันทึก
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Mail className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-500">อีเมล</p>
+                  <p className="text-gray-900">{profile.email}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-500">เบอร์โทรศัพท์</p>
+                  <p className="text-gray-900">{profile.phone}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <MapPin className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-500">ที่อยู่</p>
+                  <p className="text-gray-900">
+                    {profile.address}, {profile.city}, {profile.province} {profile.postalCode}
+                  </p>
+                </div>
+              </div>
+              
+              {profile.userType === 'STUDENT' && (
+                <>
+                  <div className="flex items-center space-x-3">
+                    <User className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm text-gray-500">รหัสนักศึกษา</p>
+                      <p className="text-gray-900">{profile.studentId}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <User className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm text-gray-500">มหาวิทยาลัย</p>
+                      <p className="text-gray-900">{profile.university}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Achievements */}
+        {profile.achievements.length > 0 && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">รางวัลและความสำเร็จ</h3>
+            <div className="space-y-3">
+              {profile.achievements.map((achievement, index) => (
+                <div key={index} className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-xl">
+                  <Award className="w-5 h-5 text-yellow-600" />
+                  <span className="text-gray-900">{achievement}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Settings & Actions */}
+        <div className="bg-white rounded-2xl shadow-sm">
+          <div className="p-6 border-b border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900">การตั้งค่า</h3>
+          </div>
+          
+          <div className="divide-y divide-gray-100">
+            <Link
+              href="/notifications"
+              className="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <Bell className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-900">การแจ้งเตือน</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </Link>
+            
+            <Link
+              href="/privacy"
+              className="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <Shield className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-900">ความเป็นส่วนตัว</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </Link>
+            
+            <Link
+              href="/help"
+              className="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <HelpCircle className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-900">ความช่วยเหลือ</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </Link>
+            
+            <Link
+              href="/about"
+              className="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <Info className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-900">เกี่ยวกับเรา</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full py-4 border-2 border-red-300 text-red-600 rounded-xl font-semibold text-lg hover:bg-red-50 transition-all duration-200 active:scale-95"
+        >
+          <LogOut className="w-5 h-5 inline mr-2" />
+          ออกจากระบบ
+        </button>
+      </main>
+
+      {/* Mobile Safe Area */}
+      <div className="h-6 bg-gray-50 md:hidden"></div>
     </div>
   );
 }

@@ -4,42 +4,51 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  Bell, 
-  Check, 
-  Trash2, 
   ArrowLeft,
-  MessageCircle,
-  Calendar,
-  Clock,
-  User,
+  Bell,
+  Check,
+  X,
+  Star,
   Heart,
+  Clock,
+  MapPin,
+  User,
+  MessageCircle,
   Award,
   AlertCircle,
-  Info
+  ChevronRight,
+  Filter,
+  Search,
+  Trash2,
+  Settings
 } from 'lucide-react';
 import Link from 'next/link';
 
 interface Notification {
   id: string;
+  type: 'TASK_ACCEPTED' | 'TASK_COMPLETED' | 'NEW_MESSAGE' | 'ACHIEVEMENT' | 'REMINDER' | 'SYSTEM';
   title: string;
   message: string;
-  type: 'TASK' | 'CHAT' | 'SYSTEM' | 'ACHIEVEMENT';
+  timestamp: Date;
   isRead: boolean;
-  createdAt: string;
-  taskId?: string;
-  userId?: string;
+  isImportant: boolean;
+  actionUrl?: string;
+  icon: string;
+  color: string;
 }
 
-export default function Notifications() {
+export default function NotificationsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'READ'>('ALL');
   const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'unread' | 'important'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
+      return;
     }
     if (user) {
       loadNotifications();
@@ -48,353 +57,355 @@ export default function Notifications() {
 
   const loadNotifications = async () => {
     try {
-      const response = await fetch('/api/notifications', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      // Mock notifications data
+      const mockNotifications: Notification[] = [
+        {
+          id: '1',
+          type: 'TASK_ACCEPTED',
+          title: 'งานถูกยอมรับแล้ว',
+          message: 'งาน "ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต" ถูกยอมรับโดย สมชาย ใจดี',
+          timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+          isRead: false,
+          isImportant: true,
+          actionUrl: '/task/1',
+          icon: '✅',
+          color: 'bg-green-100 text-green-800'
+        },
+        {
+          id: '2',
+          type: 'NEW_MESSAGE',
+          title: 'ข้อความใหม่',
+          message: 'คุณมีข้อความใหม่จาก สมศรี ใจดี',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+          isRead: false,
+          isImportant: false,
+          actionUrl: '/chat',
+          icon: '💬',
+          color: 'bg-blue-100 text-blue-800'
+        },
+        {
+          id: '3',
+          type: 'ACHIEVEMENT',
+          title: 'ได้รับรางวัลใหม่!',
+          message: 'ยินดีด้วย! คุณได้รับรางวัล "จิตอาสาดีเด่น"',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+          isRead: true,
+          isImportant: true,
+          actionUrl: '/achievements',
+          icon: '🏆',
+          color: 'bg-yellow-100 text-yellow-800'
+        },
+        {
+          id: '4',
+          type: 'REMINDER',
+          title: 'เตือนความจำ',
+          message: 'งาน "ช่วยติดตั้งคอมพิวเตอร์" จะเริ่มในอีก 2 ชั่วโมง',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+          isRead: true,
+          isImportant: false,
+          actionUrl: '/task/2',
+          icon: '⏰',
+          color: 'bg-orange-100 text-orange-800'
+        },
+        {
+          id: '5',
+          type: 'TASK_COMPLETED',
+          title: 'งานเสร็จสิ้น',
+          message: 'งาน "พาไปตรวจสุขภาพ" เสร็จสิ้นแล้ว ขอบคุณสำหรับความช่วยเหลือ',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+          isRead: true,
+          isImportant: false,
+          actionUrl: '/task/3',
+          icon: '🎉',
+          color: 'bg-purple-100 text-purple-800'
+        },
+        {
+          id: '6',
+          type: 'SYSTEM',
+          title: 'อัปเดตระบบ',
+          message: 'ระบบ GenMatch ได้รับการอัปเดตใหม่ เพิ่มฟีเจอร์การแจ้งเตือนแบบ Push',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+          isRead: true,
+          isImportant: false,
+          icon: '🔧',
+          color: 'bg-gray-100 text-gray-800'
         }
-      });
+      ];
       
-      if (response.ok) {
-        const userNotifications = await response.json();
-        setNotifications(userNotifications);
-      } else {
-        // Mock data for demo
-        const mockNotifications: Notification[] = [
-          {
-            id: '1',
-            title: 'งานเสร็จสิ้น',
-            message: 'งาน "พาไปตรวจสุขภาพที่โรงพยาบาล" เสร็จสิ้นแล้ว ขอบคุณที่ใช้บริการ',
-            type: 'TASK',
-            isRead: false,
-            createdAt: '2024-01-20T10:30:00Z',
-            taskId: 'task-1'
-          },
-          {
-            id: '2',
-            title: 'ข้อความใหม่',
-            message: 'คุณสมชาย ส่งข้อความใหม่ในงาน "พาไปทำบุญที่วัดพระแก้ว"',
-            type: 'CHAT',
-            isRead: false,
-            createdAt: '2024-01-20T09:15:00Z',
-            taskId: 'task-2'
-          },
-          {
-            id: '3',
-            title: 'ได้รับความสำเร็จใหม่',
-            message: 'ยินดีด้วย! คุณได้รับความสำเร็จ "จิตอาสาครั้งแรก"',
-            type: 'ACHIEVEMENT',
-            isRead: true,
-            createdAt: '2024-01-19T16:45:00Z'
-          },
-          {
-            id: '4',
-            title: 'งานใหม่ที่แนะนำ',
-            message: 'มีงานใหม่ที่ตรงกับความสนใจของคุณ: "ช่วยซ่อมคอมพิวเตอร์"',
-            type: 'TASK',
-            isRead: true,
-            createdAt: '2024-01-19T14:20:00Z',
-            taskId: 'task-3'
-          },
-          {
-            id: '5',
-            title: 'อัปเดตระบบ',
-            message: 'ระบบได้รับการอัปเดตใหม่ เพิ่มฟีเจอร์การแจ้งเตือนแบบ Real-time',
-            type: 'SYSTEM',
-            isRead: true,
-            createdAt: '2024-01-18T11:00:00Z'
-          },
-          {
-            id: '6',
-            title: 'งานถูกยกเลิก',
-            message: 'งาน "พาไปออกกำลังกาย" ถูกยกเลิกโดยผู้สร้างงาน',
-            type: 'TASK',
-            isRead: true,
-            createdAt: '2024-01-17T15:30:00Z',
-            taskId: 'task-4'
-          }
-        ];
-        setNotifications(mockNotifications);
-      }
+      setNotifications(mockNotifications);
     } catch (error) {
-      console.error('Failed to load notifications:', error);
+      console.error('Error loading notifications:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const markAsRead = async (notificationId: string) => {
-    try {
-      // In a real app, this would call an API
-      setNotifications(prev => prev.map(notification =>
-        notification.id === notificationId 
-          ? { ...notification, isRead: true }
-          : notification
-      ));
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-    }
+  const markAsRead = (notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === notificationId 
+          ? { ...notif, isRead: true }
+          : notif
+      )
+    );
   };
 
-  const markAllAsRead = async () => {
-    try {
-      // In a real app, this would call an API
-      setNotifications(prev => prev.map(notification => ({
-        ...notification,
-        isRead: true
-      })));
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
-    }
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, isRead: true }))
+    );
   };
 
-  const deleteNotification = async (notificationId: string) => {
-    try {
-      // In a real app, this would call an API
-      setNotifications(prev => prev.filter(notification => notification.id !== notificationId));
-    } catch (error) {
-      console.error('Failed to delete notification:', error);
+  const deleteNotification = (notificationId: string) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
+  };
+
+  const getFilteredNotifications = () => {
+    let filtered = notifications;
+    
+    // Apply filter
+    if (filter === 'unread') {
+      filtered = filtered.filter(notif => !notif.isRead);
+    } else if (filter === 'important') {
+      filtered = filtered.filter(notif => notif.isImportant);
     }
+    
+    // Apply search
+    if (searchQuery) {
+      filtered = filtered.filter(notif => 
+        notif.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        notif.message.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  };
+
+  const formatTime = (date: Date) => {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 1) return 'ตอนนี้';
+    if (minutes < 60) return `${minutes} นาที`;
+    if (hours < 24) return `${hours} ชั่วโมง`;
+    if (days < 7) return `${days} วัน`;
+    return date.toLocaleDateString('th-TH');
   };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'TASK':
-        return <Calendar className="w-5 h-5" />;
-      case 'CHAT':
+      case 'TASK_ACCEPTED':
+        return <Check className="w-5 h-5" />;
+      case 'NEW_MESSAGE':
         return <MessageCircle className="w-5 h-5" />;
       case 'ACHIEVEMENT':
         return <Award className="w-5 h-5" />;
+      case 'REMINDER':
+        return <Clock className="w-5 h-5" />;
+      case 'TASK_COMPLETED':
+        return <Star className="w-5 h-5" />;
       case 'SYSTEM':
-        return <Info className="w-5 h-5" />;
+        return <Settings className="w-5 h-5" />;
       default:
         return <Bell className="w-5 h-5" />;
     }
   };
 
-  const getNotificationColor = (type: string) => {
-    switch (type) {
-      case 'TASK':
-        return 'from-blue-500 to-indigo-500';
-      case 'CHAT':
-        return 'from-green-500 to-teal-500';
-      case 'ACHIEVEMENT':
-        return 'from-yellow-500 to-orange-500';
-      case 'SYSTEM':
-        return 'from-purple-500 to-pink-500';
-      default:
-        return 'from-gray-500 to-gray-600';
-    }
-  };
-
-  const filteredNotifications = notifications.filter(notification => {
-    if (filter === 'UNREAD') return !notification.isRead;
-    if (filter === 'READ') return notification.isRead;
-    return true;
-  });
-
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-
-  if (loading) {
+  if (loading || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
-          <p className="mt-4 text-lg text-white">กำลังโหลด...</p>
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลด...</p>
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  const filteredNotifications = getFilteredNotifications();
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
-      {/* Header */}
-      <div className="glass-card mx-4 mt-4 p-6">
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Status Bar */}
+      <div className="bg-white px-4 py-3 text-sm text-gray-600 text-center border-b border-gray-100 md:hidden">
         <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-pink-300 transition-colors">
-            <ArrowLeft className="w-5 h-5 inline mr-2" />
-            กลับไปหน้าแรก
-          </Link>
-          <h1 className="text-3xl font-bold text-white">การแจ้งเตือน</h1>
-          <div className="flex items-center space-x-3">
+          <span>9:41</span>
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
             <button
-              onClick={markAllAsRead}
-              disabled={unreadCount === 0}
-              className="glass-button-secondary px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => router.back()}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <Check className="w-4 h-4 inline mr-2" />
-              อ่านทั้งหมด
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            
+            <h1 className="text-lg font-semibold text-gray-900">การแจ้งเตือน</h1>
+            
+            <div className="flex items-center space-x-2">
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"
+                >
+                  <Check className="w-5 h-5" />
+                </button>
+              )}
+              <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Search and Filter */}
+      <div className="bg-white px-4 py-3 border-b border-gray-200">
+        <div className="space-y-3">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ค้นหาการแจ้งเตือน..."
+              className="w-full pl-10 pr-4 py-3 bg-gray-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+            />
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'all'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              ทั้งหมด ({notifications.length})
+            </button>
+            <button
+              onClick={() => setFilter('unread')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'unread'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              ยังไม่อ่าน ({unreadCount})
+            </button>
+            <button
+              onClick={() => setFilter('important')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                filter === 'important'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              สำคัญ ({notifications.filter(n => n.isImportant).length})
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto py-6 px-4">
-        {/* Stats and Filters */}
-        <div className="glass-card p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white mb-2">{notifications.length}</div>
-              <div className="text-white/70 text-sm">ทั้งหมด</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-3xl font-bold text-pink-400 mb-2">{unreadCount}</div>
-              <div className="text-white/70 text-sm">ยังไม่อ่าน</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-400 mb-2">
-                {notifications.filter(n => n.type === 'TASK').length}
-              </div>
-              <div className="text-white/70 text-sm">งาน</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">
-                {notifications.filter(n => n.type === 'CHAT').length}
-              </div>
-              <div className="text-white/70 text-sm">แชท</div>
-            </div>
-          </div>
-
-          {/* Filter Tabs */}
-          <div className="flex justify-center mt-6">
-            <div className="flex bg-white/10 rounded-lg p-1">
-              {[
-                { key: 'ALL', label: 'ทั้งหมด', count: notifications.length },
-                { key: 'UNREAD', label: 'ยังไม่อ่าน', count: unreadCount },
-                { key: 'READ', label: 'อ่านแล้ว', count: notifications.length - unreadCount }
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setFilter(tab.key as any)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                    filter === tab.key
-                      ? 'bg-pink-500 text-white shadow-lg'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {tab.label} ({tab.count})
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Notifications List */}
-        {isLoading ? (
-          <div className="glass-card p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-400 mx-auto mb-4"></div>
-            <p className="text-white">กำลังโหลดการแจ้งเตือน...</p>
-          </div>
-        ) : filteredNotifications.length === 0 ? (
-          <div className="glass-card p-12 text-center">
-            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Bell className="w-10 h-10 text-white/40" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">ไม่มีการแจ้งเตือน</h3>
-            <p className="text-white/60">
-              {filter === 'ALL' 
-                ? 'คุณยังไม่มีการแจ้งเตือนใดๆ' 
-                : filter === 'UNREAD' 
-                  ? 'ไม่มีข้อความที่ยังไม่อ่าน' 
-                  : 'ไม่มีข้อความที่อ่านแล้ว'
+      {/* Main Content */}
+      <main className="flex-1">
+        {filteredNotifications.length === 0 ? (
+          <div className="text-center py-12 px-4">
+            <Bell className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {searchQuery ? 'ไม่พบการแจ้งเตือนที่ค้นหา' : 'ไม่มีการแจ้งเตือน'}
+            </h3>
+            <p className="text-gray-600">
+              {searchQuery 
+                ? 'ลองเปลี่ยนคำค้นหาหรือล้างตัวกรอง'
+                : 'คุณจะได้รับการแจ้งเตือนเมื่อมีกิจกรรมใหม่'
               }
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-1">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`glass-card p-6 transition-all ${
-                  !notification.isRead ? 'ring-2 ring-pink-400/50' : ''
+                className={`bg-white px-4 py-4 hover:bg-gray-50 transition-colors ${
+                  !notification.isRead ? 'border-l-4 border-l-indigo-500' : ''
                 }`}
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-start space-x-3">
                   {/* Icon */}
-                  <div className={`w-12 h-12 bg-gradient-to-r ${getNotificationColor(notification.type)} rounded-xl flex items-center justify-center text-white flex-shrink-0`}>
+                  <div className={`w-10 h-10 ${notification.color} rounded-full flex items-center justify-center flex-shrink-0`}>
                     {getNotificationIcon(notification.type)}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className={`text-lg font-semibold ${
-                        notification.isRead ? 'text-white/80' : 'text-white'
-                      }`}>
-                        {notification.title}
-                      </h3>
-                      
-                      <div className="flex items-center space-x-2">
-                        {!notification.isRead && (
-                          <span className="w-2 h-2 bg-pink-400 rounded-full"></span>
-                        )}
-                        <span className="text-white/50 text-sm">
-                          {new Date(notification.createdAt).toLocaleDateString('th-TH')}
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className={`text-sm mb-3 ${
-                      notification.isRead ? 'text-white/60' : 'text-white/80'
-                    }`}>
-                      {notification.message}
-                    </p>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-white/50 text-xs">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {new Date(notification.createdAt).toLocaleTimeString('th-TH', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className={`font-semibold mb-1 ${
+                          !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                        }`}>
+                          {notification.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-2 leading-relaxed">
+                          {notification.message}
+                        </p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          <span>{formatTime(notification.timestamp)}</span>
+                          {notification.isImportant && (
+                            <span className="flex items-center space-x-1 text-orange-600">
+                              <AlertCircle className="w-3 h-3" />
+                              สำคัญ
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      {/* Actions */}
+                      <div className="flex items-center space-x-2 ml-3">
                         {!notification.isRead && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="glass-button-secondary px-3 py-1 text-xs hover:scale-105 transition-transform"
+                            className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors"
                           >
-                            <Check className="w-3 h-3 inline mr-1" />
-                            อ่านแล้ว
+                            <Check className="w-4 h-4" />
                           </button>
                         )}
-                        
                         <button
                           onClick={() => deleteNotification(notification.id)}
-                          className="glass-button-secondary px-3 py-1 text-xs text-red-300 hover:text-red-200 hover:scale-105 transition-transform"
+                          className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                         >
-                          <Trash2 className="w-3 h-3 inline mr-1" />
-                          ลบ
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    {notification.taskId && (
-                      <div className="mt-4 flex space-x-2">
+                    {/* Action Button */}
+                    {notification.actionUrl && (
+                      <div className="mt-3">
                         <Link
-                          href={`/task/${notification.taskId}`}
-                          className="glass-button px-4 py-2 text-sm"
+                          href={notification.actionUrl}
+                          onClick={() => markAsRead(notification.id)}
+                          className="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-200 transition-colors"
                         >
-                          ดูรายละเอียดงาน
+                          ดูรายละเอียด
+                          <ChevronRight className="w-4 h-4 ml-1" />
                         </Link>
-                        
-                        {notification.type === 'CHAT' && (
-                          <Link
-                            href={`/chat?task=${notification.taskId}`}
-                            className="glass-button-secondary px-4 py-2 text-sm"
-                          >
-                            <MessageCircle className="w-4 h-4 inline mr-2" />
-                            แชท
-                          </Link>
-                        )}
                       </div>
                     )}
                   </div>
@@ -403,37 +414,10 @@ export default function Notifications() {
             ))}
           </div>
         )}
+      </main>
 
-        {/* Quick Actions */}
-        <div className="glass-card p-6 mt-8">
-          <h3 className="text-lg font-semibold text-white mb-4">การดำเนินการด่วน</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/search" className="glass-button-secondary p-4 text-center hover:scale-105 transition-transform">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Calendar className="w-6 h-6 text-white" />
-              </div>
-              <h4 className="text-white font-semibold mb-2">ค้นหางาน</h4>
-              <p className="text-white/70 text-sm">ค้นหางานที่เหมาะสมกับคุณ</p>
-            </Link>
-            
-            <Link href="/chat" className="glass-button-secondary p-4 text-center hover:scale-105 transition-transform">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <MessageCircle className="w-6 h-6 text-white" />
-              </div>
-              <h4 className="text-white font-semibold mb-2">แชท</h4>
-              <p className="text-white/70 text-sm">สื่อสารกับผู้ใช้อื่นๆ</p>
-            </Link>
-            
-            <Link href="/profile" className="glass-button-secondary p-4 text-center hover:scale-105 transition-transform">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <User className="w-6 h-6 text-white" />
-              </div>
-              <h4 className="text-white font-semibold mb-2">โปรไฟล์</h4>
-              <p className="text-white/70 text-sm">จัดการโปรไฟล์และตั้งค่า</p>
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* Mobile Safe Area */}
+      <div className="h-6 bg-gray-50 md:hidden"></div>
     </div>
   );
 }

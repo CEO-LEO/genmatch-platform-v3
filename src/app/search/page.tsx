@@ -1,426 +1,298 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { 
   Search, 
-  MapPin, 
-  Calendar, 
-  Clock, 
   Filter, 
-  Heart,
+  MapPin, 
+  Clock, 
+  Heart, 
+  Star, 
+  ChevronRight,
   ArrowLeft,
-  Eye,
-  MessageCircle,
-  Star,
-  User
-} from 'lucide-react';
-import Link from 'next/link';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  status: string;
-  volunteerHours: number;
-  estimatedHours: number;
-  address: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  createdAt: string;
-  creator: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    userType: string;
-  };
-}
+  SlidersHorizontal,
+  X,
+  Building,
+  Globe,
+  Heart as HeartIcon,
+  Wrench
+} from 'lucide-react'
 
 export default function SearchPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
-  const [locationFilter, setLocationFilter] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const category = searchParams.get('category')
+  
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState(category || '')
+  const [selectedLocation, setSelectedLocation] = useState('')
+  const [selectedDate, setSelectedDate] = useState('')
+
+  // Mock tasks data
+  const tasks = [
+    {
+      id: 1,
+      title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
+      description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ตใกล้บ้าน',
+      category: 'shopping',
+      location: 'กรุงเทพมหานคร',
+      date: '2024-01-25',
+      time: '14:00',
+      duration: 2,
+      budget: 200,
+      rating: 4.8,
+      urgent: true
+    },
+    {
+      id: 2,
+      title: 'ช่วยติดตั้งคอมพิวเตอร์',
+      description: 'ต้องการคนช่วยติดตั้งคอมพิวเตอร์และโปรแกรมพื้นฐาน',
+      category: 'repair',
+      location: 'กรุงเทพมหานคร',
+      date: '2024-01-26',
+      time: '10:00',
+      duration: 3,
+      budget: 500,
+      rating: 4.5,
+      urgent: false
+    },
+    {
+      id: 3,
+      title: 'ช่วยพาไปตรวจสุขภาพ',
+      description: 'ต้องการคนพาไปโรงพยาบาลเพื่อตรวจสุขภาพประจำปี',
+      category: 'hospital',
+      location: 'กรุงเทพมหานคร',
+      date: '2024-01-27',
+      time: '09:00',
+      duration: 4,
+      budget: 300,
+      rating: 4.9,
+      urgent: false
+    }
+  ]
 
   const categories = [
-    { id: 'ALL', name: 'ทั้งหมด', color: 'from-gray-500 to-gray-600' },
-    { id: 'HOSPITAL', name: 'โรงพยาบาล', color: 'from-red-500 to-pink-500' },
-    { id: 'TEMPLE', name: 'วัด', color: 'from-yellow-500 to-orange-500' },
-    { id: 'EXERCISE', name: 'ออกกำลังกาย', color: 'from-green-500 to-teal-500' },
-    { id: 'REPAIR', name: 'งานซ่อม', color: 'from-blue-500 to-indigo-500' }
-  ];
+    { id: 'hospital', name: 'โรงพยาบาล', icon: <Building className="w-5 h-5" />, color: 'bg-red-500' },
+    { id: 'temple', name: 'วัด', icon: <Globe className="w-5 h-5" />, color: 'bg-yellow-500' },
+    { id: 'exercise', name: 'ออกกำลังกาย', icon: <HeartIcon className="w-5 h-5" />, color: 'bg-green-500' },
+    { id: 'repair', name: 'งานซ่อม', icon: <Wrench className="w-5 h-5" />, color: 'bg-blue-500' },
+    { id: 'shopping', name: 'ซื้อของ', icon: <Heart className="w-5 h-5" />, color: 'bg-purple-500' }
+  ]
 
-  // Define filterTasks function before using it in useEffect
-  const filterTasks = useCallback(() => {
-    let filtered = tasks;
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(task =>
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.province.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Filter by category
-    if (categoryFilter !== 'ALL') {
-      filtered = filtered.filter(task => task.category === categoryFilter);
-    }
-
-    // Filter by location
-    if (locationFilter) {
-      filtered = filtered.filter(task =>
-        task.address.toLowerCase().includes(locationFilter.toLowerCase()) ||
-        task.city.toLowerCase().includes(locationFilter.toLowerCase()) ||
-        task.province.toLowerCase().includes(locationFilter.toLowerCase())
-      );
-    }
-
-    setFilteredTasks(filtered);
-  }, [tasks, searchTerm, categoryFilter, locationFilter]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-    if (user) {
-      loadTasks();
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
-    filterTasks();
-  }, [filterTasks]);
-
-  const loadTasks = async () => {
-    try {
-      console.log('Loading tasks...'); // Debug log
-      const response = await fetch('/api/tasks');
-      
-      if (response.ok) {
-        const allTasks = await response.json();
-        console.log('Loaded tasks from API:', allTasks); // Debug log
-        setTasks(allTasks);
-      } else {
-        console.error('Failed to load tasks:', response.status);
-        console.log('Using fallback mock data...'); // Debug log
-                 // Fallback to mock data
-         const mockTasks: Task[] = [
-           {
-             id: '1',
-             title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
-             description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
-             category: 'EXERCISE',
-             status: 'PENDING',
-             
-             volunteerHours: 2,
-             estimatedHours: 2,
-             address: 'เซ็นทรัลเวิลด์',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10330',
-             scheduledDate: '2024-01-22',
-             scheduledTime: '09:00',
-             createdAt: '2024-01-15T10:00:00Z',
-             creator: {
-               id: 'elderly-1',
-               firstName: 'สมศรี',
-               lastName: 'ใจดี',
-               userType: 'ELDERLY'
-             }
-           },
-           {
-             id: '2',
-             title: 'ช่วยติดตั้งคอมพิวเตอร์',
-             description: 'ซื้อคอมพิวเตอร์ใหม่มา ต้องการคนช่วยติดตั้งและลงโปรแกรมพื้นฐาน เช่น Office, Chrome',
-             category: 'REPAIR',
-             status: 'PENDING',
-
-             volunteerHours: 3,
-             estimatedHours: 3,
-             address: 'บ้านผู้ใช้',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10400',
-             scheduledDate: '2024-01-25',
-             scheduledTime: '13:00',
-             createdAt: '2024-01-18T14:00:00Z',
-             creator: {
-               id: 'elderly-2',
-               firstName: 'สมชาย',
-               lastName: 'รักดี',
-               userType: 'ELDERLY'
-             }
-           },
-           {
-             id: '3',
-             title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-             description: 'ต้องการคนพาไปตรวจสุขภาพที่โรงพยาบาลมหาราช ตรวจความดันและน้ำตาลในเลือด',
-             category: 'HOSPITAL',
-             status: 'PENDING',
-
-             volunteerHours: 4,
-             estimatedHours: 4,
-             address: 'โรงพยาบาลมหาราช',
-             city: 'กรุงเทพฯ',
-             province: 'กรุงเทพฯ',
-             postalCode: '10400',
-             scheduledDate: '2024-01-28',
-             scheduledTime: '08:00',
-             createdAt: '2024-01-20T16:00:00Z',
-             creator: {
-               id: 'elderly-3',
-               firstName: 'สมศักดิ์',
-               lastName: 'ใจเย็น',
-               userType: 'ELDERLY'
-             }
-           }
-         ];
-        setTasks(mockTasks);
-      }
-    } catch (error) {
-      console.error('Failed to load tasks:', error);
-      console.log('Using fallback mock data...'); // Debug log
-             // Fallback to mock data on error
-       const mockTasks: Task[] = [
-         {
-           id: '1',
-           title: 'ช่วยซื้อของที่ซุปเปอร์มาร์เก็ต',
-           description: 'ต้องการคนช่วยซื้อของที่ซุปเปอร์มาร์เก็ต เซ็นทรัลเวิลด์ ช่วยเลือกผักผลไม้และของใช้ในบ้าน',
-           category: 'EXERCISE',
-           status: 'PENDING',
-           
-           volunteerHours: 2,
-           estimatedHours: 2,
-           address: 'เซ็นทรัลเวิลด์',
-           city: 'กรุงเทพฯ',
-           province: 'กรุงเทพฯ',
-           postalCode: '10330',
-           scheduledDate: '2024-01-22',
-           scheduledTime: '09:00',
-           createdAt: '2024-01-15T10:00:00Z',
-           creator: {
-             id: 'elderly-1',
-             firstName: 'สมศรี',
-             lastName: 'ใจดี',
-             userType: 'ELDERLY'
-           }
-         }
-       ];
-      setTasks(mockTasks);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getCategoryInfo = (category: string) => {
-    const cat = categories.find(c => c.id === category);
-    return cat || categories[0];
-  };
-
-  const handleAcceptTask = async (taskId: string) => {
-    try {
-      // In a real app, this would call an API
-      setTasks(prev => prev.map(task =>
-        task.id === taskId ? { ...task, status: 'ACCEPTED' } : task
-      ));
-      alert('รับงานสำเร็จ! คุณสามารถติดต่อผู้สร้างงานผ่านระบบแชทได้');
-    } catch (error) {
-      console.error('Failed to accept task:', error);
-    }
-  };
+  const locations = ['กรุงเทพมหานคร', 'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'นครปฐม']
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-pink-900 to-purple-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
-          <p className="mt-4 text-lg text-white">กรุณารอสักครู่...</p>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
       </div>
-    );
+    )
   }
 
   if (!user) {
-    return null;
+    router.push('/login')
+    return null
   }
 
+  const filteredTasks = tasks.filter(task => {
+    if (selectedCategory && task.category !== selectedCategory) return false
+    if (selectedLocation && task.location !== selectedLocation) return false
+    if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    return true
+  })
+
   return (
-    <div className="min-h-screen genmatch-bg">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="genmatch-card mx-4 mt-4 p-6">
-        <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="genmatch-text-primary hover:text-indigo-600 transition-colors">
-            <ArrowLeft className="w-5 h-5 inline mr-2" />
-            กลับไปหน้าแรก
-          </Link>
-          <h1 className="text-3xl font-bold genmatch-text-primary">ค้นหางาน</h1>
-          <div className="w-32"></div>
+      <header className="bg-white border-b border-gray-200 px-4 py-4">
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={() => router.back()}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-lg font-semibold text-gray-900">ค้นหางาน</h1>
+        </div>
+      </header>
+
+      {/* Search Bar */}
+      <div className="bg-white px-4 py-4 border-b border-gray-200">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="ค้นหางานที่ต้องการ..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+          />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-6 px-4">
-        {/* Search and Filters */}
-        <div className="genmatch-card p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="ค้นหางาน..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="genmatch-input pl-10 pr-4 py-3 focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="genmatch-input px-4 py-3 focus:ring-2 focus:ring-indigo-500"
-              >
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <input
-                type="text"
-                placeholder="ค้นหาตามที่อยู่..."
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-                className="genmatch-input px-4 py-3 focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <div className="text-right">
-              <p className="genmatch-text-light text-sm mb-1">งานทั้งหมด</p>
-              <p className="text-2xl font-bold genmatch-text-primary">{filteredTasks.length}</p>
-            </div>
-          </div>
+      {/* Filters */}
+      <div className="bg-white px-4 py-4 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all duration-200 ${
+              isFilterOpen 
+                ? 'border-indigo-500 bg-indigo-50 text-indigo-600' 
+                : 'border-gray-300 text-gray-600 hover:border-indigo-300'
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="text-sm font-medium">ตัวกรอง</span>
+          </button>
+          
+          {selectedCategory && (
+            <button
+              onClick={() => setSelectedCategory('')}
+              className="flex items-center space-x-2 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm"
+            >
+              <span>{categories.find(c => c.id === selectedCategory)?.name}</span>
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          
+          {selectedLocation && (
+            <button
+              onClick={() => setSelectedLocation('')}
+              className="flex items-center space-x-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm"
+            >
+              <span>{selectedLocation}</span>
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        {/* Tasks List */}
-        {isLoading ? (
-          <div className="genmatch-card p-12 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-            <p className="genmatch-text-primary">กำลังโหลดงาน...</p>
-          </div>
-        ) : filteredTasks.length === 0 ? (
-          <div className="genmatch-card p-12 text-center">
-            <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-10 h-10 text-slate-400" />
+        {/* Filter Panel */}
+        {isFilterOpen && (
+          <div className="mt-4 space-y-4">
+            {/* Categories */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">หมวดหมู่</h3>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(selectedCategory === cat.id ? '' : cat.id)}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      selectedCategory === cat.id
+                        ? 'bg-indigo-100 text-indigo-700 border border-indigo-300'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <div className={`w-3 h-3 rounded-full ${cat.color}`}></div>
+                    <span>{cat.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <h3 className="text-xl font-semibold genmatch-text-primary mb-2">ไม่พบงาน</h3>
-            <p className="genmatch-text-secondary mb-6">
-              ลองเปลี่ยนคำค้นหาหรือตัวกรองดูครับ
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredTasks.map((task) => {
-              const categoryInfo = getCategoryInfo(task.category);
 
-              return (
-                <div key={task.id} className="genmatch-task-card p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    {/* Task Info */}
-                    <div className="flex-1">
-                      <div className="flex items-start gap-4">
-                        <div className={`w-16 h-16 bg-gradient-to-r ${categoryInfo.color} rounded-2xl flex items-center justify-center text-white text-2xl font-bold`}>
-                          {categoryInfo.name.charAt(0)}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-semibold genmatch-text-primary">{task.title}</h3>
-                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-300">
-                              รอการรับงาน
-                            </span>
-                          </div>
-                          
-                          <p className="genmatch-text-secondary mb-3 line-clamp-2">{task.description}</p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                            <div className="flex items-center genmatch-text-light">
-                              <MapPin className="w-4 h-4 mr-2" />
-                              <span className="line-clamp-1">{task.address}, {task.city}, {task.province}</span>
-                            </div>
-                            <div className="flex items-center genmatch-text-light">
-                              <Calendar className="w-4 h-4 mr-2" />
-                              {new Date(task.scheduledDate).toLocaleDateString('th-TH')}
-                            </div>
-                            <div className="flex items-center genmatch-text-light">
-                              <Clock className="w-4 h-4 mr-2" />
-                              {task.scheduledTime}
-                            </div>
-                            <div className="flex items-center genmatch-text-light">
-                              <Star className="w-4 h-4 mr-2" />
-                              {task.estimatedHours} ชั่วโมง
-                            </div>
-                          </div>
-
-                          <div className="mt-3 p-3 bg-slate-100 rounded-lg">
-                            <p className="genmatch-text-light text-sm mb-1">ผู้สร้างงาน:</p>
-                            <div className="flex items-center genmatch-text-primary">
-                              <User className="w-4 h-4 mr-2" />
-                              {task.creator.firstName} {task.creator.lastName} ({task.creator.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'})
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-col gap-2 min-w-fit">
-                      <Link
-                        href={`/chat?task=${task.id}`}
-                        className="genmatch-btn-secondary px-4 py-2 text-center flex items-center justify-center"
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        แชท
-                      </Link>
-                      
-                      <Link
-                        href={`/task/${task.id}`}
-                        className="genmatch-btn-primary px-4 py-2 text-center flex items-center justify-center"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        ดูรายละเอียด
-                      </Link>
-
-                      <button
-                        onClick={() => handleAcceptTask(task.id)}
-                        className="genmatch-btn-primary px-4 py-2 text-center flex items-center justify-center"
-                      >
-                        <Heart className="w-4 h-4 mr-2" />
-                        รับงาน
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {/* Location */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">ตำแหน่ง</h3>
+              <div className="flex flex-wrap gap-2">
+                {locations.map((loc) => (
+                  <button
+                    key={loc}
+                    onClick={() => setSelectedLocation(selectedLocation === loc ? '' : loc)}
+                    className={`px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                      selectedLocation === loc
+                        ? 'bg-green-100 text-green-700 border border-green-300'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {loc}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Results */}
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            ผลการค้นหา ({filteredTasks.length})
+          </h2>
+          <button className="text-sm text-indigo-600">เรียงลำดับ</button>
+        </div>
+
+        {/* Task Cards */}
+        <div className="space-y-4">
+          {filteredTasks.map((task) => (
+            <Link
+              key={task.id}
+              href={`/task/${task.id}`}
+              className="block bg-white rounded-2xl p-4 shadow-sm border border-gray-100 active:scale-95 transition-all duration-200"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${
+                    categories.find(c => c.id === task.category)?.color || 'bg-gray-500'
+                  }`}></div>
+                  <span className="text-sm text-gray-600">
+                    {categories.find(c => c.id === task.category)?.name}
+                  </span>
+                </div>
+                {task.urgent && (
+                  <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">
+                    ด่วน
+                  </span>
+                )}
+              </div>
+
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{task.title}</h3>
+              <p className="text-gray-600 text-sm mb-3 line-clamp-2">{task.description}</p>
+
+              <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                <div className="flex items-center space-x-1">
+                  <MapPin className="w-4 h-4" />
+                  <span>{task.location}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{task.duration} ชม.</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="text-sm text-gray-700">{task.rating}</span>
+                  </div>
+                  <span className="text-sm text-gray-500">•</span>
+                  <span className="text-sm text-gray-500">฿{task.budget}</span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-gray-400" />
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {filteredTasks.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">ไม่พบงานที่ค้นหา</h3>
+            <p className="text-gray-500">ลองเปลี่ยนคำค้นหาหรือตัวกรองดูครับ</p>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Navigation Placeholder */}
+      <div className="h-20"></div>
     </div>
-  );
+  )
 }
