@@ -155,9 +155,30 @@ export default function TaskDetailPage() {
     }
   };
 
-  const handleAcceptTask = () => {
-    if (task) {
-      router.push(`/task/${task.id}/complete`);
+  const handleAcceptTask = async () => {
+    if (!task || !user) return;
+
+    try {
+      const response = await fetch(`/api/tasks/${task.id}/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert('รับงานสำเร็จแล้ว!');
+        router.push('/my-tasks');
+      } else {
+        alert('เกิดข้อผิดพลาดในการรับงาน');
+      }
+    } catch (error) {
+      console.error('Accept task error:', error);
+      alert('เกิดข้อผิดพลาดในระบบ');
     }
   };
 

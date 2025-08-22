@@ -114,13 +114,31 @@ export default function TaskCompletePage() {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Success - redirect to dashboard
-      router.push('/dashboard?completed=true');
+      const response = await fetch(`/api/tasks/${task?.id}/complete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          actualHours: parseInt(formData.actualHours) || 0,
+          notes: formData.completionNotes,
+          feedback: formData.feedback,
+          rating: formData.rating,
+          images: uploadedImages
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`ส่งงานสำเร็จแล้ว! คุณได้รับ ${result.volunteerHours} ชั่วโมงจิตอาสา`);
+        router.push('/dashboard?completed=true');
+      } else {
+        alert('เกิดข้อผิดพลาดในการส่งงาน');
+      }
     } catch (error) {
       console.error('Error completing task:', error);
+      alert('เกิดข้อผิดพลาดในระบบ');
     } finally {
       setIsSubmitting(false);
     }

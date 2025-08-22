@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'GenMatch - แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี',
-  description: 'GenMatch เป็นแพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสา โดยนักศึกษาจะได้รับชั่วโมงจิตอาสาแทนผลตอบแทนเป็นเงิน เพื่อนำไปใช้ในการกู้กยศ. และการสมัครงาน',
+  description: 'GenMatch เป็นแพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสา โดยนักศึกษาจะได้รับชั่วโมงจิตอาสา เพื่อนำไปใช้ในการกู้กยศ. และการสมัครงาน แพลตฟอร์มนี้ไม่มีการเก็บเงินหรือค่าธรรมเนียมใดๆ ทั้งสิ้น',
   keywords: 'จิตอาสา, นักศึกษา, ผู้สูงอายุ, ชั่วโมงจิตอาสา, งานจิตอาสา, โรงพยาบาล, วัด, ออกกำลังกาย, งานซ่อม',
   authors: [{ name: 'GenMatch Team' }],
   creator: 'GenMatch',
@@ -105,8 +105,9 @@ export default function RootLayout({
               "operatingSystem": "Web",
               "offers": {
                 "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "THB"
+                "price": "ฟรี",
+                "priceCurrency": "THB",
+                "description": "บริการจิตอาสาไม่มีค่าใช้จ่าย"
               },
               "author": {
                 "@type": "Organization",

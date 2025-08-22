@@ -271,7 +271,7 @@ export default function SearchPage() {
                     <span className="text-sm text-gray-700">{task.rating}</span>
                   </div>
                   <span className="text-sm text-gray-500">•</span>
-                  <span className="text-sm text-gray-500">฿{task.budget}</span>
+                  <span className="text-sm text-gray-500">{task.budget} ชม.</span>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </div>

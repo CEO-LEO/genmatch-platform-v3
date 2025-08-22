@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
         description: 'Need assistance with grocery shopping at local market',
         category: 'EXERCISE',
         status: 'PENDING',
-        budget: 0,
+        budget: 3,
         volunteerHours: 2,
         estimatedHours: 2,
         address: '123 Main St',

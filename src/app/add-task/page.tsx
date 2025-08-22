@@ -164,13 +164,37 @@ export default function AddTaskPage() {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Success - redirect to my-tasks
-      router.push('/my-tasks?created=true');
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          address: formData.address,
+          city: formData.city,
+          province: formData.province,
+          postalCode: formData.postalCode,
+          scheduledDate: formData.scheduledDate,
+          scheduledTime: formData.scheduledTime,
+          estimatedHours: formData.estimatedHours,
+          requirements: formData.requirements.join(', '),
+          creatorId: user?.id
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert('สร้างงานสำเร็จแล้ว!');
+        router.push('/my-tasks?created=true');
+      } else {
+        alert('เกิดข้อผิดพลาดในการสร้างงาน');
+      }
     } catch (error) {
       console.error('Error creating task:', error);
+      alert('เกิดข้อผิดพลาดในระบบ');
     } finally {
       setIsSubmitting(false);
     }

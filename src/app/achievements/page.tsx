@@ -439,7 +439,7 @@ export default function AchievementsPage() {
                     <div className="mt-4 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl">
                       <div className="flex items-center space-x-2 text-yellow-800">
                         <Gift className="w-4 h-4" />
-                        <span className="text-sm font-medium">รางวัล: {achievement.reward}</span>
+                        <span className="text-sm font-medium">การยกย่อง: {achievement.reward}</span>
                       </div>
                     </div>
                   )}

@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
                     category: 'EXERCISE',
                     status: 'PENDING',
                     
+                    budget: 2,
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'เซ็นทรัลเวิลด์',
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
                     category: 'REPAIR',
                     status: 'PENDING',
 
+                    budget: 3,
                     volunteerHours: 3,
                     estimatedHours: 3,
                     address: 'บ้านผู้ใช้',
@@ -59,6 +61,7 @@ export async function GET(request: NextRequest) {
                     category: 'HOSPITAL',
                     status: 'PENDING',
                     
+                    budget: 4,
                     volunteerHours: 4,
                     estimatedHours: 4,
                     address: 'โรงพยาบาลมหาราช',
@@ -83,6 +86,7 @@ export async function GET(request: NextRequest) {
                     category: 'TEMPLE',
                     status: 'PENDING',
                     
+                    budget: 3,
                     volunteerHours: 3,
                     estimatedHours: 3,
                     address: 'วัดพระแก้ว',
@@ -107,6 +111,7 @@ export async function GET(request: NextRequest) {
                     category: 'EXERCISE',
                     status: 'PENDING',
                     
+                    budget: 2,
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'สวนลุมพินี',
@@ -131,6 +136,7 @@ export async function GET(request: NextRequest) {
                     category: 'REPAIR',
                     status: 'PENDING',
                     
+                    budget: 2,
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'บ้านผู้ใช้',
@@ -155,6 +161,7 @@ export async function GET(request: NextRequest) {
                     category: 'EXERCISE',
                     status: 'PENDING',
                     
+                    budget: 2,
                     volunteerHours: 2,
                     estimatedHours: 2,
                     address: 'ตลาดคลองเตย',
@@ -179,6 +186,7 @@ export async function GET(request: NextRequest) {
                     category: 'REPAIR',
                     status: 'PENDING',
                     
+                    budget: 4,
                     volunteerHours: 4,
                     estimatedHours: 4,
                     address: 'ห้องสมุดประชาชน',
@@ -232,7 +240,7 @@ export async function POST(request: NextRequest) {
       scheduledDate: scheduledDate ? new Date(scheduledDate) : new Date(),
       scheduledTime: scheduledTime || '09:00',
       estimatedHours: estimatedHours ? parseInt(estimatedHours) : 2,
-      
+      budget: estimatedHours ? parseInt(estimatedHours) : 2,
       volunteerHours: estimatedHours ? parseInt(estimatedHours) : 2,
       status: 'PENDING',
       createdAt: new Date().toISOString(),
