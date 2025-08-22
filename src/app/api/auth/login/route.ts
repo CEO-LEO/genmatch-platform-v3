@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import testUsers from '@/data/test-users.json';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,27 +13,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For demo purposes, accept any login
-    // In production, verify credentials with database
+    // Check if user exists in test users
+    let foundUser = null;
+    let userType = '';
+
+    // Check students
+    const student = testUsers.students.find(user => 
+      user.email === email && user.password === password
+    );
+    if (student) {
+      foundUser = student;
+      userType = 'STUDENT';
+    }
+
+    // Check elderly if not found in students
+    if (!foundUser) {
+      const elderly = testUsers.elderly.find(user => 
+        user.email === email && user.password === password
+      );
+      if (elderly) {
+        foundUser = elderly;
+        userType = 'ELDERLY';
+      }
+    }
+
+    if (!foundUser) {
+      return NextResponse.json(
+        { message: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    // Convert test user data to match our User interface
     const mockUser = {
-      id: '1',
-      firstName: 'สมชาย',
-      lastName: 'ใจดี',
-      email: email,
-      phone: '0812345678',
-      userType: 'STUDENT' as const,
-      studentId: '6400000001',
-      university: 'มหาวิทยาลัยมหิดล',
-      address: 'กรุงเทพมหานคร',
-      city: 'กรุงเทพมหานคร',
-      province: 'กรุงเทพมหานคร',
-      postalCode: '10100',
+      id: foundUser.id,
+      firstName: foundUser.name.split(' ')[0] || foundUser.name,
+      lastName: foundUser.name.split(' ').slice(1).join(' ') || '',
+      email: foundUser.email,
+      phone: foundUser.phone,
+      userType: userType as 'STUDENT' | 'ELDERLY',
+      studentId: userType === 'STUDENT' ? (foundUser as any).studentId || '6400000001' : undefined,
+      university: userType === 'STUDENT' ? (foundUser as any).university : undefined,
+      address: userType === 'ELDERLY' ? (foundUser as any).address : 'กรุงเทพมหานคร',
+      city: userType === 'ELDERLY' ? 'กรุงเทพมหานคร' : 'กรุงเทพมหานคร',
+      province: userType === 'ELDERLY' ? 'กรุงเทพมหานคร' : 'กรุงเทพมหานคร',
+      postalCode: userType === 'ELDERLY' ? '10110' : '10100',
       avatar: '',
-      rating: 4.8,
-      totalHours: 25,
-      completedTasks: 8,
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
+      rating: foundUser.rating || 4.5,
+      totalHours: userType === 'STUDENT' ? (foundUser as any).volunteerHours || 0 : 0,
+      completedTasks: foundUser.completedTasks || 0,
+      createdAt: foundUser.createdAt || '2024-01-01T00:00:00Z',
+      updatedAt: foundUser.createdAt || '2024-01-01T00:00:00Z',
     };
 
     const mockToken = 'mock_jwt_token_' + Date.now();

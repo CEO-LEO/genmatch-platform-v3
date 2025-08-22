@@ -77,6 +77,12 @@
   font-weight: 600;
   box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
 }
 
 .genmatch-btn-primary:hover {
@@ -94,6 +100,11 @@
   font-weight: 600;
   border: 2px solid rgba(148, 163, 184, 0.2);
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .genmatch-btn-secondary:hover {
@@ -171,7 +182,7 @@
 /* การ์ดฟอร์ม - สีขาว อ่านง่าย */
 .genmatch-form-card {
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 2px solid rgba(148, 163, 184, 0.2);
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   padding: 2rem;
@@ -185,6 +196,8 @@
   padding: 0.75rem 1rem;
   color: #1e293b;
   transition: all 0.3s ease;
+  width: 100%;
+  font-size: 1rem;
 }
 
 .genmatch-input:focus {
@@ -192,6 +205,10 @@
   border-color: #7c3aed;
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
   outline: none;
+}
+
+.genmatch-input::placeholder {
+  color: #94a3b8;
 }
 
 /* Navigation - สีขาว อ่านง่าย */
