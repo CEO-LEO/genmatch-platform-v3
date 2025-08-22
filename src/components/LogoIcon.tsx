@@ -11,27 +11,27 @@ const LogoIcon: React.FC<LogoIconProps> = ({ className = '' }) => {
       <div className="relative flex items-center justify-center">
         {/* Letter G */}
         <div className="relative">
-          <span className="text-3xl md:text-4xl font-bold text-black font-serif drop-shadow-md leading-none">
+          <span className="text-xl md:text-2xl font-bold text-black font-serif drop-shadow-sm leading-none">
             G
           </span>
-          {/* G curl effect - more prominent */}
-          <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-black rounded-full transform translate-x-1 translate-y-1 opacity-80"></div>
+          {/* G curl effect - smaller */}
+          <div className="absolute bottom-0 right-0 w-1 h-1 bg-black rounded-full transform translate-x-0.5 translate-y-0.5 opacity-80"></div>
         </div>
         
-        {/* Letter M - positioned to overlap G slightly */}
-        <div className="relative -ml-2 transform translate-y-1">
-          <span className="text-3xl md:text-4xl font-bold text-black font-serif drop-shadow-md leading-none">
+        {/* Letter M - positioned closer */}
+        <div className="relative -ml-1 transform translate-y-0.5">
+          <span className="text-xl md:text-2xl font-bold text-black font-serif drop-shadow-sm leading-none">
             M
           </span>
         </div>
       </div>
       
-      {/* Generation Matching Text - better typography */}
-      <div className="mt-1 text-center">
-        <div className="text-[11px] md:text-xs font-medium text-black italic leading-tight tracking-wide">
+      {/* Generation Matching Text - smaller */}
+      <div className="mt-0.5 text-center">
+        <div className="text-[9px] md:text-[10px] font-medium text-black italic leading-tight tracking-wide">
           Generation
         </div>
-        <div className="text-[11px] md:text-xs font-medium text-black italic leading-tight tracking-wide">
+        <div className="text-[9px] md:text-[10px] font-medium text-black italic leading-tight tracking-wide">
           Matching
         </div>
       </div>
