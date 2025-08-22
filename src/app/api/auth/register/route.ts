@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// In-memory storage for registered users (in production, this would be a database)
+let registeredUsers: any[] = [];
+
 export async function POST(request: NextRequest) {
   try {
     const {
@@ -20,7 +23,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!firstName || !lastName || !email || !password || !userType) {
       return NextResponse.json(
-        { message: 'Missing required fields' },
+        { message: 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน' },
         { status: 400 }
       );
     }
@@ -28,19 +31,28 @@ export async function POST(request: NextRequest) {
     // Validate student-specific fields
     if (userType === 'STUDENT' && (!studentId || !university)) {
       return NextResponse.json(
-        { message: 'Student ID and university are required for students' },
+        { message: 'รหัสนักศึกษาและมหาวิทยาลัยจำเป็นสำหรับนักศึกษา' },
         { status: 400 }
       );
     }
 
-    // For demo purposes, create mock user
-    // In production, save to database and hash password
-    const mockUser = {
+    // Check if user already exists
+    const existingUser = registeredUsers.find(user => user.email === email);
+    if (existingUser) {
+      return NextResponse.json(
+        { message: 'อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่น' },
+        { status: 409 }
+      );
+    }
+
+    // Create new user
+    const newUser = {
       id: 'user_' + Date.now(),
       firstName,
       lastName,
       email,
       phone: phone || '',
+      password, // In production, this should be hashed
       userType,
       studentId: studentId || '',
       university: university || '',
@@ -49,25 +61,37 @@ export async function POST(request: NextRequest) {
       province: province || '',
       postalCode: postalCode || '',
       avatar: '',
-      rating: 0,
+      rating: 4.5,
       totalHours: 0,
       completedTasks: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    const mockToken = 'mock_jwt_token_' + Date.now();
+    // Save user to our storage
+    registeredUsers.push(newUser);
+
+    // Create response user object (without password)
+    const responseUser = { ...newUser };
+    delete responseUser.password;
+
+    const token = 'jwt_token_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
     return NextResponse.json({
-      user: mockUser,
-      token: mockToken,
-      message: 'Registration successful'
+      user: responseUser,
+      token: token,
+      message: 'สร้างบัญชีสำเร็จ! ตอนนี้คุณสามารถเข้าสู่ระบบได้แล้ว'
     }, { status: 201 });
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: 'เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง' },
       { status: 500 }
     );
   }
+}
+
+// Function to get all registered users (for debugging)
+export function getRegisteredUsers() {
+  return registeredUsers;
 }
