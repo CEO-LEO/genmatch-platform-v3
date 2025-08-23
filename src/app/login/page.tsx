@@ -7,7 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    phone: '',
     password: '',
     rememberMe: false
   });
@@ -65,19 +65,19 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-            {/* Email Field */}
+            {/* Phone Field */}
             <div className="mb-6">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                อีเมล
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                เบอร์โทรศัพท์
               </label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                placeholder="your@email.com"
+                placeholder="081-234-5678"
                 required
               />
             </div>
