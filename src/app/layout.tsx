@@ -1,14 +1,14 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { AuthProvider } from '@/contexts/AuthContext';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'GenMatch - แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี',
   description: 'GenMatch เป็นแพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสา โดยนักศึกษาจะได้รับชั่วโมงจิตอาสา เพื่อนำไปใช้ในการกู้กยศ. และการสมัครงาน แพลตฟอร์มนี้ไม่มีการเก็บเงินหรือค่าธรรมเนียมใดๆ ทั้งสิ้น',
-  keywords: 'จิตอาสา, นักศึกษา, ผู้สูงอายุ, ชั่วโมงจิตอาสา, งานจิตอาสา, โรงพยาบาล, วัด, ออกกำลังกาย, งานซ่อม',
+  keywords: 'จิตอาสา, นักศึกษา, ผู้สูงอายุ, งานอาสา, ชั่วโมงอาสา, สังคมดี, ประเทศไทย',
   authors: [{ name: 'GenMatch Team' }],
   creator: 'GenMatch',
   publisher: 'GenMatch',
@@ -23,15 +23,15 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'GenMatch - แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี',
-    description: 'เชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ',
+    description: 'GenMatch เป็นแพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสา โดยนักศึกษาจะได้รับชั่วโมงจิตอาสา เพื่อนำไปใช้ในการกู้กยศ. และการสมัครงาน แพลตฟอร์มนี้ไม่มีการเก็บเงินหรือค่าธรรมเนียมใดๆ ทั้งสิ้น',
     url: 'https://genmatch.app',
     siteName: 'GenMatch',
     images: [
       {
-        url: '/og-image.jpg',
+        url: 'https://genmatch.app/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'GenMatch - แพลตฟอร์มเชื่อมโยงจิตอาสา',
+        alt: 'GenMatch - แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี',
       },
     ],
     locale: 'th_TH',
@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'GenMatch - แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี',
-    description: 'เชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ',
-    images: ['/og-image.jpg'],
+    description: 'GenMatch เป็นแพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสา โดยนักศึกษาจะได้รับชั่วโมงจิตอาสา เพื่อนำไปใช้ในการกู้กยศ. และการสมัครงาน แพลตฟอร์มนี้ไม่มีการเก็บเงินหรือค่าธรรมเนียมใดๆ ทั้งสิ้น',
+    images: ['https://genmatch.app/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -59,37 +59,35 @@ export const metadata: Metadata = {
     yandex: 'your-yandex-verification-code',
     yahoo: 'your-yahoo-verification-code',
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="th" className="scroll-smooth">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="theme-color" content="#7c3aed" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="GenMatch" />
+        <meta name="application-name" content="GenMatch" />
+        <meta name="msapplication-TileColor" content="#7c3aed" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        
         {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
         
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* DNS Prefetch */}
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-        
-        {/* Meta tags for mobile */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="theme-color" content="#8B5CF6" />
-        <meta name="msapplication-TileColor" content="#8B5CF6" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="GenMatch" />
         
         {/* Structured Data */}
         <script
@@ -97,73 +95,47 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "WebApplication",
+              "@type": "WebSite",
               "name": "GenMatch",
-              "description": "แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี",
               "url": "https://genmatch.app",
-              "applicationCategory": "SocialNetworkingApplication",
-              "operatingSystem": "Web",
-              "offers": {
-                "@type": "Offer",
-                "price": "ฟรี",
-                "priceCurrency": "THB",
-                "description": "บริการจิตอาสาไม่มีค่าใช้จ่าย"
+              "description": "แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://genmatch.app/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "GenMatch",
+              "url": "https://genmatch.app",
+              "logo": "https://genmatch.app/logo.png",
+              "description": "แพลตฟอร์มเชื่อมโยงจิตอาสา สร้างสังคมดี",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "TH"
               },
-              "author": {
-                "@type": "Organization",
-                "name": "GenMatch Team"
-              },
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": "4.8",
-                "ratingCount": "1500"
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "email": "info@genmatch.com"
               }
             })
           }}
         />
       </head>
-      
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} antialiased bg-gray-50`}>
         <AuthProvider>
           {children}
         </AuthProvider>
-        
-        {/* Service Worker Registration */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
-                    });
-                });
-              }
-            `
-          }}
-        />
-        
-        {/* Performance Monitoring */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Performance monitoring
-              window.addEventListener('load', function() {
-                if ('performance' in window) {
-                  const perfData = performance.getEntriesByType('navigation')[0];
-                  if (perfData) {
-                    console.log('Page Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
-                  }
-                }
-              });
-            `
-          }}
-        />
       </body>
     </html>
-  );
+  )
 }
