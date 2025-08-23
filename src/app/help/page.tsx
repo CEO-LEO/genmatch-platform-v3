@@ -2,289 +2,223 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  HelpCircle, 
-  MessageCircle, 
-  Phone, 
-  Mail, 
-  ChevronDown,
-  ChevronUp,
-  BookOpen,
-  Users,
-  Shield,
-  Star,
-  Heart
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, Mail, Phone, MessageCircle, MapPin } from 'lucide-react';
 
 export default function HelpPage() {
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [expandedFaqs, setExpandedFaqs] = useState<number[]>([]);
+
+  const toggleFaq = (index: number) => {
+    setExpandedFaqs(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
 
   const faqs = [
     {
       question: 'GenMatch คืออะไร?',
-      answer: 'GenMatch เป็นแพลตฟอร์มเชื่อมโยงนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ เรามุ่งมั่นสร้างสังคมที่ดีผ่านการช่วยเหลือซึ่งกันและกัน'
+      answer: 'GenMatch เป็นแพลตฟอร์มเชื่อมโยงนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ โดยช่วยให้ผู้สูงอายุสามารถสร้างงานจิตอาสาและให้นักศึกษาได้ช่วยเหลือ'
     },
     {
       question: 'ฉันจะเริ่มต้นใช้งานได้อย่างไร?',
-      answer: 'คุณสามารถสมัครสมาชิกใหม่ได้ที่หน้าสมัครสมาชิก หรือหากมีบัญชีอยู่แล้วให้เข้าสู่ระบบ จากนั้นคุณจะสามารถค้นหางานจิตอาสาและเข้าร่วมได้ทันที'
+      answer: 'คุณสามารถเริ่มต้นได้โดยการสมัครสมาชิกใหม่ เลือกประเภทผู้ใช้ (นักศึกษา/ผู้สูงอายุ) และเริ่มสร้างงานจิตอาสาหรือค้นหางานที่เหมาะสม'
     },
     {
-      question: 'งานจิตอาสามีประเภทอะไรบ้าง?',
-      answer: 'เรามีงานจิตอาสาหลากหลายประเภท เช่น การดูแลผู้สูงอายุ การสอนหนังสือ การทำความสะอาด การซ่อมแซม และอื่นๆ อีกมากมาย'
+      question: 'การสร้างงานจิตอาสาต้องทำอย่างไร?',
+      answer: 'ไปที่หน้า "สร้างงานใหม่" กรอกข้อมูลงานที่ต้องการความช่วยเหลือ เช่น ชื่องาน รายละเอียด สถานที่ เวลา และจำนวนจิตอาสาที่ต้องการ'
     },
     {
-      question: 'ฉันจะสร้างงานจิตอาสาใหม่ได้อย่างไร?',
-      answer: 'คุณสามารถสร้างงานจิตอาสาใหม่ได้ที่หน้าสร้างงาน โดยกรอกข้อมูลงานที่ต้องการความช่วยเหลือ และเราจะช่วยหาจิตอาสาที่เหมาะสม'
+      question: 'ฉันจะติดต่อจิตอาสาได้อย่างไร?',
+      answer: 'เมื่อจิตอาสาสมัครเข้าร่วมงานของคุณ คุณจะได้รับข้อมูลติดต่อและสามารถติดต่อได้โดยตรงผ่านระบบแชทหรือข้อมูลที่ให้ไว้'
     },
     {
-      question: 'ฉันจะติดต่อผู้สร้างงานได้อย่างไร?',
-      answer: 'คุณสามารถติดต่อผู้สร้างงานได้ผ่านระบบแชทในแอป หรือดูข้อมูลติดต่อที่แสดงในรายละเอียดงาน'
+      question: 'มีค่าใช้จ่ายในการใช้งานหรือไม่?',
+      answer: 'GenMatch เป็นแพลตฟอร์มฟรีสำหรับผู้ใช้งานทุกคน ไม่มีค่าใช้จ่ายในการสมัครสมาชิกหรือสร้างงานจิตอาสา'
     },
     {
-      question: 'มีระบบความปลอดภัยอย่างไร?',
-      answer: 'เรามีระบบยืนยันตัวตน การประเมินผลงาน และการรายงานปัญหา เพื่อให้ทุกคนใช้งานได้อย่างปลอดภัยและน่าเชื่อถือ'
-    }
-  ];
-
-  const contactMethods = [
-    {
-      icon: Mail,
-      title: 'อีเมล',
-      description: 'support@genmatch.com',
-      action: 'ส่งอีเมล'
-    },
-    {
-      icon: Phone,
-      title: 'โทรศัพท์',
-      description: '02-123-4567',
-      action: 'โทรหา'
-    },
-    {
-      icon: MessageCircle,
-      title: 'แชทสด',
-      description: '24/7',
-      action: 'เริ่มแชท'
+      question: 'ฉันจะได้รับความช่วยเหลือเมื่อมีปัญหาได้อย่างไร?',
+      answer: 'คุณสามารถติดต่อทีมสนับสนุนได้ผ่านหน้า "ติดต่อเรา" หรือส่งอีเมลไปยัง support@genmatch.com'
     }
   ];
 
   const features = [
     {
-      icon: Users,
-      title: 'เชื่อมโยงผู้คน',
-      description: 'เชื่อมโยงนักศึกษาและผู้สูงอายุผ่านงานจิตอาสา'
+      title: 'เชื่อมโยงจิตอาสา',
+      description: 'เชื่อมโยงนักศึกษากับผู้สูงอายุที่ต้องการความช่วยเหลือ',
+      icon: '🤝'
     },
     {
-      icon: Shield,
-      title: 'ปลอดภัย',
-      description: 'ระบบความปลอดภัยที่ได้รับการยืนยันและเชื่อถือได้'
+      title: 'สร้างงานจิตอาสา',
+      description: 'ผู้สูงอายุสามารถสร้างงานจิตอาสาที่ต้องการความช่วยเหลือ',
+      icon: '📝'
     },
     {
-      icon: Star,
-      title: 'คุณภาพสูง',
-      description: 'งานจิตอาสาที่มีคุณภาพและตรงตามความต้องการ'
+      title: 'ค้นหางานที่เหมาะสม',
+      description: 'นักศึกษาสามารถค้นหางานจิตอาสาที่เหมาะสมกับความสามารถ',
+      icon: '🔍'
     },
     {
-      icon: Heart,
-      title: 'จิตอาสา',
-      description: 'ส่งเสริมการเป็นจิตอาสาและการช่วยเหลือสังคม'
+      title: 'ติดตามความคืบหน้า',
+      description: 'ติดตามสถานะและความคืบหน้าของงานจิตอาสา',
+      icon: '📊'
     }
   ];
 
-  const toggleFaq = (index: number) => {
-    setExpandedFaq(expandedFaq === index ? null : index);
-  };
+  const contactMethods = [
+    {
+      title: 'อีเมล',
+      value: 'support@genmatch.com',
+      icon: Mail,
+      description: 'ส่งอีเมลถึงเรา'
+    },
+    {
+      title: 'เบอร์โทรศัพท์',
+      value: '02-123-4567',
+      icon: Phone,
+      description: 'โทรหาเราในเวลาทำการ'
+    },
+    {
+      title: 'แชทสด',
+      value: 'เริ่มแชท',
+      icon: MessageCircle,
+      description: 'แชทกับทีมสนับสนุน'
+    },
+    {
+      title: 'ที่อยู่',
+      value: 'กรุงเทพมหานคร, ประเทศไทย',
+      icon: MapPin,
+      description: 'สำนักงานใหญ่'
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
+      <header className="bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and Title */}
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                <span className="text-2xl font-bold text-white">GM</span>
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-2">
+                <span className="text-white font-bold text-lg">GM</span>
               </div>
-              <div className="flex flex-col">
+              <div>
                 <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
-                <div className="text-sm text-gray-600 leading-tight">
-                  <span>Generation</span><br/>
-                  <span>Matching</span>
-                </div>
+                <p className="text-sm text-gray-500">Generation Matching</p>
               </div>
             </div>
-            
-            {/* Back Button */}
+
+            {/* Back to Home Button */}
             <Link 
               href="/"
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>กลับหน้าหลัก</span>
+              กลับหน้าหลัก
             </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <HelpCircle className="w-12 h-12 text-white" />
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">เราพร้อมช่วยเหลือคุณ</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              ค้นหาคำตอบสำหรับคำถามที่พบบ่อย หรือติดต่อเราโดยตรงเพื่อรับความช่วยเหลือ
-            </p>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-white text-4xl">❓</span>
           </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">เราพร้อมช่วยเหลือคุณ</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            ค้นหาคำตอบสำหรับคำถามที่พบบ่อย และเรียนรู้วิธีการใช้งาน GenMatch
+          </p>
+        </div>
 
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {features.map((feature, index) => {
-              const IconComponent = feature.icon;
-              return (
-                <div key={index} className="bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <IconComponent className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
+        {/* Features Section */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-12">
+          <h3 className="text-2xl font-semibold text-gray-900 mb-8 text-center">คุณสมบัติของ GenMatch</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {features.map((feature, index) => (
+              <div key={index} className="flex items-start space-x-4 p-4 border border-gray-100 rounded-lg">
+                <div className="text-3xl">{feature.icon}</div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h4>
+                  <p className="text-gray-600">{feature.description}</p>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* FAQ Section */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center flex items-center justify-center">
-              <BookOpen className="w-6 h-6 mr-3 text-purple-600" />
-              คำถามที่พบบ่อย
-            </h3>
-            
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => toggleFaq(index)}
-                    className="w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
-                  >
-                    <span className="font-medium text-gray-900">{faq.question}</span>
-                    {expandedFaq === index ? (
-                      <ChevronUp className="w-5 h-5 text-gray-500" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-500" />
-                    )}
-                  </button>
-                  
-                  {expandedFaq === index && (
-                    <div className="px-6 py-4 bg-white border-t border-gray-200">
-                      <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Contact Section */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">ติดต่อเรา</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {contactMethods.map((method, index) => {
-                const IconComponent = method.icon;
-                return (
-                  <div key={index} className="text-center p-6 bg-gray-50 rounded-xl">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <IconComponent className="w-8 h-8 text-purple-600" />
-                    </div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">{method.title}</h4>
-                    <p className="text-gray-600 mb-4">{method.description}</p>
-                    <button className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">
-                      {method.action}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">การดำเนินการด่วน</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link
-                href="/search"
-                className="p-4 bg-purple-50 border-2 border-purple-200 rounded-xl text-center hover:bg-purple-100 transition-colors"
-              >
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  🔍
-                </div>
-                <h4 className="font-semibold text-purple-800 mb-1">ค้นหางาน</h4>
-                <p className="text-sm text-purple-600">ค้นหางานจิตอาสาที่เหมาะกับคุณ</p>
-              </Link>
-              
-              <Link
-                href="/add-task"
-                className="p-4 bg-purple-50 border-2 border-purple-200 rounded-xl text-center hover:bg-purple-100 transition-colors"
-              >
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  ➕
-                </div>
-                <h4 className="font-semibold text-purple-800 mb-1">สร้างงาน</h4>
-                <p className="text-sm text-purple-600">สร้างงานจิตอาสาใหม่</p>
-              </Link>
-              
-              <Link
-                href="/profile"
-                className="p-4 bg-purple-50 border-2 border-purple-200 rounded-xl text-center hover:bg-purple-100 transition-colors"
-              >
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  👤
-                </div>
-                <h4 className="font-semibold text-purple-800 mb-1">โปรไฟล์</h4>
-                <p className="text-sm text-purple-600">จัดการโปรไฟล์ของคุณ</p>
-              </Link>
-              
-              <Link
-                href="/settings"
-                className="p-4 bg-purple-50 border-2 border-purple-200 rounded-xl text-center hover:bg-purple-100 transition-colors"
-              >
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  ⚙️
-                </div>
-                <h4 className="font-semibold text-purple-800 mb-1">ตั้งค่า</h4>
-                <p className="text-sm text-purple-600">ปรับแต่งการตั้งค่า</p>
-              </Link>
-            </div>
-          </div>
-
-          {/* Additional Help */}
-          <div className="text-center">
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">ยังไม่พบสิ่งที่คุณต้องการ?</h3>
-              <p className="text-gray-600 mb-6">
-                ทีมงานของเราพร้อมให้ความช่วยเหลือคุณตลอด 24 ชั่วโมง
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href="/contact"
-                  className="bg-purple-600 text-white px-8 py-3 rounded-full font-medium hover:bg-purple-700 transition-colors"
-                >
-                  ติดต่อเรา
-                </Link>
-                <Link
-                  href="/feedback"
-                  className="bg-white text-purple-600 border-2 border-purple-600 px-8 py-3 rounded-full font-medium hover:bg-purple-50 transition-colors"
-                >
-                  แจ้งความคิดเห็น
-                </Link>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-12">
+          <h3 className="text-2xl font-semibold text-gray-900 mb-8 text-center">คำถามที่พบบ่อย</h3>
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg">
+                <button
+                  onClick={() => toggleFaq(index)}
+                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <span className="font-medium text-gray-900">{faq.question}</span>
+                  {expandedFaqs.includes(index) ? (
+                    <ChevronUp className="w-5 h-5 text-purple-600" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+                {expandedFaqs.includes(index) && (
+                  <div className="px-6 pb-4">
+                    <p className="text-gray-600">{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact Section */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-12">
+          <h3 className="text-2xl font-semibold text-gray-900 mb-8 text-center">ติดต่อเรา</h3>
+          <p className="text-gray-600 text-center mb-8">
+            ยังมีคำถามหรือต้องการความช่วยเหลือเพิ่มเติม? ติดต่อเราได้เลย
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {contactMethods.map((method, index) => (
+              <div key={index} className="text-center p-6 border border-gray-100 rounded-lg hover:border-purple-200 transition-colors">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <method.icon className="w-6 h-6 text-purple-600" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">{method.title}</h4>
+                <p className="text-purple-600 font-medium mb-1">{method.value}</p>
+                <p className="text-sm text-gray-500">{method.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">การดำเนินการอย่างรวดเร็ว</h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              href="/register"
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            >
+              สมัครสมาชิก
+            </Link>
+            <Link
+              href="/search"
+              className="px-6 py-3 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium"
+            >
+              ค้นหางาน
+            </Link>
+            <Link
+              href="/add-task"
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            >
+              สร้างงานใหม่
+            </Link>
           </div>
         </div>
       </main>
