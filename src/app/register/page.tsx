@@ -13,6 +13,9 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     userType: 'student',
+    studentId: '',
+    university: '',
+    address: '',
     password: '',
     confirmPassword: '',
     acceptTerms: false
@@ -24,7 +27,7 @@ export default function RegisterPage() {
     console.log('Registration attempt:', formData);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       const target = e.target as HTMLInputElement;
@@ -79,11 +82,30 @@ export default function RegisterPage() {
 
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+            {/* User Type Field - MOVED TO TOP */}
+            <div className="mb-6">
+              <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-2">
+                ประเภทผู้ใช้ *
+              </label>
+              <select
+                id="userType"
+                name="userType"
+                value={formData.userType}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                required
+              >
+                <option value="">เลือกประเภทผู้ใช้</option>
+                <option value="student">นักศึกษา</option>
+                <option value="elderly">ผู้สูงอายุ</option>
+              </select>
+            </div>
+
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                  ชื่อ
+                  ชื่อ *
                 </label>
                 <input
                   type="text"
@@ -98,7 +120,7 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                  นามสกุล
+                  นามสกุล *
                 </label>
                 <input
                   type="text"
@@ -113,27 +135,29 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Email Field */}
-            <div className="mb-6">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                อีเมล
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
+            {/* Email Field - ONLY FOR STUDENTS */}
+            {formData.userType === 'student' && (
+              <div className="mb-6">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  อีเมล *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+            )}
 
             {/* Phone Field */}
             <div className="mb-6">
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                เบอร์โทรศัพท์
+                เบอร์โทรศัพท์ *
               </label>
               <input
                 type="tel"
@@ -147,29 +171,63 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* User Type Field */}
+            {/* Student-specific Fields */}
+            {formData.userType === 'student' && (
+              <>
+                <div className="mb-6">
+                  <label htmlFor="studentId" className="block text-sm font-medium text-gray-700 mb-2">
+                    รหัสนักศึกษา *
+                  </label>
+                  <input
+                    type="text"
+                    id="studentId"
+                    name="studentId"
+                    value={formData.studentId}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                    placeholder="เช่น 6400000000"
+                    required
+                  />
+                </div>
+                <div className="mb-6">
+                  <label htmlFor="university" className="block text-sm font-medium text-gray-700 mb-2">
+                    มหาวิทยาลัย *
+                  </label>
+                  <input
+                    type="text"
+                    id="university"
+                    name="university"
+                    value={formData.university}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                    placeholder="เช่น มหาวิทยาลัยมหิดล"
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Address Field - FOR BOTH USER TYPES */}
             <div className="mb-6">
-              <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-2">
-                ประเภทผู้ใช้
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                ที่อยู่ *
               </label>
-              <select
-                id="userType"
-                name="userType"
-                value={formData.userType}
+              <textarea
+                id="address"
+                name="address"
+                value={formData.address}
                 onChange={handleInputChange}
+                rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                placeholder="กรอกที่อยู่ที่ชัดเจน"
                 required
-              >
-                <option value="student">นักศึกษา</option>
-                <option value="elderly">ผู้สูงอายุ</option>
-                <option value="volunteer">จิตอาสาทั่วไป</option>
-              </select>
+              />
             </div>
 
             {/* Password Fields */}
             <div className="mb-6">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                รหัสผ่าน
+                รหัสผ่าน *
               </label>
               <div className="relative">
                 <input
@@ -194,7 +252,7 @@ export default function RegisterPage() {
 
             <div className="mb-6">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                ยืนยันรหัสผ่าน
+                ยืนยันรหัสผ่าน *
               </label>
               <div className="relative">
                 <input
