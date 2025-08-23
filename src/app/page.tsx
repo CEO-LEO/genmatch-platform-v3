@@ -8,46 +8,59 @@ import {
   Plus, 
   Bell, 
   User, 
-  MapPin, 
-  Building, 
-  Wrench, 
-  Heart, 
-  Users, 
-  Calendar, 
-  Star, 
-  Clock 
+  Users,
+  Heart
 } from 'lucide-react';
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('home');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                <Heart className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">GM</span>
               </div>
-              <div>
+              <div className="flex flex-col">
                 <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
-                <p className="text-sm text-gray-600">แพลตฟอร์มเชื่อมโยงจิตอาสา</p>
+                <div className="text-sm text-gray-600 leading-tight">
+                  <span>Generation</span><br/>
+                  <span>Matching</span>
+                </div>
               </div>
             </div>
             
-            {/* Header Actions */}
-            <div className="flex items-center space-x-4">
-              <Link href="/notifications" className="relative p-2 text-gray-600 hover:text-purple-600 transition-colors">
-                <Bell className="w-6 h-6" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
+            {/* Navigation Menu */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link href="/features" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+                คุณสมบัติ
               </Link>
-              <Link href="/profile" className="p-2 text-gray-600 hover:text-purple-600 transition-colors">
-                <User className="w-6 h-6" />
+              <Link href="/how-to-use" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+                วิธีใช้งาน
+              </Link>
+              <Link href="/about" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+                เกี่ยวกับเรา
+              </Link>
+            </nav>
+            
+            {/* Auth Buttons */}
+            <div className="flex items-center space-x-4">
+              <Link 
+                href="/login"
+                className="px-6 py-2 border-2 border-purple-600 text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-colors"
+              >
+                เข้าสู่ระบบ
+              </Link>
+              <Link 
+                href="/register"
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+              >
+                สมัครสมาชิก
               </Link>
             </div>
           </div>
@@ -55,185 +68,53 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 pb-24">
-        {/* Hero Section */}
-        <section className="text-center mb-12">
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl p-8 text-white mb-8">
-            <h2 className="text-4xl font-bold mb-4">ยินดีต้อนรับสู่ GenMatch</h2>
-            <p className="text-xl mb-8 opacity-90">
-              แพลตฟอร์มเชื่อมโยงระหว่างนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสา
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/search"
-                className="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
-              >
-                ค้นหางานจิตอาสา
-              </Link>
-              <Link 
-                href="/add-task"
-                className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition-colors"
-              >
-                สร้างงานใหม่
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">สถิติ</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Heart className="w-6 h-6 text-red-500" />
+      <main className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* Main Icon */}
+          <div className="w-32 h-32 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-8">
+            <div className="flex items-center justify-center relative">
+              {/* Center person */}
+              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center">
+                <Users className="w-8 h-8 text-white" />
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">156</div>
-              <div className="text-sm text-gray-600">งานจิตอาสา</div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="w-6 h-6 text-blue-500" />
+              {/* Left person */}
+              <div className="absolute -left-4 -top-2 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">89</div>
-              <div className="text-sm text-gray-600">จิตอาสา</div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Clock className="w-6 h-6 text-green-500" />
-              </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">2,340</div>
-              <div className="text-sm text-gray-600">ชั่วโมงอาสา</div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Star className="w-6 h-6 text-yellow-500" />
-              </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">4.8</div>
-              <div className="text-sm text-gray-600">คะแนนเฉลี่ย</div>
-            </div>
-          </div>
-        </section>
-
-        {/* Volunteer Categories */}
-        <section className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">หมวดหมู่งานจิตอาสา</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link 
-              href="/search?category=hospital"
-              className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            >
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Building className="w-8 h-8 text-red-500" />
-              </div>
-              <div className="font-semibold text-gray-900">โรงพยาบาล</div>
-            </Link>
-            <Link 
-              href="/search?category=temple"
-              className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            >
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Building className="w-8 h-8 text-yellow-500" />
-              </div>
-              <div className="font-semibold text-gray-900">วัด</div>
-            </Link>
-            <Link 
-              href="/search?category=exercise"
-              className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            >
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="w-8 h-8 text-green-500" />
-              </div>
-              <div className="font-semibold text-gray-900">ออกกำลังกาย</div>
-            </Link>
-            <Link 
-              href="/search?category=repair"
-              className="bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
-            >
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Wrench className="w-8 h-8 text-blue-500" />
-              </div>
-              <div className="font-semibold text-gray-900">ซ่อมแซม</div>
-            </Link>
-          </div>
-        </section>
-
-        {/* Recent Tasks */}
-        <section className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">งานล่าสุด</h3>
-          <div className="grid gap-4">
-            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">ช่วยเหลือผู้สูงอายุที่โรงพยาบาล</h4>
-                  <p className="text-gray-600 text-sm mb-3">ช่วยดูแลผู้ป่วยสูงอายุ ให้น้ำ อาหาร และพูดคุย</p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>โรงพยาบาลมหาราช</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>25 ส.ค. 2568</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users className="w-4 h-4" />
-                      <span>ต้องการ 2 คน</span>
-                    </div>
-                  </div>
-                </div>
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  เปิดรับ
-                </span>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">ทำความสะอาดวัด</h4>
-                  <p className="text-gray-600 text-sm mb-3">ช่วยทำความสะอาดบริเวณวัดและจัดดอกไม้</p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>วัดพระศรีมหาธาตุ</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>26 ส.ค. 2568</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users className="w-4 h-4" />
-                      <span>ต้องการ 5 คน</span>
-                    </div>
-                  </div>
-                </div>
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  เปิดรับ
-                </span>
+              {/* Right person */}
+              <div className="absolute -right-4 -top-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
               </div>
             </div>
           </div>
-        </section>
 
-        {/* Quick Actions */}
-        <section className="text-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">เริ่มต้นใช้งาน</h3>
+          {/* Main Title */}
+          <h2 className="text-5xl font-bold text-purple-600 mb-6 leading-tight">
+            เชื่อมโยงจิตอาสา<br/>
+            สร้างสังคมดี
+          </h2>
+
+          {/* Description */}
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+            แพลตฟอร์มเชื่อมโยงนักศึกษาและผู้สูงอายุ เพื่อการเป็นจิตอาสาที่มีประสิทธิภาพ
+          </p>
+
+          {/* Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
-              href="/add-task"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full font-semibold hover:from-purple-700 hover:to-pink-700 transition-all hover:-translate-y-1 shadow-lg"
+              href="/register"
+              className="px-8 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-lg"
             >
-              สร้างงานใหม่
+              เริ่มต้นใช้งาน
             </Link>
             <Link 
-              href="/search"
-              className="bg-white text-purple-600 border-2 border-purple-600 px-8 py-4 rounded-full font-semibold hover:bg-purple-50 transition-colors"
+              href="/login"
+              className="px-8 py-4 border-2 border-purple-600 text-purple-600 text-lg font-semibold rounded-lg hover:bg-purple-50 transition-colors"
             >
-              ค้นหางาน
+              เข้าสู่ระบบ
             </Link>
           </div>
-        </section>
+        </div>
       </main>
 
       {/* Bottom Navigation */}

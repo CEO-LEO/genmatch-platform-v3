@@ -3,212 +3,242 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { 
-  ArrowLeft,
-  Plus,
-  MapPin,
-  Calendar,
-  Clock,
-  Users,
-  CheckCircle,
-  Clock as ClockIcon,
-  AlertCircle
+  ArrowLeft, 
+  Calendar, 
+  MapPin, 
+  Users, 
+  Clock, 
+  CheckCircle, 
+  XCircle,
+  MoreVertical,
+  Star,
+  Heart
 } from 'lucide-react';
 
 export default function MyTasksPage() {
   const [activeTab, setActiveTab] = useState('active');
 
-  // Mock data for tasks
-  const tasks = [
-    {
-      id: '1',
-      title: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-      description: 'ต้องการจิตอาสาพาไปตรวจสุขภาพที่โรงพยาบาลมหิดล',
-      category: 'hospital',
-      location: 'โรงพยาบาลมหิดล',
-      date: '2024-03-15',
-      time: '09:00',
-      status: 'active',
-      maxVolunteers: 2,
-      currentVolunteers: 1,
-      categoryName: 'โรงพยาบาล',
-      categoryColor: 'bg-red-500'
-    },
-    {
-      id: '2',
-      title: 'ช่วยติดตั้งคอมพิวเตอร์',
-      description: 'ต้องการความช่วยเหลือในการติดตั้งคอมพิวเตอร์และโปรแกรมพื้นฐาน',
-      category: 'repair',
-      location: 'บ้านพัก ถนนสุขุมวิท',
-      date: '2024-03-20',
-      time: '14:00',
-      status: 'completed',
-      maxVolunteers: 1,
-      currentVolunteers: 1,
-      categoryName: 'งานซ่อมแซม',
-      categoryColor: 'bg-blue-500'
-    },
-    {
-      id: '3',
-      title: 'กิจกรรมจิตอาสาในวัด',
-      description: 'ช่วยจัดกิจกรรมวันสำคัญของวัด',
-      category: 'temple',
-      location: 'วัดพระศรีมหาธาตุ',
-      date: '2024-03-25',
-      time: '08:00',
-      status: 'pending',
-      maxVolunteers: 3,
-      currentVolunteers: 0,
-      categoryName: 'วัด',
-      categoryColor: 'bg-yellow-500'
-    }
-  ];
+  const mockTasks = {
+    active: [
+      {
+        id: '1',
+        title: 'ช่วยเหลือผู้สูงอายุที่โรงพยาบาล',
+        description: 'ช่วยดูแลผู้ป่วยสูงอายุ ให้น้ำ อาหาร และพูดคุย',
+        category: 'โรงพยาบาล',
+        location: 'กรุงเทพมหานคร',
+        date: '25 ส.ค. 2568',
+        time: '09:00',
+        maxVolunteers: 2,
+        currentVolunteers: 1,
+        status: 'active',
+        progress: 50,
+        rating: 4.8
+      },
+      {
+        id: '2',
+        title: 'ทำความสะอาดวัด',
+        description: 'ช่วยทำความสะอาดบริเวณวัดและจัดดอกไม้',
+        category: 'วัด',
+        location: 'เชียงใหม่',
+        date: '26 ส.ค. 2568',
+        time: '08:00',
+        maxVolunteers: 5,
+        currentVolunteers: 3,
+        status: 'active',
+        progress: 60,
+        rating: 4.6
+      }
+    ],
+    completed: [
+      {
+        id: '3',
+        title: 'สอนคอมพิวเตอร์ให้ผู้สูงอายุ',
+        description: 'สอนการใช้คอมพิวเตอร์และอินเทอร์เน็ตพื้นฐาน',
+        category: 'การศึกษา',
+        location: 'กรุงเทพมหานคร',
+        date: '20 ส.ค. 2568',
+        time: '14:00',
+        maxVolunteers: 3,
+        currentVolunteers: 3,
+        status: 'completed',
+        progress: 100,
+        rating: 4.9,
+        completedDate: '22 ส.ค. 2568'
+      }
+    ],
+    created: [
+      {
+        id: '4',
+        title: 'ช่วยจัดกิจกรรมวันเด็ก',
+        description: 'ช่วยจัดกิจกรรมและดูแลเด็กในงานวันเด็ก',
+        category: 'การศึกษา',
+        location: 'โรงเรียนวัดสระแก้ว',
+        date: '30 ส.ค. 2568',
+        time: '09:00',
+        maxVolunteers: 4,
+        currentVolunteers: 2,
+        status: 'recruiting',
+        progress: 50,
+        rating: 0
+      }
+    ]
+  };
 
-  const getStatusInfo = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return { color: 'text-green-600', bg: 'bg-green-50', icon: ClockIcon, text: 'กำลังดำเนินการ' };
-      case 'completed':
-        return { color: 'text-blue-600', bg: 'bg-blue-50', icon: CheckCircle, text: 'เสร็จสิ้น' };
-      case 'pending':
-        return { color: 'text-orange-600', bg: 'bg-orange-50', icon: AlertCircle, text: 'รอการอนุมัติ' };
-      default:
-        return { color: 'text-gray-600', bg: 'bg-gray-50', icon: ClockIcon, text: 'ไม่ทราบสถานะ' };
+      case 'active': return 'bg-blue-100 text-blue-800';
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'recruiting': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const filteredTasks = tasks.filter(task => {
-    if (activeTab === 'all') return true;
-    return task.status === activeTab;
-  });
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'active': return 'กำลังดำเนินการ';
+      case 'completed': return 'เสร็จสิ้น';
+      case 'recruiting': return 'กำลังรับสมัคร';
+      default: return 'ไม่ทราบสถานะ';
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Link
-              href="/"
-              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </Link>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">งานของฉัน</h1>
-              <p className="text-sm text-gray-500">จัดการงานจิตอาสาที่สร้าง</p>
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">GM</span>
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
+                <div className="text-sm text-gray-600 leading-tight">
+                  <span>Generation</span><br/>
+                  <span>Matching</span>
+                </div>
+              </div>
             </div>
+            
+            {/* Back Button */}
+            <Link 
+              href="/"
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>กลับหน้าหลัก</span>
+            </Link>
           </div>
-          
-          <Link
-            href="/add-task"
-            className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center"
-          >
-            <Plus className="w-5 h-5 text-white" />
-          </Link>
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="bg-white px-4 py-3 border-b border-gray-200">
-        <div className="flex space-x-1">
-          {[
-            { id: 'all', label: 'ทั้งหมด', count: tasks.length },
-            { id: 'active', label: 'กำลังดำเนินการ', count: tasks.filter(t => t.status === 'active').length },
-            { id: 'completed', label: 'เสร็จสิ้น', count: tasks.filter(t => t.status === 'completed').length },
-            { id: 'pending', label: 'รอการอนุมัติ', count: tasks.filter(t => t.status === 'pending').length }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {tab.label}
-              <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
-                activeTab === tab.id
-                  ? 'bg-purple-200 text-purple-700'
-                  : 'bg-gray-100 text-gray-500'
-              }`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Main Content */}
-      <main className="px-4 py-6 pb-24">
-        {filteredTasks.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Plus className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">ยังไม่มีงาน</h3>
-            <p className="text-gray-500 mb-6">เริ่มต้นสร้างงานจิตอาสาแรกของคุณ</p>
-            <Link
-              href="/add-task"
-              className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              สร้างงานใหม่
-            </Link>
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">งานของฉัน</h2>
+            <p className="text-gray-600">จัดการงานจิตอาสาที่คุณเข้าร่วมและสร้างขึ้น</p>
           </div>
-        ) : (
+
+          {/* Tabs */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-2 shadow-sm mb-8">
+            <div className="flex">
+              {[
+                { id: 'active', label: 'กำลังดำเนินการ', count: mockTasks.active.length },
+                { id: 'completed', label: 'เสร็จสิ้น', count: mockTasks.completed.length },
+                { id: 'created', label: 'ที่สร้างขึ้น', count: mockTasks.created.length }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <span>{tab.label}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Task List */}
           <div className="space-y-4">
-            {filteredTasks.map((task) => {
-              const statusInfo = getStatusInfo(task.status);
-              const StatusIcon = statusInfo.icon;
-              
-              return (
-                <div key={task.id} className="bg-white rounded-xl p-6 shadow-sm">
-                  {/* Header */}
+            {mockTasks[activeTab as keyof typeof mockTasks].length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">ไม่มีงานในหมวดหมู่นี้</h3>
+                <p className="text-gray-600">เริ่มต้นสร้างงานจิตอาสาใหม่หรือค้นหางานที่เหมาะกับคุณ</p>
+                <div className="mt-6 space-x-3">
+                  <Link
+                    href="/add-task"
+                    className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                  >
+                    สร้างงานใหม่
+                  </Link>
+                  <Link
+                    href="/search"
+                    className="inline-block px-6 py-3 border border-purple-600 text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-colors"
+                  >
+                    ค้นหางาน
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              mockTasks[activeTab as keyof typeof mockTasks].map((task) => (
+                <div key={task.id} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                  {/* Task Header */}
                   <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 ${task.categoryColor} rounded-lg flex items-center justify-center`}>
-                        <span className="text-white text-sm font-bold">
-                          {task.categoryName.charAt(0)}
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(task.status)}`}>
+                          {getStatusText(task.status)}
                         </span>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{task.title}</h3>
-                        <p className="text-sm text-gray-500">{task.categoryName}</p>
-                      </div>
+                      <p className="text-gray-600 mb-3">{task.description}</p>
                     </div>
                     
-                    <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${statusInfo.bg}`}>
-                      <StatusIcon className={`w-4 h-4 ${statusInfo.color}`} />
-                      <span className={`text-sm font-medium ${statusInfo.color}`}>
-                        {statusInfo.text}
-                      </span>
+                    <div className="flex items-center space-x-2">
+                      <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                        <Heart className="w-5 h-5" />
+                      </button>
+                      <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-gray-700 mb-4">{task.description}</p>
-
-                  {/* Details */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  {/* Task Details */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm text-gray-500">
+                    <div className="flex items-center space-x-2">
                       <MapPin className="w-4 h-4" />
                       <span>{task.location}</span>
                     </div>
-                    
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Date(task.date).toLocaleDateString('th-TH')}</span>
+                      <span>{task.date} {task.time}</span>
                     </div>
-                    
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <Clock className="w-4 h-4" />
-                      <span>{task.time}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-2">
                       <Users className="w-4 h-4" />
-                      <span>{task.currentVolunteers}/{task.maxVolunteers}</span>
+                      <span>{task.currentVolunteers}/{task.maxVolunteers} คน</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      <span>{task.rating > 0 ? task.rating : 'ยังไม่มี'}</span>
                     </div>
                   </div>
 
@@ -216,30 +246,83 @@ export default function MyTasksPage() {
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                       <span>ความคืบหน้า</span>
-                      <span>{Math.round((task.currentVolunteers / task.maxVolunteers) * 100)}%</span>
+                      <span>{task.progress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
-                        className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${(task.currentVolunteers / task.maxVolunteers) * 100}%` }}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          task.status === 'completed' ? 'bg-green-500' : 'bg-purple-500'
+                        }`}
+                        style={{ width: `${task.progress}%` }}
                       ></div>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex space-x-3">
-                    <button className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                      แก้ไข
-                    </button>
-                    <button className="flex-1 py-2 px-4 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">
-                      ดูรายละเอียด
-                    </button>
+                  {/* Category and Actions */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-gray-500">หมวดหมู่:</span>
+                      <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
+                        {task.category}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      {task.status === 'active' && (
+                        <button className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                          <CheckCircle className="w-4 h-4 inline mr-2" />
+                          เสร็จสิ้น
+                        </button>
+                      )}
+                      {task.status === 'recruiting' && (
+                        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">
+                          แก้ไข
+                        </button>
+                      )}
+                      <Link
+                        href={`/task/${task.id}`}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                      >
+                        ดูรายละเอียด
+                      </Link>
+                    </div>
                   </div>
+
+                  {/* Completion Info */}
+                  {task.status === 'completed' && task.completedDate && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span>เสร็จสิ้นเมื่อ: {task.completedDate}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              );
-            })}
+              ))
+            )}
           </div>
-        )}
+
+          {/* Quick Actions */}
+          <div className="mt-8 text-center">
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">การดำเนินการด่วน</h3>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  href="/add-task"
+                  className="bg-purple-600 text-white px-6 py-3 rounded-full font-medium hover:bg-purple-700 transition-colors"
+                >
+                  สร้างงานใหม่
+                </Link>
+                <Link
+                  href="/search"
+                  className="bg-white text-purple-600 border-2 border-purple-600 px-6 py-3 rounded-full font-medium hover:bg-purple-50 transition-colors"
+                >
+                  ค้นหางาน
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
