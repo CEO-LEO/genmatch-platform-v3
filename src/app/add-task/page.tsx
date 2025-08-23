@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { MapPin, Calendar, Clock, Users, Tag, Phone } from 'lucide-react';
 
 export default function AddTaskPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -31,10 +33,61 @@ export default function AddTaskPage() {
     { id: 'other', name: 'อื่นๆ', icon: '🌟' }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Task creation:', formData);
+    
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      // Get user info from localStorage (if logged in)
+      const userStr = localStorage.getItem('user');
+      let creatorId = 1; // Default for demo
+      
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        creatorId = user.id;
+      }
+
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          creatorId
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: data.message });
+        // Reset form
+        setFormData({
+          title: '',
+          description: '',
+          category: '',
+          location: '',
+          date: '',
+          startTime: '',
+          endTime: '',
+          maxVolunteers: 1,
+          requirements: '',
+          tags: '',
+          contactName: '',
+          contactPhone: '',
+          contactEmail: ''
+        });
+      } else {
+        setMessage({ type: 'error', text: data.error });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

@@ -22,9 +22,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body {
+  }
+  
+  body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,

@@ -6,16 +6,52 @@ import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [formData, setFormData] = useState({
     phone: '',
     password: '',
     rememberMe: false
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', formData);
+    
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: data.message });
+        
+        // Store token in localStorage
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        
+        // Redirect to home page after successful login
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
+      } else {
+        setMessage({ type: 'error', text: data.error });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +101,11 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+            {message && (
+              <div className={`p-3 rounded-lg mb-4 text-center ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                {message.text}
+              </div>
+            )}
             {/* Phone Field */}
             <div className="mb-6">
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
@@ -79,6 +120,7 @@ export default function LoginPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
                 placeholder="081-234-5678"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -97,6 +139,7 @@ export default function LoginPage() {
                   className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
                   placeholder="••••••••"
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -117,6 +160,7 @@ export default function LoginPage() {
                   checked={formData.rememberMe}
                   onChange={handleInputChange}
                   className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  disabled={isLoading}
                 />
                 <span className="ml-2 text-sm text-gray-700">จดจำฉัน</span>
               </label>
@@ -129,8 +173,9 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors mb-6"
+              disabled={isLoading}
             >
-              เข้าสู่ระบบ
+              {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
             </button>
 
             {/* Divider */}

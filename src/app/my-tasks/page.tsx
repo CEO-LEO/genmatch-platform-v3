@@ -104,7 +104,7 @@ export default function MyTasksPage() {
     }
   };
 
-  return (
+    return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-100">
@@ -118,8 +118,8 @@ export default function MyTasksPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
                 <p className="text-sm text-gray-500">Generation Matching</p>
-              </div>
-            </div>
+        </div>
+      </div>
 
             {/* Back to Home Button */}
             <Link 
@@ -127,9 +127,9 @@ export default function MyTasksPage() {
               className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
             >
               กลับหน้าหลัก
-            </Link>
-          </div>
+          </Link>
         </div>
+      </div>
       </header>
 
       {/* Main Content */}
@@ -138,7 +138,7 @@ export default function MyTasksPage() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">งานของฉัน</h2>
           <p className="text-gray-600">จัดการงานจิตอาสาที่คุณสร้างและเข้าร่วม</p>
-        </div>
+            </div>
 
         {/* Tabs */}
         <div className="flex justify-center mb-8">
@@ -181,29 +181,29 @@ export default function MyTasksPage() {
           {mockTasks[activeTab as keyof typeof mockTasks].map((task) => (
             <div key={task.id} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
+                    <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1 ${getStatusColor(task.status)}`}>
                       {getStatusIcon(task.status)}
                       <span>{task.status}</span>
-                    </span>
-                  </div>
-                  
+                            </span>
+                          </div>
+                          
                   <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-1" />
                       {task.location}
-                    </div>
+                            </div>
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-1" />
                       {task.date} {task.time}
-                    </div>
+                            </div>
                     <div className="flex items-center">
                       <Users className="w-4 h-4 mr-1" />
                       {task.volunteers}/{task.maxVolunteers} คน
-                    </div>
-                  </div>
+                            </div>
+                          </div>
 
                   {/* Progress Bar */}
                   {task.progress > 0 && (
@@ -217,37 +217,37 @@ export default function MyTasksPage() {
                           className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${task.progress}%` }}
                         ></div>
-                      </div>
-                    </div>
-                  )}
+                              </div>
+                            </div>
+                          )}
 
                   {/* Category Badge */}
                   <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
                     {task.category}
                   </span>
-                </div>
-              </div>
-              
+                      </div>
+                    </div>
+
               {/* Action Buttons */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                 <div className="flex space-x-2">
-                  <Link
-                    href={`/task/${task.id}`}
+                      <Link
+                        href={`/task/${task.id}`}
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-                  >
-                    ดูรายละเอียด
-                  </Link>
+                      >
+                        ดูรายละเอียด
+                      </Link>
                   {activeTab === 'ongoing' && (
                     <button className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium">
                       แก้ไข
-                    </button>
-                  )}
+                        </button>
+                      )}
                   {activeTab === 'created' && task.volunteers === 0 && (
                     <button className="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium">
-                      ยกเลิก
-                    </button>
-                  )}
-                </div>
+                          ยกเลิก
+                        </button>
+                      )}
+                    </div>
 
                 {/* Rating for completed tasks */}
                 {activeTab === 'completed' && task.rating && (
@@ -267,8 +267,8 @@ export default function MyTasksPage() {
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+                  </div>
+                </div>
           ))}
 
           {/* Empty State */}
@@ -289,9 +289,9 @@ export default function MyTasksPage() {
               >
                 สร้างงานใหม่
               </Link>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
         {/* Quick Actions */}
         <div className="mt-12 text-center">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, MapPin, Clock, User, Heart } from 'lucide-react';
 
@@ -8,6 +8,9 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const categories = [
     { id: 'hospital', name: 'โรงพยาบาล', icon: '🏥' },
@@ -22,49 +25,48 @@ export default function SearchPage() {
     'กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'พัทยา', 'หาดใหญ่', 'นครราชสีมา'
   ];
 
-  const mockTasks = [
-    {
-      id: 1,
-      title: 'ช่วยเหลือในโรงพยาบาล',
-      category: 'โรงพยาบาล',
-      location: 'กรุงเทพมหานคร',
-      distance: '500ม.',
-      duration: '2 ชั่วโมง',
-      time: '15.00 - 17.00',
-      user: 'คุณยายสมศรี',
-      avatar: '👵',
-      description: 'ต้องการความช่วยเหลือในการทำความสะอาดและจัดระเบียบในโรงพยาบาล'
-    },
-    {
-      id: 2,
-      title: 'กิจกรรมจิตอาสาในวัด',
-      category: 'วัด',
-      location: 'กรุงเทพมหานคร',
-      distance: '1.2กม.',
-      duration: '3 ชั่วโมง',
-      time: '09.00 - 12.00',
-      user: 'พระอาจารย์',
-      avatar: '🙏',
-      description: 'ช่วยจัดเตรียมงานบุญและดูแลผู้เข้าร่วมกิจกรรม'
-    },
-    {
-      id: 3,
-      title: 'สอนคอมพิวเตอร์ให้ผู้สูงอายุ',
-      category: 'การศึกษา',
-      location: 'กรุงเทพมหานคร',
-      distance: '800ม.',
-      duration: '2 ชั่วโมง',
-      time: '14.00 - 16.00',
-      user: 'คุณลุงสมชาย',
-      avatar: '👴',
-      description: 'ต้องการเรียนรู้การใช้คอมพิวเตอร์และอินเทอร์เน็ต'
+  // Fetch tasks from API
+  const fetchTasks = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('search', searchQuery);
+      if (selectedCategory) params.append('category', selectedCategory);
+      if (selectedLocation) params.append('location', selectedLocation);
+      
+      const response = await fetch(`/api/tasks?${params.toString()}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setTasks(data.tasks || []);
+      } else {
+        setError(data.error || 'เกิดข้อผิดพลาดในการดึงข้อมูล');
+      }
+    } catch (error) {
+      setError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  // Load tasks on component mount
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle search logic here
-    console.log('Search:', { searchQuery, selectedCategory, selectedLocation });
+    fetchTasks();
+  };
+
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(selectedCategory === categoryId ? '' : categoryId);
+  };
+
+  const handleLocationChange = (location: string) => {
+    setSelectedLocation(selectedLocation === location ? '' : location);
   };
 
   return (
@@ -136,7 +138,7 @@ export default function SearchPage() {
                     <button
                       key={category.id}
                       type="button"
-                      onClick={() => setSelectedCategory(selectedCategory === category.id ? '' : category.id)}
+                      onClick={() => handleCategoryChange(category.id)}
                       className={`p-3 rounded-lg border-2 transition-colors ${
                         selectedCategory === category.id
                           ? 'border-purple-500 bg-purple-50 text-purple-700'
@@ -162,7 +164,7 @@ export default function SearchPage() {
                     <button
                       key={location}
                       type="button"
-                      onClick={() => setSelectedLocation(selectedLocation === location ? '' : location)}
+                      onClick={() => handleLocationChange(location)}
                       className={`w-full p-3 text-left rounded-lg border-2 transition-colors ${
                         selectedLocation === location
                           ? 'border-purple-500 bg-purple-50 text-purple-700'
@@ -193,7 +195,14 @@ export default function SearchPage() {
         <div className="space-y-6">
           <h3 className="text-xl font-semibold text-gray-900">ผลการค้นหา</h3>
           
-          {mockTasks.map((task) => (
+          {isLoading && <p>กำลังค้นหางาน...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+
+          {tasks.length === 0 && !isLoading && !error && (
+            <p>ไม่พบงานที่ตรงกับเงื่อนไขที่คุณค้นหา</p>
+          )}
+
+          {tasks.map((task) => (
             <div key={task.id} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">

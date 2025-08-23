@@ -1,81 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabase } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const taskId = searchParams.get('taskId');
     const userId = searchParams.get('userId');
 
-    // Mock chat data
-    const chats = [
-      {
-        id: 'chat_1',
-        participants: [
-          {
-            id: 'user_1',
-            firstName: 'สมศรี',
-            lastName: 'ใจดี',
-            userType: 'ELDERLY',
-            avatar: '',
-            isOnline: true
-          },
-          {
-            id: 'user_2',
-            firstName: 'นักศึกษา',
-            lastName: 'จิตอาสา',
-            userType: 'STUDENT',
-            avatar: '',
-            isOnline: false
-          }
-        ],
-        lastMessage: {
-          id: 'msg_1',
-          text: 'ขอบคุณสำหรับความช่วยเหลือครับ',
-          senderId: 'user_1',
-          timestamp: new Date().toISOString(),
-          isRead: false
-        },
-        taskId: 'task_1',
-        taskTitle: 'พาไปตรวจสุขภาพที่โรงพยาบาล',
-        unreadCount: 1
-      },
-      {
-        id: 'chat_2',
-        participants: [
-          {
-            id: 'user_3',
-            firstName: 'สมชาย',
-            lastName: 'รักดี',
-            userType: 'ELDERLY',
-            avatar: '',
-            isOnline: true
-          },
-          {
-            id: 'user_2',
-            firstName: 'นักศึกษา',
-            lastName: 'จิตอาสา',
-            userType: 'STUDENT',
-            avatar: '',
-            isOnline: false
-          }
-        ],
-        lastMessage: {
-          id: 'msg_2',
-          text: 'เจอกันพรุ่งนี้เวลา 9 โมงเช้านะครับ',
-          senderId: 'user_2',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          isRead: true
-        },
-        taskId: 'task_2',
-        taskTitle: 'ช่วยติดตั้งคอมพิวเตอร์',
-        unreadCount: 0
-      }
-    ];
+    if (!taskId || !userId) {
+      return NextResponse.json(
+        { error: 'กรุณาระบุ taskId และ userId' },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json(chats);
+    const db = await getDatabase();
+
+    // Get chat messages for the task
+    const messages = await db.all(`
+      SELECT m.*, u.firstName, u.lastName, u.userType
+      FROM chat_messages m
+      JOIN users u ON m.senderId = u.id
+      WHERE m.taskId = ?
+      ORDER BY m.createdAt ASC
+    `, [taskId]);
+
+    return NextResponse.json({
+      success: true,
+      messages
+    });
+
   } catch (error) {
-    console.error('Get chats error:', error);
+    console.error('Get chat error:', error);
     return NextResponse.json(
-      { message: 'เกิดข้อผิดพลาดในระบบ' },
+      { error: 'เกิดข้อผิดพลาดในการดึงข้อความ' },
       { status: 500 }
     );
   }
@@ -83,32 +41,34 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { chatId, message, senderId } = await request.json();
+    const body = await request.json();
+    const { taskId, senderId, message } = body;
 
-    if (!chatId || !message || !senderId) {
+    if (!taskId || !senderId || !message) {
       return NextResponse.json(
-        { message: 'Chat ID, message, and sender ID are required' },
+        { error: 'กรุณากรอกข้อมูลให้ครบถ้วน' },
         { status: 400 }
       );
     }
 
-    // Simulate sending message
-    const newMessage = {
-      id: 'msg_' + Date.now(),
-      text: message,
-      senderId: senderId,
-      timestamp: new Date().toISOString(),
-      isRead: false
-    };
+    const db = await getDatabase();
+
+    // Insert message into database
+    const result = await db.run(`
+      INSERT INTO chat_messages (taskId, senderId, message)
+      VALUES (?, ?, ?)
+    `, [taskId, senderId, message]);
 
     return NextResponse.json({
+      success: true,
       message: 'ส่งข้อความสำเร็จ',
-      data: newMessage
+      messageId: result.lastID
     });
+
   } catch (error) {
     console.error('Send message error:', error);
     return NextResponse.json(
-      { message: 'เกิดข้อผิดพลาดในระบบ' },
+      { error: 'เกิดข้อผิดพลาดในการส่งข้อความ' },
       { status: 500 }
     );
   }

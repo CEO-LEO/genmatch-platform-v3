@@ -1,41 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabase } from '@/lib/database';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const taskId = params.id;
-    const { userId } = await request.json();
+    const { id } = params;
+    const body = await request.json();
+    const { volunteerId } = body;
 
-    if (!userId) {
+    if (!volunteerId) {
       return NextResponse.json(
-        { message: 'User ID is required' },
+        { error: 'กรุณาระบุ ID ของจิตอาสา' },
         { status: 400 }
       );
     }
 
-    // Simulate accepting a task
-    const acceptedTask = {
-      id: taskId,
-      status: 'ACCEPTED',
-      acceptedAt: new Date().toISOString(),
-      acceptedBy: {
-        id: userId,
-        firstName: 'นักศึกษา',
-        lastName: 'จิตอาสา',
-        userType: 'STUDENT'
-      }
-    };
+    const db = await getDatabase();
+
+    // Check if task exists and is available
+    const task = await db.get('SELECT * FROM tasks WHERE id = ? AND status = "PENDING"', [id]);
+    if (!task) {
+      return NextResponse.json(
+        { error: 'ไม่พบงานหรืองานไม่พร้อมรับจิตอาสา' },
+        { status: 404 }
+      );
+    }
+
+    // Update task status to ACCEPTED
+    await db.run('UPDATE tasks SET status = "ACCEPTED" WHERE id = ?', [id]);
 
     return NextResponse.json({
-      message: 'รับงานสำเร็จแล้ว',
-      task: acceptedTask
+      success: true,
+      message: 'รับงานจิตอาสาสำเร็จ'
     });
+
   } catch (error) {
     console.error('Accept task error:', error);
     return NextResponse.json(
-      { message: 'เกิดข้อผิดพลาดในระบบ' },
+      { error: 'เกิดข้อผิดพลาดในการรับงาน' },
       { status: 500 }
     );
   }
