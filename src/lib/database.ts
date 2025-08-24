@@ -2,12 +2,35 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase configuration
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'your-service-role-key';
+// Supabase configuration with fallback
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Create Supabase client
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Validate environment variables
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing Supabase environment variables:');
+  console.error('NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl ? '✅ Set' : '❌ Missing');
+  console.error('SUPABASE_SERVICE_ROLE_KEY:', supabaseKey ? '✅ Set' : '❌ Missing');
+  
+  if (process.env.VERCEL === '1') {
+    console.error('⚠️ Running in Vercel production - check environment variables in Vercel dashboard');
+  }
+}
+
+// Create Supabase client with error handling
+let supabase: any = null;
+
+try {
+  if (supabaseUrl && supabaseKey) {
+    supabase = createClient(supabaseUrl, supabaseKey);
+    console.log('✅ Supabase client created successfully');
+  } else {
+    throw new Error('Missing Supabase credentials');
+  }
+} catch (error) {
+  console.error('❌ Failed to create Supabase client:', error);
+  supabase = null;
+}
 
 // Database connection wrapper
 class SupabaseDatabase {
@@ -18,6 +41,10 @@ class SupabaseDatabase {
 
   async get(sql: string, params: any[] = []) {
     console.log('🔧 Supabase get:', sql, params);
+    
+    if (!supabase) {
+      throw new Error('Supabase client not initialized - check environment variables');
+    }
     
     try {
       if (sql.includes('users') && sql.includes('phone')) {
@@ -50,6 +77,10 @@ class SupabaseDatabase {
 
   async run(sql: string, params: any[] = []) {
     console.log('🔧 Supabase run:', sql, params);
+    
+    if (!supabase) {
+      throw new Error('Supabase client not initialized - check environment variables');
+    }
     
     try {
       if (sql.includes('INSERT INTO users')) {
@@ -151,7 +182,11 @@ export async function getDatabase() {
   if (db) return db;
   
   try {
-    // Always use Supabase for both local and production
+    // Check if Supabase is available
+    if (!supabase) {
+      throw new Error('Supabase not configured - please check environment variables');
+    }
+    
     console.log('🚀 Initializing Supabase database...');
     db = new SupabaseDatabase();
     
@@ -159,6 +194,12 @@ export async function getDatabase() {
     const { data, error } = await supabase.from('users').select('count', { count: 'exact', head: true });
     if (error) {
       console.error('❌ Supabase connection test failed:', error);
+      
+      // Check if table doesn't exist
+      if (error.message.includes('relation "users" does not exist')) {
+        throw new Error('Database tables not created - please run the SQL setup script in Supabase');
+      }
+      
       throw new Error(`Supabase connection failed: ${error.message}`);
     }
     
@@ -166,7 +207,21 @@ export async function getDatabase() {
     return db;
   } catch (error) {
     console.error('❌ Database initialization error:', error);
-    throw new Error(`Failed to initialize database: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    
+    // Provide helpful error message
+    let errorMessage = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Supabase not configured')) {
+        errorMessage = 'ระบบฐานข้อมูลยังไม่ได้ตั้งค่า - กรุณาติดต่อผู้ดูแลระบบ';
+      } else if (error.message.includes('Database tables not created')) {
+        errorMessage = 'ฐานข้อมูลยังไม่ได้สร้างตาราง - กรุณาติดต่อผู้ดูแลระบบ';
+      } else if (error.message.includes('Supabase connection failed')) {
+        errorMessage = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้ - กรุณาติดต่อผู้ดูแลระบบ';
+      }
+    }
+    
+    throw new Error(errorMessage);
   }
 }
 
@@ -180,6 +235,14 @@ export async function closeDatabase() {
 // Database health check
 export async function checkDatabaseHealth() {
   try {
+    if (!supabase) {
+      return { 
+        status: 'unhealthy', 
+        error: 'Supabase not configured',
+        timestamp: new Date().toISOString() 
+      };
+    }
+    
     const { data, error } = await supabase.from('users').select('count', { count: 'exact', head: true });
     if (error) throw error;
     
@@ -200,6 +263,10 @@ export async function checkDatabaseHealth() {
 // Database stats
 export async function getDatabaseStats() {
   try {
+    if (!supabase) {
+      return null;
+    }
+    
     const { count, error } = await supabase
       .from('users')
       .select('*', { count: 'exact', head: true });
