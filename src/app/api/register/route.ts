@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('📝 Registration request data:', body);
+    
     const {
       firstName,
       lastName,
@@ -20,6 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Validation
     if (!firstName || !lastName || !phone || !userType || !address || !password) {
+      console.log('❌ Missing required fields:', { firstName, lastName, phone, userType, address, password });
       return NextResponse.json(
         { error: 'กรุณากรอกข้อมูลให้ครบถ้วน' },
         { status: 400 }
@@ -27,6 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (password !== confirmPassword) {
+      console.log('❌ Password mismatch');
       return NextResponse.json(
         { error: 'รหัสผ่านไม่ตรงกัน' },
         { status: 400 }
@@ -34,6 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (password.length < 6) {
+      console.log('❌ Password too short:', password.length);
       return NextResponse.json(
         { error: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' },
         { status: 400 }
@@ -43,6 +48,7 @@ export async function POST(request: NextRequest) {
     // Student-specific validation
     if (userType === 'student') {
       if (!email || !studentId || !university) {
+        console.log('❌ Missing student fields:', { email, studentId, university });
         return NextResponse.json(
           { error: 'กรุณากรอกข้อมูลสำหรับนักศึกษาให้ครบถ้วน' },
           { status: 400 }
@@ -53,25 +59,51 @@ export async function POST(request: NextRequest) {
     // Phone number validation
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(phone)) {
+      console.log('❌ Invalid phone format:', phone);
       return NextResponse.json(
-        { error: 'เบอร์โทรศัพท์ไม่ถูกต้อง' },
+        { error: 'เบอร์โทรศัพท์ไม่ถูกต้อง (ต้องมี 10 หลัก)' },
         { status: 400 }
       );
     }
 
+    console.log('✅ Validation passed, connecting to database...');
+    
     const db = await getDatabase();
+    console.log('✅ Database connected successfully');
 
     // Check if phone already exists
     const existingUser = await db.get('SELECT id FROM users WHERE phone = ?', [phone]);
     if (existingUser) {
+      console.log('❌ Phone number already exists:', phone);
       return NextResponse.json(
         { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว' },
         { status: 400 }
       );
     }
 
+    console.log('✅ Phone number is unique, hashing password...');
+    
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('✅ Password hashed successfully');
+
+    // Prepare data for insertion
+    const insertData = [
+      firstName, 
+      lastName, 
+      userType === 'student' ? email : null, 
+      phone, 
+      userType,
+      userType === 'student' ? studentId : null, 
+      userType === 'student' ? university : null, 
+      address, 
+      hashedPassword
+    ];
+    
+    console.log('📝 Inserting user data:', {
+      firstName, lastName, userType, phone, address,
+      hasEmail: !!email, hasStudentId: !!studentId, hasUniversity: !!university
+    });
 
     // Insert user into database
     const result = await db.run(`
@@ -79,10 +111,9 @@ export async function POST(request: NextRequest) {
         firstName, lastName, email, phone, userType, studentId, 
         university, address, password
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      firstName, lastName, email || null, phone, userType,
-      studentId || null, university || null, address, hashedPassword
-    ]);
+    `, insertData);
+
+    console.log('✅ User inserted successfully, ID:', result.lastID);
 
     return NextResponse.json({
       success: true,
@@ -91,9 +122,24 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('❌ Registration error:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'เกิดข้อผิดพลาดในการสมัครสมาชิก';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('database')) {
+        errorMessage = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้';
+      } else if (error.message.includes('validation')) {
+        errorMessage = 'ข้อมูลไม่ถูกต้อง';
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการสมัครสมาชิก' },
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+      },
       { status: 500 }
     );
   }
