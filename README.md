@@ -1,260 +1,282 @@
-# 🚀 GenMatch Platform
+# GenMatch Platform
 
-**GenMatch** เป็นแพลตฟอร์มเชื่อมโยงระหว่าง **นักศึกษา** และ **ผู้สูงอายุ** เพื่อการเป็นจิตอาสา โดยนักศึกษาจะได้รับ **ชั่วโมงจิตอาสา** เพื่อนำไปใช้ในการกู้กยศ. และการสมัครงาน แพลตฟอร์มนี้ไม่มีการเก็บเงินหรือค่าธรรมเนียมใดๆ ทั้งสิ้น เป็นการให้บริการเพื่อสังคมอย่างแท้จริง
+แพลตฟอร์มจิตอาสาที่เชื่อมโยงผู้สูงอายุกับนักศึกษา สร้างสังคมที่มีน้ำใจและช่วยเหลือกัน
 
-## ✨ Features
+## 🚀 Features
 
-### 🎯 Core Features
-- **Task Management**: Create, search, and manage volunteer tasks
-- **User Authentication**: Secure login/register system for students and elderly
-- **Real-time Chat**: Communication between users
-- **Rating System**: Review and rating system for completed tasks
-- **Achievement System**: Gamification with badges and points
-- **Notifications**: Real-time updates and alerts
-
-### 📱 Task Categories
-1. **🏥 Hospital** - Health checkups, medication pickup
-2. **🏛️ Temple** - Religious activities, temple visits
-3. **⚡ Exercise** - Walking, physical activities
-4. **🔧 Repair** - Home maintenance, repairs
-
-### 👥 User Types
-- **👨‍🎓 Students**: Accept tasks, earn volunteer hours
-- **👴 Elderly**: Post tasks, receive assistance
+- **User Management**: ระบบสมัครสมาชิกและเข้าสู่ระบบ
+- **Task Management**: สร้าง ค้นหา ยอมรับ และเสร็จสิ้นงานจิตอาสา
+- **Chat System**: ระบบแชทสำหรับประสานงาน
+- **Responsive Design**: ใช้งานได้ทั้งบนมือถือและคอมพิวเตอร์
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React 18, TypeScript
-- **Styling**: Tailwind CSS, Glassmorphism effects
+- **Frontend**: Next.js 14, React, TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: JWT, bcryptjs
 - **Icons**: Lucide React
-- **Database**: Prisma ORM, SQLite
-- **Authentication**: JWT, Firebase Auth
-- **Real-time**: Firebase Firestore
-- **Storage**: Firebase Storage
-- **Notifications**: Firebase Cloud Messaging
 
-## 🚀 Getting Started
+## 📋 Prerequisites
 
-### Prerequisites
 - Node.js 18+ 
-- npm or yarn
-- Git
+- npm หรือ yarn
+- Supabase account (free tier)
 
-### Installation
+## 🔧 Setup Instructions
 
-1. **Clone the repository**
+### 1. Clone Repository
 ```bash
-git clone <repository-url>
-cd genmatch
+git clone https://github.com/CEO-LEO/genmatch-platform-v3.git
+cd genmatch-platform-v3
 ```
 
-2. **Install dependencies**
+### 2. Install Dependencies
 ```bash
 npm install
-# or
-yarn install
 ```
 
-3. **Set up environment variables**
-```bash
-cp env.example .env.local
+### 3. Setup Supabase Database
+
+#### A. สร้าง Supabase Project
+1. ไปที่ [supabase.com](https://supabase.com)
+2. สร้าง account และ project ใหม่
+3. ไปที่ Settings > API
+4. คัดลอก URL และ anon key
+
+#### B. สร้าง Database Tables
+```sql
+-- Users table
+CREATE TABLE users (
+  id BIGSERIAL PRIMARY KEY,
+  firstName TEXT NOT NULL,
+  lastName TEXT NOT NULL,
+  email TEXT,
+  phone TEXT NOT NULL UNIQUE,
+  userType TEXT NOT NULL,
+  studentId TEXT,
+  university TEXT,
+  address TEXT NOT NULL,
+  password TEXT NOT NULL,
+  createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Tasks table
+CREATE TABLE tasks (
+  id BIGSERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL,
+  location TEXT NOT NULL,
+  date TEXT NOT NULL,
+  startTime TEXT NOT NULL,
+  endTime TEXT NOT NULL,
+  maxVolunteers INTEGER NOT NULL,
+  requirements TEXT,
+  tags TEXT,
+  contactName TEXT NOT NULL,
+  contactPhone TEXT NOT NULL,
+  contactEmail TEXT,
+  creatorId BIGINT NOT NULL REFERENCES users(id),
+  status TEXT DEFAULT 'PENDING',
+  createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Chat messages table
+CREATE TABLE chat_messages (
+  id BIGSERIAL PRIMARY KEY,
+  taskId BIGINT NOT NULL REFERENCES tasks(id),
+  senderId BIGINT NOT NULL REFERENCES users(id),
+  message TEXT NOT NULL,
+  createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 ```
-Edit `.env.local` with your configuration:
+
+### 4. Environment Variables
+สร้างไฟล์ `.env.local` ใน root directory:
+
 ```env
-# Database
-DATABASE_URL="file:./dev.db"
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # JWT Secret
-JWT_SECRET="your-super-secret-jwt-key-here"
+JWT_SECRET=your-super-secret-jwt-key-2024
 
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project.firebaseapp.com"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-project.appspot.com"
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="123456789"
-NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="G-XXXXXXXXXX"
-NEXT_PUBLIC_FIREBASE_VAPID_KEY="your-vapid-key"
+# Environment
+NODE_ENV=development
 ```
 
-4. **Set up the database**
-```bash
-# Generate Prisma client
-npm run db:generate
-
-# Push schema to database
-npm run db:push
-
-# Seed with sample data
-npm run db:seed
-```
-
-5. **Run the development server**
+### 5. Run Development Server
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+เปิดเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000)
 
-## 📁 Project Structure
+## 🌐 Production Deployment
 
-```
-genmatch/
-├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── dashboard/         # Dashboard page
-│   │   ├── search/           # Task search page
-│   │   ├── my-tasks/         # User's tasks page
-│   │   ├── chat/             # Chat interface
-│   │   ├── profile/          # User profile page
-│   │   ├── notifications/    # Notifications page
-│   │   ├── statistics/       # Statistics page
-│   │   ├── feed/             # Community feed
-│   │   ├── achievements/     # Achievements page
-│   │   ├── add-task/         # Create task page
-│   │   ├── login/            # Login page
-│   │   ├── register/         # Registration page
-│   │   ├── layout.tsx        # Root layout
-│   │   ├── page.tsx          # Landing page
-│   │   ├── globals.css       # Global styles
-│   │   └── error.tsx         # Error page
-│   ├── components/            # Reusable components
-│   │   ├── Navigation.tsx    # Navigation component
-│   │   ├── TaskCard.tsx      # Task display component
-│   │   ├── LoadingSpinner.tsx # Loading components
-│   │   └── UserTypeLayout.tsx # Layout wrapper
-│   ├── contexts/              # React contexts
-│   │   └── AuthContext.tsx   # Authentication context
-│   ├── lib/                   # Utility libraries
-│   │   └── firebase.ts       # Firebase configuration
-│   └── types/                 # TypeScript type definitions
-│       ├── index.ts          # Main types
-│       └── task.ts           # Task-related types
-├── prisma/                    # Database schema and migrations
-│   ├── schema.prisma         # Database schema
-│   └── seed.ts               # Database seeding
-├── public/                    # Static assets
-├── tailwind.config.ts         # Tailwind CSS configuration
-├── package.json               # Dependencies and scripts
-└── README.md                  # This file
-```
+### Vercel (Recommended)
+1. Push code ไป GitHub
+2. เชื่อมต่อ Vercel กับ GitHub repository
+3. ตั้งค่า Environment Variables ใน Vercel
+4. Deploy อัตโนมัติ
 
-## 🎨 Design System
+### Environment Variables ใน Vercel
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `JWT_SECRET`
 
-### Color Palette
-- **Primary**: Purple (#a855f7)
-- **Secondary**: Pink (#ec4899)
-- **Accent**: Blue (#0ea5e9)
-- **Success**: Green (#22c55e)
-- **Warning**: Yellow (#f59e0b)
-- **Error**: Red (#ef4444)
+## 📱 API Endpoints
 
-### Design Principles
-- **Glassmorphism**: Backdrop blur effects
-- **Gradients**: Purple-pink color schemes
-- **Modern UI**: Clean, minimalist design
-- **Responsive**: Mobile-first approach
-- **Accessibility**: WCAG compliant
+### Authentication
+- `POST /api/register` - สมัครสมาชิก
+- `POST /api/login` - เข้าสู่ระบบ
 
-## 🔧 Available Scripts
+### Tasks
+- `GET /api/tasks` - ค้นหางาน
+- `POST /api/tasks` - สร้างงานใหม่
+- `POST /api/tasks/[id]/accept` - ยอมรับงาน
+- `POST /api/tasks/[id]/complete` - เสร็จสิ้นงาน
 
+### Chat
+- `GET /api/chat` - ดึงข้อความแชท
+- `POST /api/chat` - ส่งข้อความ
+
+### Testing
+- `POST /api/test-register` - ทดสอบระบบสมัครสมาชิก
+- `POST /api/test-login` - ทดสอบระบบเข้าสู่ระบบ
+
+## 🧪 Testing
+
+### Test Database Connection
 ```bash
-# Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-
-# Database
-npm run db:generate  # Generate Prisma client
-npm run db:push      # Push schema to database
-npm run db:seed      # Seed database with sample data
-npm run db:studio    # Open Prisma Studio
+curl -X POST http://localhost:3000/api/test-register \
+  -H "Content-Type: application/json" \
+  -d '{"testType": "checkTable"}'
 ```
+
+### Test Registration
+```bash
+curl -X POST http://localhost:3000/api/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Test",
+    "lastName": "User",
+    "phone": "0812345678",
+    "userType": "elderly",
+    "address": "Test Address",
+    "password": "123456",
+    "confirmPassword": "123456"
+  }'
+```
+
+## 🔒 Security Features
+
+- **Password Hashing**: ใช้ bcryptjs
+- **JWT Authentication**: Token-based authentication
+- **Input Validation**: Server-side validation
+- **SQL Injection Protection**: Parameterized queries
 
 ## 📊 Database Schema
 
-### Core Models
-- **User**: Student and elderly user profiles
-- **Task**: Volunteer task details and status
-- **Message**: Chat messages between users
-- **Notification**: System and task notifications
-- **Achievement**: User achievements and badges
-- **Review**: Task completion reviews
+### Users Table
+- `id`: Primary key (auto-increment)
+- `firstName`: ชื่อ
+- `lastName`: นามสกุล
+- `email`: อีเมล (optional สำหรับผู้สูงอายุ)
+- `phone`: เบอร์โทรศัพท์ (unique)
+- `userType`: ประเภทผู้ใช้ (student/elderly)
+- `studentId`: รหัสนักศึกษา (optional)
+- `university`: มหาวิทยาลัย (optional)
+- `address`: ที่อยู่
+- `password`: รหัสผ่าน (hashed)
+- `createdAt`: วันที่สร้าง
 
-### Task Status Flow
+### Tasks Table
+- `id`: Primary key
+- `title`: ชื่องาน
+- `description`: รายละเอียด
+- `category`: หมวดหมู่
+- `location`: สถานที่
+- `date`: วันที่
+- `startTime`: เวลาเริ่ม
+- `endTime`: เวลาสิ้นสุด
+- `maxVolunteers`: จำนวนอาสาสมัครสูงสุด
+- `requirements`: ข้อกำหนด
+- `tags`: แท็ก
+- `contactName`: ชื่อผู้ติดต่อ
+- `contactPhone`: เบอร์โทรผู้ติดต่อ
+- `contactEmail`: อีเมลผู้ติดต่อ
+- `creatorId`: ID ผู้สร้างงาน
+- `status`: สถานะ (PENDING/ACCEPTED/COMPLETED)
+- `createdAt`: วันที่สร้าง
+
+## 🎨 UI/UX Design
+
+- **Color Scheme**: สีม่วงและน้ำเงินเป็นหลัก
+- **Typography**: ตัวอักษรที่อ่านง่าย
+- **Responsive**: ปรับขนาดตามอุปกรณ์
+- **Modern**: ดีไซน์ที่ทันสมัยและใช้งานง่าย
+
+## 🚀 Performance
+
+- **Server-Side Rendering**: Next.js SSR
+- **Image Optimization**: Next.js Image component
+- **Code Splitting**: Automatic code splitting
+- **Caching**: Built-in caching mechanisms
+
+## 🔧 Development
+
+### Code Structure
 ```
-PENDING → ACCEPTED → IN_PROGRESS → COMPLETED
-    ↓
-CANCELLED
+src/
+├── app/                 # Next.js App Router
+│   ├── api/            # API routes
+│   ├── login/          # Login page
+│   ├── register/       # Registration page
+│   ├── search/         # Task search page
+│   ├── add-task/       # Add task page
+│   └── test-system/    # System testing page
+├── lib/                # Utility functions
+│   └── database.ts     # Database configuration
+└── components/         # Reusable components
 ```
 
-## 🔐 Authentication
-
-### User Types
-- **STUDENT**: Can accept tasks, earn volunteer hours
-- **ELDERLY**: Can post tasks, receive assistance
-
-### Security Features
-- JWT token-based authentication
-- Password hashing with bcrypt
-- Role-based access control
-- Secure session management
-
-## 📱 Responsive Design
-
-- **Mobile First**: Optimized for mobile devices
-- **Tablet**: Responsive tablet layouts
-- **Desktop**: Enhanced desktop experience
-- **Touch Friendly**: Optimized touch interactions
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository
-2. Set environment variables
-3. Deploy automatically on push
-
-### Other Platforms
-- **Netlify**: Static site hosting
-- **Railway**: Full-stack deployment
-- **DigitalOcean**: VPS deployment
+### Available Scripts
+- `npm run dev` - Development server
+- `npm run build` - Production build
+- `npm run start` - Production server
+- `npm run lint` - ESLint checking
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+1. Fork repository
+2. สร้าง feature branch
+3. Commit changes
+4. Push to branch
+5. สร้าง Pull Request
 
-### Development Guidelines
-- Follow TypeScript best practices
-- Use conventional commit messages
-- Maintain consistent code style
-- Write meaningful commit messages
+## 📄 License
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Next.js Team** for the amazing framework
-- **Tailwind CSS** for the utility-first CSS framework
-- **Prisma** for the modern database toolkit
-- **Firebase** for the comprehensive backend services
-- **Lucide** for the beautiful icons
+MIT License - ดูรายละเอียดใน [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/discussions)
 - **Email**: support@genmatch.com
+- **GitHub Issues**: [Create Issue](https://github.com/CEO-LEO/genmatch-platform-v3/issues)
+
+## 🎯 Roadmap
+
+- [ ] User profile management
+- [ ] Task categories and filtering
+- [ ] Rating and review system
+- [ ] Mobile app development
+- [ ] Multi-language support
+- [ ] Advanced search algorithms
+- [ ] Real-time notifications
+- [ ] Payment integration
 
 ---
 
-**Made with ❤️ for the Thai community**
+**GenMatch** - สร้างสังคมที่มีน้ำใจด้วยเทคโนโลยี 🚀❤️
