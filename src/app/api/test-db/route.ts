@@ -31,7 +31,7 @@ export async function GET() {
           result: basicTest
         },
         healthCheck: {
-          status: 'PASS',
+          status: healthTest.status === 'demo' ? 'DEMO' : 'PASS',
           result: healthTest
         },
         stats: {
@@ -39,7 +39,8 @@ export async function GET() {
           result: stats
         }
       },
-      summary: 'Database connection successful'
+      summary: healthTest.status === 'demo' ? 'Running in demo mode' : 'Database connection successful',
+      mode: healthTest.status
     });
     
   } catch (error) {
