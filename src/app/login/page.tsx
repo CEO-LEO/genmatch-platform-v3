@@ -11,7 +11,7 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string; suggestion?: string } | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -50,7 +50,7 @@ export default function LoginPage() {
           window.location.href = '/';
         }, 1000);
       } else {
-        setMessage({ type: 'error', text: data.error });
+        setMessage({ type: 'error', text: data.error, suggestion: data.suggestion });
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
@@ -161,7 +161,10 @@ export default function LoginPage() {
                   ? 'bg-green-50 border border-green-200 text-green-800' 
                   : 'bg-red-50 border border-red-200 text-red-800'
               }`}>
-                {message.text}
+                <div className="font-semibold">{message.text}</div>
+                {message.suggestion && (
+                  <div className="text-sm mt-1 opacity-90">{message.suggestion}</div>
+                )}
               </div>
             )}
 

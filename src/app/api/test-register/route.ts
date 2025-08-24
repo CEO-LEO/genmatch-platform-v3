@@ -9,45 +9,55 @@ export async function POST(request: NextRequest) {
     console.log('🧪 Test registration system:', testType);
     
     if (testType === 'checkTable') {
-      const db = await getDatabase();
-      
-      // Check if users table exists and has correct structure
-      const tableInfo = await db.all("PRAGMA table_info(users)");
-      console.log('📋 Users table structure:', tableInfo);
-      
-      // Check user count
-      const userCount = await db.get('SELECT COUNT(*) as count FROM users');
-      console.log('👥 Current user count:', userCount);
-      
-      // Check if we can insert a test record
       try {
-        const testResult = await db.run(`
-          INSERT INTO users (
-            firstName, lastName, phone, userType, address, password
-          ) VALUES (?, ?, ?, ?, ?, ?)
-        `, ['Test', 'User', '0999999999', 'elderly', 'Test Address', 'testpassword']);
+        const db = await getDatabase();
         
-        console.log('✅ Test insert successful, ID:', testResult.lastID);
+        // Check if users table exists and has correct structure
+        const tableInfo = await db.all("PRAGMA table_info(users)");
+        console.log('📋 Users table structure:', tableInfo);
         
-        // Clean up test record
-        await db.run('DELETE FROM users WHERE id = ?', [testResult.lastID]);
-        console.log('🧹 Test record cleaned up');
+        // Check user count
+        const userCount = await db.get('SELECT COUNT(*) as count FROM users');
+        console.log('👥 Current user count:', userCount);
         
-        return NextResponse.json({
-          success: true,
-          message: 'Registration system test passed',
-          tableStructure: tableInfo,
-          userCount: userCount.count,
-          testInsert: 'successful'
-        });
-      } catch (insertError) {
-        console.error('❌ Test insert failed:', insertError);
+        // Check if we can insert a test record
+        try {
+          const testResult = await db.run(`
+            INSERT INTO users (
+              firstName, lastName, phone, userType, address, password
+            ) VALUES (?, ?, ?, ?, ?, ?)
+          `, ['Test', 'User', '0999999999', 'elderly', 'Test Address', 'testpassword']);
+          
+          console.log('✅ Test insert successful, ID:', testResult.lastID);
+          
+          // Clean up test record
+          await db.run('DELETE FROM users WHERE id = ?', [testResult.lastID]);
+          console.log('🧹 Test record cleaned up');
+          
+          return NextResponse.json({
+            success: true,
+            message: 'Registration system test passed',
+            tableStructure: tableInfo,
+            userCount: userCount.count,
+            testInsert: 'successful'
+          });
+        } catch (insertError) {
+          console.error('❌ Test insert failed:', insertError);
+          return NextResponse.json({
+            success: false,
+            message: 'Registration system test failed',
+            error: insertError instanceof Error ? insertError.message : 'Unknown error',
+            tableStructure: tableInfo,
+            userCount: userCount.count
+          }, { status: 500 });
+        }
+      } catch (dbError) {
+        console.error('❌ Database connection failed:', dbError);
         return NextResponse.json({
           success: false,
-          message: 'Registration system test failed',
-          error: insertError instanceof Error ? insertError.message : 'Unknown error',
-          tableStructure: tableInfo,
-          userCount: userCount.count
+          message: 'Database connection failed',
+          error: dbError instanceof Error ? dbError.message : 'Unknown error',
+          suggestion: 'Please check Supabase configuration and environment variables'
         }, { status: 500 });
       }
     }
