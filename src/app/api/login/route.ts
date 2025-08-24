@@ -3,10 +3,27 @@ import { getDatabase } from '@/lib/database';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'genmatch-super-secret-jwt-key-2024';
+// JWT Secret configuration with validation
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET environment variable is not set');
+  if (process.env.VERCEL === '1') {
+    console.error('⚠️ Running in Vercel production - set JWT_SECRET in environment variables');
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Check JWT secret first
+    if (!JWT_SECRET) {
+      console.error('❌ JWT_SECRET not configured');
+      return NextResponse.json(
+        { error: 'ระบบยังไม่ได้ตั้งค่า - กรุณาติดต่อผู้ดูแลระบบ' },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     console.log('🔐 Login attempt for phone:', body.phone);
     
@@ -90,6 +107,8 @@ export async function POST(request: NextRequest) {
         errorMessage = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้';
       } else if (error.message.includes('jwt')) {
         errorMessage = 'เกิดข้อผิดพลาดในการสร้าง token';
+      } else if (error.message.includes('Supabase not configured')) {
+        errorMessage = 'ระบบฐานข้อมูลยังไม่ได้ตั้งค่า - กรุณาติดต่อผู้ดูแลระบบ';
       }
     }
     
