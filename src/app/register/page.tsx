@@ -2,35 +2,37 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Phone, MapPin, GraduationCap, Building, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [formData, setFormData] = useState({
+    userType: '',
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    userType: 'student',
     studentId: '',
     university: '',
     address: '',
     password: '',
-    confirmPassword: '',
-    acceptTerms: false
+    confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.acceptTerms) {
-      setMessage({ type: 'error', text: 'กรุณายอมรับข้อกำหนดการใช้งานและนโยบายความเป็นส่วนตัว' });
-      return;
-    }
-
     setIsLoading(true);
     setMessage(null);
 
@@ -47,19 +49,17 @@ export default function RegisterPage() {
 
       if (response.ok) {
         setMessage({ type: 'success', text: data.message });
-        // Reset form
         setFormData({
+          userType: '',
           firstName: '',
           lastName: '',
           email: '',
           phone: '',
-          userType: 'student',
           studentId: '',
           university: '',
           address: '',
           password: '',
-          confirmPassword: '',
-          acceptTerms: false
+          confirmPassword: ''
         });
       } else {
         setMessage({ type: 'error', text: data.error });
@@ -71,358 +71,280 @@ export default function RegisterPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-      const target = e.target as HTMLInputElement;
-      setFormData(prev => ({
-        ...prev,
-        [name]: target.checked
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Title */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-2">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-lg">GM</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
-                <p className="text-sm text-gray-500">Generation Matching</p>
+                <h1 className="text-xl font-bold text-gray-900">GenMatch</h1>
+                <p className="text-sm text-gray-600">แพลตฟอร์มจิตอาสา</p>
               </div>
             </div>
-
-            {/* Back to Home Button */}
             <Link 
-              href="/"
-              className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+              href="/login"
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >
-              กลับหน้าหลัก
+              เข้าสู่ระบบ
             </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-16">
-        <div className="w-full max-w-md">
-          {/* Title */}
+      <main className="max-w-2xl mx-auto px-6 py-12">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+          {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">สมัครสมาชิก</h2>
-            <p className="text-gray-600">สร้างบัญชีใหม่เพื่อใช้งาน GenMatch</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              สมัครสมาชิก GenMatch
+            </h2>
+            <p className="text-gray-600 text-lg">
+              เข้าร่วมชุมชนจิตอาสาและสร้างการเปลี่ยนแปลงในสังคม
+            </p>
           </div>
 
-          {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-3xl p-10 shadow-lg">
-            {/* User Type Field - MOVED TO TOP */}
-            <div className="mb-8">
-              <label htmlFor="userType" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <span className="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
-                  👤
-                </span>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* User Type */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 ประเภทผู้ใช้ *
               </label>
-              <select
-                id="userType"
-                name="userType"
-                value={formData.userType}
-                onChange={handleInputChange}
-                className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all text-lg"
-                required
-              >
-                <option value="">เลือกประเภทผู้ใช้</option>
-                <option value="student">🎓 นักศึกษา</option>
-                <option value="elderly">👴 ผู้สูงอายุ</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="userType"
+                  value={formData.userType}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors bg-white"
+                >
+                  <option value="">เลือกประเภทผู้ใช้</option>
+                  <option value="student">นักศึกษา</option>
+                  <option value="elderly">ผู้สูงอายุ</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+              </div>
             </div>
 
             {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
-                    ✏️
-                  </span>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   ชื่อ *
                 </label>
                 <input
                   type="text"
-                  id="firstName"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all text-lg"
-                  placeholder="ชื่อ"
                   required
+                  placeholder="ชื่อจริง"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                 />
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
-                    ✏️
-                  </span>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   นามสกุล *
                 </label>
                 <input
                   type="text"
-                  id="lastName"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all text-lg"
+                  required
                   placeholder="นามสกุล"
-                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                 />
               </div>
             </div>
 
-            {/* Email Field - ONLY FOR STUDENTS */}
-            {formData.userType === 'student' && (
-              <div className="mb-8">
-                <label htmlFor="email" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <span className="w-8 h-8 bg-green-100 rounded-xl flex items-center justify-center mr-3">
-                    📧
-                  </span>
-                  อีเมล *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all text-lg"
-                  placeholder="your@email.com"
-                  required
-                />
-              </div>
-            )}
-
-            {/* Phone Field */}
-            <div className="mb-8">
-              <label htmlFor="phone" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <span className="w-8 h-8 bg-yellow-100 rounded-xl flex items-center justify-center mr-3">
-                  📱
-                </span>
-                เบอร์โทรศัพท์ *
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-yellow-100 focus:border-yellow-500 transition-all text-lg"
-                placeholder="081-234-5678"
-                required
-              />
-            </div>
-
-            {/* Student-specific Fields */}
+            {/* Student-specific fields */}
             {formData.userType === 'student' && (
               <>
-                <div className="mb-8">
-                  <label htmlFor="studentId" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                    <span className="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center mr-3">
-                      🆔
-                    </span>
-                    รหัสนักศึกษา *
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    อีเมล *
                   </label>
-                  <input
-                    type="text"
-                    id="studentId"
-                    name="studentId"
-                    value={formData.studentId}
-                    onChange={handleInputChange}
-                    className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all text-lg"
-                    placeholder="เช่น 6400000000"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="your@email.com"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                    />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  </div>
                 </div>
-                <div className="mb-8">
-                  <label htmlFor="university" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                    <span className="w-8 h-8 bg-indigo-100 rounded-xl flex items-center justify-center mr-3">
-                      🏫
-                    </span>
-                    มหาวิทยาลัย *
-                  </label>
-                  <input
-                    type="text"
-                    id="university"
-                    name="university"
-                    value={formData.university}
-                    onChange={handleInputChange}
-                    className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all text-lg"
-                    placeholder="เช่น มหาวิทยาลัยมหิดล"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      รหัสนักศึกษา *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="studentId"
+                        value={formData.studentId}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="รหัสนักศึกษา"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                      />
+                      <GraduationCap className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      มหาวิทยาลัย *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="university"
+                        value={formData.university}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="ชื่อมหาวิทยาลัย"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                      />
+                      <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    </div>
+                  </div>
                 </div>
               </>
             )}
 
-            {/* Address Field - FOR BOTH USER TYPES */}
-            <div className="mb-8">
-              <label htmlFor="address" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <span className="w-8 h-8 bg-red-100 rounded-xl flex items-center justify-center mr-3">
-                  🏠
-                </span>
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                เบอร์โทรศัพท์ *
+              </label>
+              <div className="relative">
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="081-234-5678"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                />
+                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 ที่อยู่ *
               </label>
-              <textarea
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-red-100 focus:border-red-500 transition-all text-lg resize-none"
-                placeholder="กรอกที่อยู่ที่ชัดเจน..."
-                required
-              />
+              <div className="relative">
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  required
+                  rows={3}
+                  placeholder="ที่อยู่ปัจจุบัน"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors resize-none"
+                />
+                <MapPin className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+              </div>
             </div>
 
             {/* Password Fields */}
-            <div className="mb-8">
-              <label htmlFor="password" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <span className="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
-                  🔒
-                </span>
-                รหัสผ่าน *
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full px-6 py-4 pr-16 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all text-lg"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-purple-600 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-                </button>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  รหัสผ่าน *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="รหัสผ่าน"
+                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                  />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  ยืนยันรหัสผ่าน *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="ยืนยันรหัสผ่าน"
+                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                  />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="mb-8">
-              <label htmlFor="confirmPassword" className="block text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <span className="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
-                  🔒
-                </span>
-                ยืนยันรหัสผ่าน *
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className="w-full px-6 py-4 pr-16 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all text-lg"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-purple-600 transition-colors"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Terms and Conditions */}
-            <div className="mb-8">
-              <label className="flex items-start">
-                <input
-                  type="checkbox"
-                  name="acceptTerms"
-                  checked={formData.acceptTerms}
-                  onChange={handleInputChange}
-                  className="w-5 h-5 text-purple-600 border-2 border-gray-300 rounded-lg focus:ring-4 focus:ring-purple-100 mt-1"
-                  required
-                />
-                <span className="ml-3 text-base text-gray-700 leading-relaxed">
-                  ฉันยอมรับ{' '}
-                  <Link href="/terms" className="text-purple-600 hover:text-purple-700 font-semibold underline">
-                    ข้อกำหนดการใช้งาน
-                  </Link>
-                  {' '}และ{' '}
-                  <Link href="/privacy" className="text-purple-600 hover:text-purple-700 font-semibold underline">
-                    นโยบายความเป็นส่วนตัว
-                  </Link>
-                  {' '}ของเรา
-                </span>
-              </label>
-            </div>
-
-            {/* Register Button */}
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-5 px-6 rounded-2xl font-bold text-xl hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 shadow-lg mb-8"
-              disabled={isLoading}
-            >
-              {isLoading ? 'กำลังสร้างบัญชี...' : '✨ สร้างบัญชี'}
-            </button>
-
-            {/* Message Display */}
+            {/* Message */}
             {message && (
-              <div className={`mt-4 p-3 rounded-lg text-center ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              <div className={`p-4 rounded-lg ${
+                message.type === 'success' 
+                  ? 'bg-green-50 border border-green-200 text-green-800' 
+                  : 'bg-red-50 border border-red-200 text-red-800'
+              }`}>
                 {message.text}
               </div>
             )}
 
-            {/* Divider */}
-            <div className="flex items-center mb-6">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4 text-sm text-gray-500">หรือ</span>
-              <div className="flex-1 border-t border-gray-300"></div>
-            </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-blue-700 focus:ring-4 focus:ring-purple-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              {isLoading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิก'}
+            </button>
+          </form>
 
-            {/* Social Registration Buttons */}
-            <div className="space-y-3">
-              <button
-                type="button"
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <div className="w-5 h-5 bg-blue-600 rounded mr-3"></div>
-                สมัครสมาชิกด้วย Google
-              </button>
-              <button
-                type="button"
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <div className="w-5 h-5 bg-blue-800 rounded mr-3"></div>
-                สมัครสมาชิกด้วย Facebook
-              </button>
-            </div>
-
-            {/* Login Link */}
-            <div className="text-center mt-6">
-              <span className="text-gray-600">มีบัญชีอยู่แล้ว? </span>
-              <Link href="/login" className="text-purple-600 hover:text-purple-700 font-medium">
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
+              มีบัญชีอยู่แล้ว?{' '}
+              <Link href="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
                 เข้าสู่ระบบ
               </Link>
-            </div>
-          </form>
+            </p>
+          </div>
         </div>
       </main>
     </div>

@@ -2,17 +2,24 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Phone, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
+  const [formData, setFormData] = useState({
+    phone: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [formData, setFormData] = useState({
-    phone: '',
-    password: '',
-    rememberMe: false
-  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,16 +41,14 @@ export default function LoginPage() {
       if (response.ok) {
         setMessage({ type: 'success', text: data.message });
         
-        // Store token in localStorage
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
+        // Store user data and token
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
         
-        // Redirect to home page after successful login
+        // Redirect to home page
         setTimeout(() => {
           window.location.href = '/';
-        }, 1500);
+        }, 1000);
       } else {
         setMessage({ type: 'error', text: data.error });
       }
@@ -54,163 +59,171 @@ export default function LoginPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Title */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-2">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-lg">GM</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
-                <p className="text-sm text-gray-500">Generation Matching</p>
+                <h1 className="text-xl font-bold text-gray-900">GenMatch</h1>
+                <p className="text-sm text-gray-600">แพลตฟอร์มจิตอาสา</p>
               </div>
             </div>
-
-            {/* Back to Home Button */}
             <Link 
-              href="/"
-              className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+              href="/register"
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >
-              กลับหน้าหลัก
+              สมัครสมาชิก
             </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-16">
-        <div className="w-full max-w-md">
-          {/* Title */}
+      <main className="max-w-md mx-auto px-6 py-12">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+          {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">เข้าสู่ระบบ</h2>
-            <p className="text-gray-600">เข้าสู่ระบบเพื่อใช้งาน GenMatch</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              เข้าสู่ระบบ
+            </h2>
+            <p className="text-gray-600 text-lg">
+              ยินดีต้อนรับกลับสู่ GenMatch
+            </p>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-            {message && (
-              <div className={`p-3 rounded-lg mb-4 text-center ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                {message.text}
-              </div>
-            )}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Phone Field */}
-            <div className="mb-6">
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                เบอร์โทรศัพท์
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                เบอร์โทรศัพท์ *
               </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                placeholder="081-234-5678"
-                required
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="081-234-5678"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                />
+                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
             </div>
 
             {/* Password Field */}
-            <div className="mb-6">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                รหัสผ่าน
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                รหัสผ่าน *
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                  placeholder="••••••••"
                   required
-                  disabled={isLoading}
+                  placeholder="รหัสผ่าน"
+                  className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
                 />
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between mb-6">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  checked={formData.rememberMe}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                  disabled={isLoading}
-                />
-                <span className="ml-2 text-sm text-gray-700">จดจำฉัน</span>
-              </label>
-              <Link href="/forgot-password" className="text-sm text-purple-600 hover:text-purple-700">
+            {/* Forgot Password */}
+            <div className="text-right">
+              <Link 
+                href="/forgot-password" 
+                className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+              >
                 ลืมรหัสผ่าน?
               </Link>
             </div>
 
-            {/* Login Button */}
+            {/* Message */}
+            {message && (
+              <div className={`p-4 rounded-lg ${
+                message.type === 'success' 
+                  ? 'bg-green-50 border border-green-200 text-green-800' 
+                  : 'bg-red-50 border border-red-200 text-red-800'
+              }`}>
+                {message.text}
+              </div>
+            )}
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors mb-6"
               disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-blue-700 focus:ring-4 focus:ring-purple-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center space-x-2"
             >
-              {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>กำลังเข้าสู่ระบบ...</span>
+                </>
+              ) : (
+                <>
+                  <span>เข้าสู่ระบบ</span>
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
             </button>
+          </form>
 
-            {/* Divider */}
-            <div className="flex items-center mb-6">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4 text-sm text-gray-500">หรือ</span>
-              <div className="flex-1 border-t border-gray-300"></div>
+          {/* Divider */}
+          <div className="my-8">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">หรือ</span>
+              </div>
             </div>
+          </div>
 
-            {/* Social Login Buttons */}
-            <div className="space-y-3">
-              <button
-                type="button"
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <div className="w-5 h-5 bg-blue-600 rounded mr-3"></div>
-                เข้าสู่ระบบด้วย Google
-              </button>
-              <button
-                type="button"
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <div className="w-5 h-5 bg-blue-800 rounded mr-3"></div>
-                เข้าสู่ระบบด้วย Facebook
-              </button>
-            </div>
+          {/* Alternative Login Options */}
+          <div className="space-y-3">
+            <button
+              type="button"
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+            >
+              <div className="w-5 h-5 bg-blue-600 rounded mr-3"></div>
+              เข้าสู่ระบบด้วย Google
+            </button>
+            <button
+              type="button"
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+            >
+              <div className="w-5 h-5 bg-blue-800 rounded mr-3"></div>
+              เข้าสู่ระบบด้วย Facebook
+            </button>
+          </div>
 
-            {/* Register Link */}
-            <div className="text-center mt-6">
-              <span className="text-gray-600">ยังไม่มีบัญชี? </span>
-              <Link href="/register" className="text-purple-600 hover:text-purple-700 font-medium">
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
+              ยังไม่มีบัญชี?{' '}
+              <Link href="/register" className="text-purple-600 hover:text-purple-700 font-semibold">
                 สมัครสมาชิก
               </Link>
-            </div>
-          </form>
+            </p>
+          </div>
         </div>
       </main>
     </div>
