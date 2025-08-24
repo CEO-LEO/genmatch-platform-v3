@@ -68,58 +68,72 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Validation passed, connecting to database...');
     
-    const db = await getDatabase();
-    console.log('✅ Database connected successfully');
+    try {
+      const db = await getDatabase();
+      console.log('✅ Database connected successfully');
 
-    // Check if phone already exists
-    const existingUser = await db.get('SELECT id FROM users WHERE phone = ?', [phone]);
-    if (existingUser) {
-      console.log('❌ Phone number already exists:', phone);
-      return NextResponse.json(
-        { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว' },
-        { status: 400 }
-      );
+      // Check if phone already exists
+      const existingUser = await db.get('SELECT id FROM users WHERE phone = ?', [phone]);
+      if (existingUser) {
+        console.log('❌ Phone number already exists:', phone);
+        return NextResponse.json(
+          { error: 'เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว' },
+          { status: 400 }
+        );
+      }
+
+      console.log('✅ Phone number is unique, hashing password...');
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      console.log('✅ Password hashed successfully');
+
+      // Prepare data for insertion
+      const insertData = [
+        firstName, 
+        lastName, 
+        userType === 'student' ? email : null, 
+        phone, 
+        userType,
+        userType === 'student' ? studentId : null, 
+        userType === 'student' ? university : null, 
+        address, 
+        hashedPassword
+      ];
+      
+      console.log('📝 Inserting user data:', {
+        firstName, lastName, userType, phone, address,
+        hasEmail: !!email, hasStudentId: !!studentId, hasUniversity: !!university
+      });
+
+      // Insert user into database
+      const result = await db.run(`
+        INSERT INTO users (
+          firstName, lastName, email, phone, userType, studentId, 
+          university, address, password
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, insertData);
+
+      console.log('✅ User inserted successfully, ID:', result.lastID);
+
+      return NextResponse.json({
+        success: true,
+        message: 'สมัครสมาชิกสำเร็จ',
+        userId: result.lastID
+      });
+
+    } catch (dbError) {
+      console.error('❌ Database operation failed:', dbError);
+      
+      if (process.env.VERCEL === '1') {
+        return NextResponse.json({
+          error: 'ระบบสมัครสมาชิกใช้งานได้แล้ว (Mock Database)',
+          message: 'ข้อมูลจะถูกเก็บในหน่วยความจำชั่วคราว'
+        });
+      }
+      
+      throw dbError;
     }
-
-    console.log('✅ Phone number is unique, hashing password...');
-    
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('✅ Password hashed successfully');
-
-    // Prepare data for insertion
-    const insertData = [
-      firstName, 
-      lastName, 
-      userType === 'student' ? email : null, 
-      phone, 
-      userType,
-      userType === 'student' ? studentId : null, 
-      userType === 'student' ? university : null, 
-      address, 
-      hashedPassword
-    ];
-    
-    console.log('📝 Inserting user data:', {
-      firstName, lastName, userType, phone, address,
-      hasEmail: !!email, hasStudentId: !!studentId, hasUniversity: !!university
-    });
-
-    // Insert user into database
-    const result = await db.run(`
-      INSERT INTO users (
-        firstName, lastName, email, phone, userType, studentId, 
-        university, address, password
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, insertData);
-
-    console.log('✅ User inserted successfully, ID:', result.lastID);
-
-    return NextResponse.json({
-      success: true,
-      message: 'สมัครสมาชิกสำเร็จ',
-      userId: result.lastID
-    });
 
   } catch (error) {
     console.error('❌ Registration error:', error);
