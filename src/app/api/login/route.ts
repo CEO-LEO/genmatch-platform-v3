@@ -62,11 +62,21 @@ export async function POST(request: NextRequest) {
     console.log('🔐 Verifying password...');
     let isValidPassword = false;
     
-    // Check if running in demo mode with mock user
+    // Check if running in demo mode with mock users
     if (user.phone === '0886412880' && password === 'leo0886412880') {
       isValidPassword = true;
-      console.log('✅ Demo mode: Mock password accepted');
+      console.log('✅ Demo mode: Mock password accepted for Leo');
+    } else if (user.phone === '0812345678' && password === 'test123') {
+      isValidPassword = true;
+      console.log('✅ Demo mode: Mock password accepted for สมศรี');
+    } else if (user.phone === '0823456789' && password === 'test123') {
+      isValidPassword = true;
+      console.log('✅ Demo mode: Mock password accepted for วิชัย');
+    } else if (user.phone === '0845678901' && password === 'test123') {
+      isValidPassword = true;
+      console.log('✅ Demo mode: Mock password accepted for คุณยาย');
     } else {
+      // For other users, try bcrypt comparison
       isValidPassword = await bcrypt.compare(password, user.password);
     }
     

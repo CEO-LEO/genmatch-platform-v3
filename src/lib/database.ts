@@ -15,7 +15,12 @@ if (!global.mockUsers) {
 // Mock database wrapper for demo mode
 class MockDatabase {
   constructor() {
-    // Initialize with Leo user if not already present
+    // Initialize with all demo users if not already present
+    this.initializeDemoUsers();
+  }
+
+  initializeDemoUsers() {
+    // Leo user
     if (!global.mockUsers.has('0886412880')) {
       global.mockUsers.set('0886412880', {
         id: 1,
@@ -30,6 +35,62 @@ class MockDatabase {
       });
       console.log('✅ Mock Database: Initialized Leo user');
     }
+
+    // สมศรี ใจดี
+    if (!global.mockUsers.has('0812345678')) {
+      global.mockUsers.set('0812345678', {
+        id: 2,
+        firstName: 'สมศรี',
+        lastName: 'ใจดี',
+        email: 'somsri@demo.com',
+        phone: '0812345678',
+        userType: 'STUDENT',
+        studentId: '123456789',
+        university: 'มหาวิทยาลัยมหิดล',
+        address: 'กรุงเทพฯ',
+        password: '$2a$10$demo.hash.for.testing.purposes.only'
+      });
+      console.log('✅ Mock Database: Initialized สมศรี user');
+    }
+
+    // วิชัย มุ่งมั่น
+    if (!global.mockUsers.has('0823456789')) {
+      global.mockUsers.set('0823456789', {
+        id: 3,
+        firstName: 'วิชัย',
+        lastName: 'มุ่งมั่น',
+        email: 'wichai@demo.com',
+        phone: '0823456789',
+        userType: 'STUDENT',
+        studentId: '987654321',
+        university: 'จุฬาลงกรณ์มหาวิทยาลัย',
+        address: 'กรุงเทพฯ',
+        password: '$2a$10$demo.hash.for.testing.purposes.only'
+      });
+      console.log('✅ Mock Database: Initialized วิชัย user');
+    }
+
+    // คุณยายสมศรี
+    if (!global.mockUsers.has('0845678901')) {
+      global.mockUsers.set('0845678901', {
+        id: 4,
+        firstName: 'คุณยาย',
+        lastName: 'สมศรี',
+        email: 'grandma@demo.com',
+        phone: '0845678901',
+        userType: 'ELDERLY',
+        studentId: '',
+        university: '',
+        address: '123 ถนนสุขุมวิท กรุงเทพฯ',
+        password: '$2a$10$demo.hash.for.testing.purposes.only'
+      });
+      console.log('✅ Mock Database: Initialized คุณยาย user');
+    }
+
+    // Update global next ID
+    global.mockNextId = Math.max(...Array.from(global.mockUsers.values()).map(u => u.id)) + 1;
+    
+    console.log('📊 Mock Database: Total users initialized:', global.mockUsers.size);
   }
 
   async exec(sql: string) {
