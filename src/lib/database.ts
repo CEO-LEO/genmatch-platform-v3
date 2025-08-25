@@ -1,23 +1,35 @@
 // Database configuration and utilities for GenMatch Platform
 
+// Global mock database storage
+declare global {
+  var mockUsers: Map<string, any>;
+  var mockNextId: number;
+}
+
+// Initialize global variables if they don't exist
+if (!global.mockUsers) {
+  global.mockUsers = new Map();
+  global.mockNextId = 2;
+}
+
 // Mock database wrapper for demo mode
 class MockDatabase {
-  private users: Map<string, any> = new Map();
-  private nextId: number = 2; // Start from 2 since we have Leo user
-
   constructor() {
-    // Initialize with Leo user
-    this.users.set('0886412880', {
-      id: 1,
-      firstName: 'Leo',
-      lastName: 'User',
-      phone: '0886412880',
-      userType: 'student',
-      studentId: '123456789',
-      university: 'Demo University',
-      address: 'Demo Address',
-      password: '$2a$10$demo.hash.for.testing.purposes.only'
-    });
+    // Initialize with Leo user if not already present
+    if (!global.mockUsers.has('0886412880')) {
+      global.mockUsers.set('0886412880', {
+        id: 1,
+        firstName: 'Leo',
+        lastName: 'User',
+        phone: '0886412880',
+        userType: 'student',
+        studentId: '123456789',
+        university: 'Demo University',
+        address: 'Demo Address',
+        password: '$2a$10$demo.hash.for.testing.purposes.only'
+      });
+      console.log('✅ Mock Database: Initialized Leo user');
+    }
   }
 
   async exec(sql: string) {
@@ -33,11 +45,11 @@ class MockDatabase {
       return { test: 1 };
     }
     if (sql.includes('COUNT(*)')) {
-      return { count: this.users.size }; // Return actual user count
+      return { count: global.mockUsers.size };
     }
     if (sql.includes('users') && sql.includes('phone')) {
       const phone = params[0];
-      const user = this.users.get(phone);
+      const user = global.mockUsers.get(phone);
       if (user) {
         console.log('✅ Mock Database: Found user:', user.firstName);
         return user;
@@ -46,7 +58,7 @@ class MockDatabase {
       return null;
     }
     if (sql.includes('users') && sql.includes('LIMIT 1')) {
-      const usersArray = Array.from(this.users.values());
+      const usersArray = Array.from(global.mockUsers.values());
       const firstUser = usersArray[0];
       return firstUser || null;
     }
@@ -61,7 +73,7 @@ class MockDatabase {
       const [firstName, lastName, email, phone, userType, studentId, university, address, password] = params;
       
       const newUser = {
-        id: this.nextId++,
+        id: global.mockNextId++,
         firstName,
         lastName,
         email,
@@ -73,8 +85,9 @@ class MockDatabase {
         password
       };
       
-      this.users.set(phone, newUser);
+      global.mockUsers.set(phone, newUser);
       console.log('✅ Mock Database: User stored:', newUser.firstName, 'with ID:', newUser.id);
+      console.log('📊 Total users in database:', global.mockUsers.size);
       
       return { lastID: newUser.id };
     }
@@ -82,10 +95,10 @@ class MockDatabase {
     if (sql.includes('DELETE FROM users')) {
       const id = params[0];
       // Find and remove user by ID
-      const usersArray = Array.from(this.users.entries());
+      const usersArray = Array.from(global.mockUsers.entries());
       for (const [phone, user] of usersArray) {
         if (user.id === id) {
-          this.users.delete(phone);
+          global.mockUsers.delete(phone);
           console.log('✅ Mock Database: User deleted:', user.firstName);
           break;
         }
@@ -123,22 +136,14 @@ class MockDatabase {
 
 // Database connection
 let db: any = null;
-let mockDatabase: MockDatabase | null = null;
 
 export async function getDatabase() {
   if (db) return db;
   
   console.log('🚀 Initializing Mock Database...');
+  console.log('📊 Current users in database:', global.mockUsers.size);
   
-  // Create singleton MockDatabase instance
-  if (!mockDatabase) {
-    mockDatabase = new MockDatabase();
-    console.log('✅ New Mock Database instance created');
-  } else {
-    console.log('✅ Using existing Mock Database instance');
-  }
-  
-  db = mockDatabase;
+  db = new MockDatabase();
   console.log('✅ Mock Database ready - Demo Mode');
   
   return db;
@@ -156,6 +161,7 @@ export async function checkDatabaseHealth() {
   return { 
     status: 'demo', 
     message: 'Running in demo mode with mock database',
+    users: global.mockUsers.size,
     timestamp: new Date().toISOString() 
   };
 }
@@ -163,9 +169,10 @@ export async function checkDatabaseHealth() {
 // Database stats
 export async function getDatabaseStats() {
   return {
-    users: 1,
+    users: global.mockUsers.size,
     timestamp: new Date().toISOString(),
-    database: 'Mock Database (Demo Mode)'
+    database: 'Mock Database (Demo Mode)',
+    userList: Array.from(global.mockUsers.values()).map(u => ({ id: u.id, firstName: u.firstName, phone: u.phone }))
   };
 }
 
