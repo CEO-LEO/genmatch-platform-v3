@@ -4,12 +4,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 // JWT Secret configuration with validation
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-jwt-secret-for-development';
 
-if (!JWT_SECRET) {
-  console.error('❌ JWT_SECRET environment variable is not set');
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ JWT_SECRET environment variable is not set - using fallback');
   if (process.env.VERCEL === '1') {
-    console.error('⚠️ Running in Vercel production - set JWT_SECRET in environment variables');
+    console.error('❌ Running in Vercel production - set JWT_SECRET in environment variables');
   }
 }
 

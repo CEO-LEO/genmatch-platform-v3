@@ -1,6 +1,6 @@
 // Database configuration and utilities for GenMatch Platform
 
-// Global mock database storage
+// Global mock database storage for demo mode
 declare global {
   var mockUsers: Map<string, any>;
   var mockNextId: number;
@@ -11,6 +11,9 @@ if (!global.mockUsers) {
   global.mockUsers = new Map();
   global.mockNextId = 2;
 }
+
+// Check if we should use real database
+const USE_REAL_DATABASE = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Mock database wrapper for demo mode
 class MockDatabase {
@@ -195,12 +198,163 @@ class MockDatabase {
   }
 }
 
+// Real Supabase Database wrapper
+class SupabaseDatabase {
+  constructor(private supabase: any) {}
+
+  async exec(sql: string) {
+    console.log('🔧 Supabase Database exec:', sql);
+    return Promise.resolve();
+  }
+
+  async get(sql: string, params: any[] = []) {
+    console.log('🔧 Supabase Database get:', sql, params);
+    
+    // Handle user search by phone
+    if (sql.includes('users') && sql.includes('phone')) {
+      const phone = params[0];
+      const { data, error } = await this.supabase
+        .from('users')
+        .select('*')
+        .eq('phone', phone)
+        .single();
+      
+      if (error) {
+        console.error('❌ Supabase query error:', error);
+        return null;
+      }
+      
+      return data;
+    }
+    
+    // Handle count queries
+    if (sql.includes('COUNT(*)')) {
+      const { count, error } = await this.supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('❌ Supabase count error:', error);
+        return { count: 0 };
+      }
+      
+      return { count };
+    }
+    
+    return null;
+  }
+
+  async run(sql: string, params: any[] = []) {
+    console.log('🔧 Supabase Database run:', sql, params);
+    
+    // Handle INSERT INTO users
+    if (sql.includes('INSERT INTO users')) {
+      const [firstName, lastName, email, phone, userType, studentId, university, address, password] = params;
+      
+      const { data, error } = await this.supabase
+        .from('users')
+        .insert({
+          firstName,
+          lastName,
+          email,
+          phone,
+          userType,
+          studentId,
+          university,
+          address,
+          password
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ Supabase insert error:', error);
+        throw error;
+      }
+      
+      return { lastID: data.id };
+    }
+    
+    // Handle DELETE FROM users
+    if (sql.includes('DELETE FROM users')) {
+      const id = params[0];
+      const { error } = await this.supabase
+        .from('users')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('❌ Supabase delete error:', error);
+        throw error;
+      }
+      
+      return { changes: 1 };
+    }
+    
+    return { lastID: 0, changes: 0 };
+  }
+
+  async all(sql: string, params: any[] = []) {
+    console.log('🔧 Supabase Database all:', sql, params);
+    
+    // Handle table info queries
+    if (sql.includes('PRAGMA table_info(users)')) {
+      // Return mock table structure for compatibility
+      return [
+        { cid: 0, name: 'id', type: 'BIGSERIAL', notnull: 1, dflt_value: null, pk: 1 },
+        { cid: 1, name: 'firstName', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
+        { cid: 2, name: 'lastName', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
+        { cid: 3, name: 'phone', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
+        { cid: 4, name: 'userType', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
+        { cid: 5, name: 'address', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
+        { cid: 6, name: 'password', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
+        { cid: 7, name: 'createdAt', type: 'TIMESTAMP', notnull: 0, dflt_value: 'NOW()', pk: 0 }
+      ];
+    }
+    
+    return [];
+  }
+
+  async close() {
+    console.log('🔧 Supabase Database close called');
+    return Promise.resolve();
+  }
+}
+
 // Database connection
 let db: any = null;
 
 export async function getDatabase() {
   if (db) return db;
   
+  // Check if we should use real database
+  if (USE_REAL_DATABASE) {
+    try {
+      console.log('🚀 Initializing Real Supabase Database...');
+      const { createClient } = await import('@supabase/supabase-js');
+      
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+      
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      // Test connection
+      const { data, error } = await supabase.from('users').select('count').limit(1);
+      if (error) {
+        throw new Error(`Supabase connection failed: ${error.message}`);
+      }
+      
+      console.log('✅ Real Supabase Database connected successfully');
+      db = new SupabaseDatabase(supabase);
+      return db;
+      
+    } catch (error) {
+      console.error('❌ Failed to connect to real database:', error);
+      console.log('⚠️ Falling back to mock database...');
+    }
+  }
+  
+  // Fallback to mock database
   console.log('🚀 Initializing Mock Database...');
   console.log('📊 Current users in database:', global.mockUsers.size);
   
