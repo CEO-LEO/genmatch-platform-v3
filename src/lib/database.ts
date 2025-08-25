@@ -348,7 +348,7 @@ export async function getDatabase() {
       db = new SupabaseDatabase(supabase);
       return db;
       
-    } catch (error) {
+  } catch (error) {
       console.error('❌ Failed to connect to real database:', error);
       console.log('⚠️ Falling back to mock database...');
     }
@@ -385,7 +385,7 @@ export async function checkDatabaseHealth() {
 export async function getDatabaseStats() {
   return {
     users: global.mockUsers.size,
-    timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
     database: 'Mock Database (Demo Mode)',
     userList: Array.from(global.mockUsers.values()).map(u => ({ id: u.id, firstName: u.firstName, phone: u.phone }))
   };

@@ -6,7 +6,7 @@ interface User {
   id: string;
   firstName: string;
   lastName: string;
-  email: string;
+  phone: string;
   userType: 'STUDENT' | 'ELDERLY';
   avatar?: string;
 }
@@ -14,7 +14,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (phone: string, password: string) => Promise<void>;
   register: (userData: any) => Promise<void>;
   logout: () => void;
 }
@@ -56,22 +56,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (phone: string, password: string) => {
     try {
       setLoading(true);
       
-      // Mock login - replace with actual API call
-      const mockUser: User = {
-        id: 'user_1',
-        firstName: 'สมศรี',
-        lastName: 'ใจดี',
-        email: email,
-        userType: 'ELDERLY',
-        avatar: ''
-      };
+      // Use actual API call
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone, password }),
+      });
 
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+      } else {
+        throw new Error(data.error || 'Login failed');
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -89,7 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         id: 'user_2',
         firstName: userData.firstName,
         lastName: userData.lastName,
-        email: userData.email,
+        phone: userData.phone,
         userType: userData.userType,
         avatar: ''
       };
@@ -107,6 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   const value: AuthContextType = {

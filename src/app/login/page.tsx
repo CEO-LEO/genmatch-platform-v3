@@ -45,9 +45,9 @@ export default function LoginPage() {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         
-        // Redirect to home page
+        // Redirect to dashboard
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/dashboard';
         }, 1000);
       } else {
         setMessage({ type: 'error', text: data.error, suggestion: data.suggestion });
