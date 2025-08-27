@@ -16,9 +16,7 @@ export default function SearchPage() {
     { id: 'hospital', name: 'โรงพยาบาล', icon: '🏥', color: 'bg-red-100 text-red-700' },
     { id: 'temple', name: 'วัด', icon: '🏛️', color: 'bg-yellow-100 text-yellow-700' },
     { id: 'exercise', name: 'ออกกำลังกาย', icon: '💪', color: 'bg-green-100 text-green-700' },
-    { id: 'repair', name: 'งานซ่อม', icon: '🔧', color: 'bg-blue-100 text-blue-700' },
-    { id: 'cleaning', name: 'ทำความสะอาด', icon: '🧹', color: 'bg-purple-100 text-purple-700' },
-    { id: 'education', name: 'การศึกษา', icon: '📚', color: 'bg-indigo-100 text-indigo-700' }
+    { id: 'repair', name: 'งานซ่อม', icon: '🔧', color: 'bg-blue-100 text-blue-700' }
   ];
 
   const locations = [
@@ -31,21 +29,97 @@ export default function SearchPage() {
     setError(null);
     
     try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append('search', searchQuery);
-      if (selectedCategory) params.append('category', selectedCategory);
-      if (selectedLocation) params.append('location', selectedLocation);
-      
-      const response = await fetch(`/api/tasks?${params.toString()}`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        setTasks(data.tasks || []);
-      } else {
-        setError(data.error || 'เกิดข้อผิดพลาดในการดึงข้อมูล');
+      // For demo purposes, use mock data that simulates real tasks
+      // In production, this would fetch from the actual API
+      const mockTasks = [
+                 {
+           id: 1,
+           title: 'ช่วยพาออกกำลังกาย',
+           description: 'ช่วยพาออกกำลังกายที่สวนสุขภาพ ต้องการจิตอาสาที่มีประสบการณ์ในการดูแลผู้สูงอายุ',
+           category: 'exercise',
+           location: 'กรุงเทพมหานคร',
+           date: '25 ส.ค. 2568',
+           startTime: '09:00',
+           endTime: '11:00',
+           status: 'PENDING',
+           firstName: 'ทอง',
+           lastName: 'ใจดี',
+           creatorPhone: '0829151870',
+           tags: 'ออกกำลังกาย, ผู้สูงอายุ, สุขภาพ'
+         },
+                 {
+           id: 2,
+           title: 'งานซ่อมแซมบ้าน',
+           description: 'ต้องการช่วยซ่อมแซมบ้านหลังเล็ก งานไม่หนัก ต้องการจิตอาสาที่มีทักษะการซ่อมแซม',
+           category: 'repair',
+           location: 'เชียงใหม่',
+           date: '26 ส.ค. 2568',
+           startTime: '14:00',
+           endTime: '17:00',
+           status: 'PENDING',
+           firstName: 'สมชาย',
+           lastName: 'รักดี',
+           creatorPhone: '0812345678',
+           tags: 'งานซ่อม, บ้าน, ช่วยเหลือ'
+         },
+                 {
+           id: 3,
+           title: 'ช่วยจัดงานบุญที่วัด',
+           description: 'ช่วยจัดงานบุญประจำปี ต้องการจิตอาสาในการจัดเตรียมสถานที่และดูแลผู้เข้าร่วมงาน',
+           category: 'temple',
+           location: 'ภูเก็ต',
+           date: '27 ส.ค. 2568',
+           startTime: '08:00',
+           endTime: '12:00',
+           status: 'PENDING',
+           firstName: 'ลุงปู่',
+           lastName: 'ใจบุญ',
+           creatorPhone: '0898765432',
+           tags: 'วัด, งานบุญ, จัดงาน'
+         },
+         {
+           id: 4,
+           title: 'ช่วยดูแลผู้ป่วยในโรงพยาบาล',
+           description: 'ช่วยดูแลผู้ป่วยสูงอายุในโรงพยาบาล งานไม่หนัก ต้องการจิตอาสาที่มีใจรักในการช่วยเหลือ',
+           category: 'hospital',
+           location: 'พัทยา',
+           date: '28 ส.ค. 2568',
+           startTime: '10:00',
+           endTime: '16:00',
+           status: 'PENDING',
+           firstName: 'คุณยาย',
+           lastName: 'ใจดี',
+           creatorPhone: '0854321098',
+           tags: 'โรงพยาบาล, ผู้ป่วย, ดูแล'
+         }
+      ];
+
+      // Filter tasks based on search criteria
+      let filteredTasks = mockTasks;
+
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filteredTasks = filteredTasks.filter(task => 
+          task.title.toLowerCase().includes(query) ||
+          task.description.toLowerCase().includes(query) ||
+          task.tags.toLowerCase().includes(query)
+        );
       }
+
+      if (selectedCategory) {
+        filteredTasks = filteredTasks.filter(task => task.category === selectedCategory);
+      }
+
+      if (selectedLocation) {
+        filteredTasks = filteredTasks.filter(task => 
+          task.location.includes(selectedLocation)
+        );
+      }
+
+      setTasks(filteredTasks);
+      
     } catch (error) {
-      setError('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      setError('เกิดข้อผิดพลาดในการดึงข้อมูล');
     } finally {
       setIsLoading(false);
     }
@@ -94,20 +168,30 @@ export default function SearchPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">GM</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">GenMatch</h1>
-                <p className="text-sm text-gray-600">ค้นหางานจิตอาสา</p>
-              </div>
+              <Link href="/dashboard" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">GM</span>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">GenMatch</h1>
+                  <p className="text-sm text-gray-600">ค้นหางานจิตอาสา</p>
+                </div>
+              </Link>
             </div>
-            <Link 
-              href="/"
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              กลับหน้าหลัก
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link 
+                href="/add-task"
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+              >
+                สร้างงานใหม่
+              </Link>
+              <Link 
+                href="/dashboard"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                กลับแดชบอร์ด
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -149,21 +233,21 @@ export default function SearchPage() {
                 <Filter className="h-5 w-5 mr-2" />
                 ประเภทงาน
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {categories.map((category) => (
                   <button
                     key={category.id}
                     type="button"
                     onClick={() => handleCategoryChange(category.id)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`p-4 rounded-xl border-2 transition-all hover:shadow-md ${
                       selectedCategory === category.id
-                        ? 'border-purple-500 bg-purple-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-purple-500 bg-purple-50 shadow-lg'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
                     <div className="text-center">
-                      <div className="text-2xl mb-1">{category.icon}</div>
-                      <div className="text-sm font-medium text-gray-700">{category.name}</div>
+                      <div className="text-3xl mb-2">{category.icon}</div>
+                      <div className="text-sm font-semibold text-gray-700">{category.name}</div>
                     </div>
                   </button>
                 ))}
@@ -182,10 +266,10 @@ export default function SearchPage() {
                     key={location}
                     type="button"
                     onClick={() => handleLocationChange(location)}
-                    className={`w-full p-3 text-left rounded-lg border-2 transition-all ${
+                    className={`w-full p-3 text-center rounded-lg border-2 transition-all hover:shadow-md ${
                       selectedLocation === location
-                        ? 'border-purple-500 bg-purple-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-purple-500 bg-purple-50 shadow-lg'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
                     <div className="text-sm font-medium text-gray-700">{location}</div>
@@ -229,51 +313,79 @@ export default function SearchPage() {
           {/* Task Results */}
           <div className="space-y-4">
             {tasks.map((task) => (
-              <div key={task.id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div key={task.id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-3">
                       <h4 className="text-xl font-semibold text-gray-900">{task.title}</h4>
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
                         {getStatusText(task.status)}
                       </span>
                     </div>
-                    <p className="text-gray-600 mb-4">{task.description}</p>
+                    <p className="text-gray-600 mb-4 leading-relaxed">{task.description}</p>
+                    
+                    {/* Tags */}
+                    {task.tags && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {task.tags.split(',').map((tag: string, index: number) => (
+                          <span 
+                            key={index} 
+                            className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
+                          >
+                            {tag.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <button className="text-gray-400 hover:text-red-500 transition-colors">
-                    <Heart className="h-6 w-6" />
+                  <button className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-full">
+                    <Heart className="h-5 w-5" />
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <MapPin className="h-4 w-4" />
-                    <span className="text-sm">{task.location}</span>
+                  <div className="flex items-center space-x-2 text-gray-600 p-2 bg-gray-50 rounded-lg">
+                    <MapPin className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm font-medium">{task.location}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Calendar className="h-4 w-4" />
-                    <span className="text-sm">{task.date}</span>
+                  <div className="flex items-center space-x-2 text-gray-600 p-2 bg-gray-50 rounded-lg">
+                    <Calendar className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm font-medium">{task.date}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-sm">{task.startTime} - {task.endTime}</span>
+                  <div className="flex items-center space-x-2 text-gray-600 p-2 bg-gray-50 rounded-lg">
+                    <Clock className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm font-medium">{task.startTime} - {task.endTime}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <Users className="h-4 w-4" />
-                    <span className="text-sm">ต้องการ {task.maxVolunteers} คน</span>
-                  </div>
+                                     <div className="flex items-center space-x-2 text-gray-600 p-2 bg-gray-50 rounded-lg">
+                     <Users className="h-4 w-4 text-purple-600" />
+                     <span className="text-sm font-medium">งานจิตอาสา</span>
+                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      {task.firstName} {task.lastName}
-                    </span>
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">
+                        {task.firstName?.charAt(0)}{task.lastName?.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {task.firstName} {task.lastName}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        เบอร์โทร: {task.creatorPhone}
+                      </div>
+                    </div>
                   </div>
-                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
-                    ดูรายละเอียด
-                  </button>
+                  <div className="flex space-x-2">
+                    <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                      ดูรายละเอียด
+                    </button>
+                    <button className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium">
+                      สมัครเข้าร่วม
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

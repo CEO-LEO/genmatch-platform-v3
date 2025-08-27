@@ -63,23 +63,33 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-6 py-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">GM</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">GenMatch</h1>
-                <p className="text-sm text-gray-600">แพลตฟอร์มจิตอาสา</p>
-              </div>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-sm sm:text-lg">GM</span>
+                </div>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-bold text-gray-900">GenMatch</h1>
+                  <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">แพลตฟอร์มจิตอาสา</p>
+                </div>
+              </Link>
             </div>
-            <Link 
-              href="/register"
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              สมัครสมาชิก
-            </Link>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Link 
+                href="/"
+                className="px-3 sm:px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base font-medium"
+              >
+                หน้าหลัก
+              </Link>
+              <Link 
+                href="/register"
+                className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 text-sm sm:text-base font-medium shadow-lg"
+              >
+                สมัครสมาชิก
+              </Link>
+            </div>
           </div>
         </div>
       </header>

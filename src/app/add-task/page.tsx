@@ -15,8 +15,6 @@ export default function AddTaskPage() {
     date: '',
     startTime: '',
     endTime: '',
-    maxVolunteers: 1,
-    requirements: '',
     tags: '',
     contactName: '',
     contactPhone: '',
@@ -27,10 +25,7 @@ export default function AddTaskPage() {
     { id: 'hospital', name: 'โรงพยาบาล', icon: '🏥' },
     { id: 'temple', name: 'วัด', icon: '🏛️' },
     { id: 'exercise', name: 'ออกกำลังกาย', icon: '💪' },
-    { id: 'repair', name: 'งานซ่อม', icon: '🔧' },
-    { id: 'cleaning', name: 'ทำความสะอาด', icon: '🧹' },
-    { id: 'education', name: 'การศึกษา', icon: '📚' },
-    { id: 'other', name: 'อื่นๆ', icon: '🌟' }
+    { id: 'repair', name: 'งานซ่อม', icon: '🔧' }
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,8 +68,6 @@ export default function AddTaskPage() {
           date: '',
           startTime: '',
           endTime: '',
-          maxVolunteers: 1,
-          requirements: '',
           tags: '',
           contactName: '',
           contactPhone: '',
@@ -274,49 +267,7 @@ export default function AddTaskPage() {
             </div>
           </div>
 
-          {/* Requirements and Volunteers */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-              <span className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                <Users className="w-5 h-5 text-purple-600" />
-              </span>
-              ความต้องการและจำนวนจิตอาสา
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="maxVolunteers" className="block text-sm font-medium text-gray-700 mb-2">
-                  จำนวนจิตอาสาที่ต้องการ *
-                </label>
-                <input
-                  type="number"
-                  id="maxVolunteers"
-                  name="maxVolunteers"
-                  value={formData.maxVolunteers}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="100"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="requirements" className="block text-sm font-medium text-gray-700 mb-2">
-                  ความต้องการพิเศษ
-                </label>
-                <textarea
-                  id="requirements"
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                  placeholder="เช่น ต้องการจิตอาสาที่มีประสบการณ์, อายุ 18+ ปี"
-                />
-              </div>
-            </div>
-          </div>
+          {/* Requirements and Volunteers - REMOVED */}
 
           {/* Tags */}
           <div className="mb-8">
@@ -403,13 +354,46 @@ export default function AddTaskPage() {
             </div>
           </div>
 
+          {/* Message Display */}
+          {message && (
+            <div className={`mb-6 p-6 rounded-xl border-2 ${
+              message.type === 'success' 
+                ? 'bg-green-50 border-green-300 text-green-800' 
+                : 'bg-red-50 border-red-300 text-red-800'
+            }`}>
+              <div className="flex items-center justify-center">
+                <span className="text-2xl mr-3">
+                  {message.type === 'success' ? '🎉' : '⚠️'}
+                </span>
+                <div className="text-center">
+                  <div className="font-bold text-lg mb-1">
+                    {message.type === 'success' ? 'สร้างงานสำเร็จ!' : 'เกิดข้อผิดพลาด'}
+                  </div>
+                  <div className="text-base">{message.text}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Submit Button */}
           <div className="text-center">
             <button
               type="submit"
-              className="px-8 py-4 bg-purple-600 text-white text-lg font-semibold rounded-lg hover:bg-purple-700 transition-colors"
+              disabled={isLoading}
+              className={`px-12 py-4 text-white text-lg font-bold rounded-xl transition-all duration-200 transform hover:scale-105 ${
+                isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed shadow-md' 
+                  : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
+              }`}
             >
-              สร้างงานจิตอาสา
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  กำลังสร้างงาน...
+                </div>
+              ) : (
+                'สร้างงานจิตอาสา'
+              )}
             </button>
           </div>
         </form>

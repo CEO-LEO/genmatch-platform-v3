@@ -65,7 +65,7 @@ export default function AchievementsPage() {
   const categories = [
     { id: 'all', name: 'ทั้งหมด', icon: Trophy, color: 'from-purple-500 to-purple-600' },
     { id: 'volunteer', name: 'จิตอาสา', icon: Users, color: 'from-red-500 to-pink-500' },
-    { id: 'education', name: 'การศึกษา', icon: Award, color: 'from-blue-500 to-blue-600' },
+
     { id: 'community', name: 'ชุมชน', icon: Target, color: 'from-green-500 to-green-600' },
     { id: 'health', name: 'สุขภาพ', icon: TrendingUp, color: 'from-orange-500 to-orange-600' }
   ];

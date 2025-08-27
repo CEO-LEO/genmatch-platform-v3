@@ -3,13 +3,31 @@
 // Global mock database storage for demo mode
 declare global {
   var mockUsers: Map<string, any>;
+  var mockPhotos: Map<number, any>;
+  var mockRatings: Map<number, any>;
+  var mockNotifications: Map<number, any>;
   var mockNextId: number;
+  var mockNextPhotoId: number;
+  var mockNextRatingId: number;
+  var mockNextNotificationId: number;
 }
 
 // Initialize global variables if they don't exist
 if (!global.mockUsers) {
   global.mockUsers = new Map();
   global.mockNextId = 2;
+}
+if (!global.mockPhotos) {
+  global.mockPhotos = new Map();
+  global.mockNextPhotoId = 1;
+}
+if (!global.mockRatings) {
+  global.mockRatings = new Map();
+  global.mockNextRatingId = 1;
+}
+if (!global.mockNotifications) {
+  global.mockNotifications = new Map();
+  global.mockNextNotificationId = 1;
 }
 
 // Check if we should use real database
@@ -96,6 +114,55 @@ class MockDatabase {
     console.log('📊 Mock Database: Total users initialized:', global.mockUsers.size);
   }
 
+  initializeDemoPhotos() {
+    // Mock photos for demo
+    const mockPhotos = [
+      {
+        id: 1,
+        taskId: 1,
+        photoUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
+        description: 'ช่วยพาออกกำลังกายที่สวนสุขภาพ กำลังเดินออกกำลังกาย',
+        uploadedBy: 1,
+        status: 'PENDING',
+        uploadedAt: '2024-08-25T15:30:00Z',
+        approvedAt: null,
+        approvedBy: null,
+        notes: ''
+      },
+      {
+        id: 2,
+        taskId: 1,
+        photoUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
+        description: 'ช่วยพาออกกำลังกายที่สวนสุขภาพ กำลังทำท่ากายบริหาร',
+        uploadedBy: 2,
+        status: 'APPROVED',
+        uploadedAt: '2024-08-25T15:45:00Z',
+        approvedAt: '2024-08-25T16:00:00Z',
+        approvedBy: 4,
+        notes: 'รูปภาพชัดเจน แสดงการทำงานจริง'
+      },
+      {
+        id: 3,
+        taskId: 1,
+        photoUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
+        description: 'ช่วยพาออกกำลังกายที่สวนสุขภาพ กำลังยืดกล้ามเนื้อ',
+        uploadedBy: 1,
+        status: 'REJECTED',
+        uploadedAt: '2024-08-25T16:00:00Z',
+        approvedAt: null,
+        approvedBy: null,
+        notes: 'รูปภาพไม่ชัดเจน ไม่เห็นการทำงานจริง'
+      }
+    ];
+
+    mockPhotos.forEach(photo => {
+      global.mockPhotos.set(photo.id, photo);
+    });
+
+    global.mockNextPhotoId = Math.max(...mockPhotos.map(p => p.id)) + 1;
+    console.log('📸 Mock Database: Initialized', mockPhotos.length, 'photos');
+  }
+
   async exec(sql: string) {
     console.log('🔧 Mock Database exec:', sql);
     return Promise.resolve();
@@ -126,6 +193,28 @@ class MockDatabase {
       const firstUser = usersArray[0];
       return firstUser || null;
     }
+    
+    // Handle photos queries
+    if (sql.includes('photos') && sql.includes('id')) {
+      const photoId = params[0];
+      const photo = global.mockPhotos.get(photoId);
+      if (photo) {
+        // Join with user information
+        const photoWithUser = {
+          ...photo,
+          firstName: global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.uploadedBy)?.phone)?.firstName || 'Unknown',
+          lastName: global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.uploadedBy)?.phone)?.lastName || 'User',
+          uploaderPhone: global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.uploadedBy)?.phone)?.phone || 'Unknown',
+          approverFirstName: photo.approvedBy ? global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.approvedBy)?.phone)?.firstName || 'Unknown' : null,
+          approverLastName: photo.approvedBy ? global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.approvedBy)?.phone)?.lastName || 'User' : null
+        };
+        console.log('✅ Mock Database: Found photo:', photoId);
+        return photoWithUser;
+      }
+      console.log('❌ Mock Database: Photo not found for ID:', photoId);
+      return null;
+    }
+    
     return null;
   }
 
@@ -170,11 +259,83 @@ class MockDatabase {
       return { changes: 1 };
     }
     
+    // Handle INSERT INTO photos
+    if (sql.includes('INSERT INTO photos')) {
+      const [taskId, photoUrl, description, uploadedBy, status] = params;
+      
+      const newPhoto = {
+        id: global.mockNextPhotoId++,
+        taskId,
+        photoUrl,
+        description,
+        uploadedBy,
+        status: status || 'PENDING',
+        uploadedAt: new Date().toISOString(),
+        approvedAt: null,
+        approvedBy: null,
+        notes: ''
+      };
+      
+      global.mockPhotos.set(newPhoto.id, newPhoto);
+      console.log('✅ Mock Database: Photo stored with ID:', newPhoto.id);
+      console.log('📸 Total photos in database:', global.mockPhotos.size);
+      
+      return { lastID: newPhoto.id };
+    }
+    
+    // Handle UPDATE photos
+    if (sql.includes('UPDATE photos')) {
+      const photoId = params[params.length - 1]; // Last parameter is usually the ID
+      
+      if (global.mockPhotos.has(photoId)) {
+        const photo = global.mockPhotos.get(photoId);
+        
+        if (params[0] === 'APPROVED') {
+          photo.status = 'APPROVED';
+          photo.approvedAt = new Date().toISOString();
+          photo.approvedBy = params[1];
+          photo.notes = params[2] || '';
+        } else if (params[0] === 'REJECTED') {
+          photo.status = 'REJECTED';
+          photo.notes = params[1] || '';
+        } else if (params[0] === 'PENDING') {
+          photo.status = 'PENDING';
+          photo.approvedAt = null;
+          photo.approvedBy = null;
+          photo.notes = params[1] || '';
+        }
+        
+        global.mockPhotos.set(photoId, photo);
+        console.log('✅ Mock Database: Photo updated:', photoId, 'Status:', photo.status);
+        return { changes: 1 };
+      }
+      
+      return { changes: 0 };
+    }
+    
     return { lastID: 0, changes: 0 };
   }
 
   async all(sql: string, params: any[] = []) {
     console.log('🔧 Mock Database all:', sql, params);
+    
+    // Handle photos queries
+    if (sql.includes('photos') && sql.includes('taskId')) {
+      const taskId = params[0];
+      const photos = Array.from(global.mockPhotos.values()).filter(p => p.taskId == taskId);
+      
+      // Join with user information
+      const photosWithUsers = photos.map(photo => ({
+        ...photo,
+        firstName: global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.uploadedBy)?.phone)?.firstName || 'Unknown',
+        lastName: global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.uploadedBy)?.phone)?.lastName || 'User',
+        uploaderPhone: global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.uploadedBy)?.phone)?.phone || 'Unknown',
+        approverFirstName: photo.approvedBy ? global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.approvedBy)?.phone)?.firstName || 'Unknown' : null,
+        approverLastName: photo.approvedBy ? global.mockUsers.get(Array.from(global.mockUsers.values()).find(u => u.id === photo.approvedBy)?.phone)?.lastName || 'User' : null
+      }));
+      
+      return photosWithUsers;
+    }
     
     // Return mock table structure for demo mode
     if (sql.includes('PRAGMA table_info(users)')) {
@@ -385,9 +546,11 @@ export async function checkDatabaseHealth() {
 export async function getDatabaseStats() {
   return {
     users: global.mockUsers.size,
-      timestamp: new Date().toISOString(),
+    photos: global.mockPhotos.size,
+    timestamp: new Date().toISOString(),
     database: 'Mock Database (Demo Mode)',
-    userList: Array.from(global.mockUsers.values()).map(u => ({ id: u.id, firstName: u.firstName, phone: u.phone }))
+    userList: Array.from(global.mockUsers.values()).map(u => ({ id: u.id, firstName: u.firstName, phone: u.phone })),
+    photoList: Array.from(global.mockPhotos.values()).map(p => ({ id: p.id, taskId: p.taskId, status: p.status, uploadedBy: p.uploadedBy }))
   };
 }
 

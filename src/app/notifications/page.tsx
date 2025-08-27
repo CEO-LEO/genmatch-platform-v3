@@ -2,285 +2,328 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Bell, Check, Trash2, Clock, AlertCircle, Info, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Bell, CheckCircle, Clock, AlertCircle, MessageCircle, User, MapPin, Calendar, X } from 'lucide-react';
 
 export default function NotificationsPage() {
-  const [activeTab, setActiveTab] = useState('all');
-  const [selectedNotifications, setSelectedNotifications] = useState<number[]>([]);
-
-  const mockNotifications = [
+  const [notifications, setNotifications] = useState([
     {
       id: 1,
-      type: 'task',
-      title: 'งานจิตอาสาใหม่',
-      message: 'มีงานจิตอาสาใหม่ "ช่วยเหลือในโรงพยาบาล" ที่อาจเหมาะกับคุณ',
-      time: '5 นาทีที่แล้ว',
-      isRead: false,
-      priority: 'high'
+      type: 'success',
+      title: 'งานเสร็จสิ้น',
+      message: 'งาน "ช่วยเหลือในโรงพยาบาล" เสร็จสิ้นแล้ว ขอบคุณสำหรับความช่วยเหลือ',
+      time: '2 ชั่วโมงที่แล้ว',
+      read: false,
+      icon: CheckCircle,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
     },
     {
       id: 2,
-      type: 'reminder',
-      title: 'เตือนความจำ',
-      message: 'งานจิตอาสา "ทำความสะอาดวัด" จะเริ่มในอีก 2 ชั่วโมง',
-      time: '1 ชั่วโมงที่แล้ว',
-      isRead: false,
-      priority: 'medium'
+      type: 'message',
+      title: 'ข้อความใหม่',
+      message: 'คุณสมศรี ส่งข้อความใหม่เกี่ยวกับงาน "ช่วยซื้อของ"',
+      time: '1 วันที่แล้ว',
+      read: false,
+      icon: MessageCircle,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
       id: 3,
-      type: 'update',
-      title: 'อัปเดตสถานะ',
-      message: 'งานจิตอาสา "สอนคอมพิวเตอร์" ได้รับการยืนยันแล้ว',
+      type: 'reminder',
+      title: 'เตือนความจำ',
+      message: 'งาน "ช่วยสอนหนังสือเด็ก" จะเริ่มในอีก 2 ชั่วโมง',
       time: '3 ชั่วโมงที่แล้ว',
-      isRead: true,
-      priority: 'low'
+      read: true,
+      icon: Clock,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
     },
     {
       id: 4,
-      type: 'message',
-      title: 'ข้อความใหม่',
-      message: 'คุณยายสมศรีส่งข้อความถึงคุณเกี่ยวกับงานจิตอาสา',
+      type: 'info',
+      title: 'ข้อมูลใหม่',
+      message: 'มีงานจิตอาสาใหม่ในพื้นที่ของคุณ ไปดูกันเลย!',
       time: '1 วันที่แล้ว',
-      isRead: true,
-      priority: 'medium'
+      read: true,
+      icon: Bell,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
     },
     {
       id: 5,
-      type: 'achievement',
-      title: 'ความสำเร็จใหม่',
-      message: 'ยินดีด้วย! คุณได้รับเหรียญ "จิตอาสาต้นแบบ"',
+      type: 'warning',
+      title: 'การเปลี่ยนแปลง',
+      message: 'งาน "ช่วยจัดงานวัด" มีการเปลี่ยนแปลงเวลา กรุณาตรวจสอบ',
       time: '2 วันที่แล้ว',
-      isRead: true,
-      priority: 'low'
+      read: true,
+      icon: AlertCircle,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50'
     }
-  ];
+  ]);
+
+  const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [showClearAll, setShowClearAll] = useState(false);
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === id ? { ...notif, read: true } : notif
+      )
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, read: true }))
+    );
+  };
+
+  const deleteNotification = (id: number) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== id));
+  };
+
+  const clearAllRead = () => {
+    setNotifications(prev => prev.filter(notif => !notif.read));
+  };
+
+  const filteredNotifications = notifications.filter(notif => {
+    if (filter === 'unread') return !notif.read;
+    if (filter === 'read') return notif.read;
+    return true;
+  });
+
+  const unreadCount = notifications.filter(notif => !notif.read).length;
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'task':
-        return <Bell className="w-5 h-5 text-blue-600" />;
-      case 'reminder':
-        return <Clock className="w-5 h-5 text-yellow-600" />;
-      case 'update':
+      case 'success':
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'message':
-        return <AlertCircle className="w-5 h-5 text-purple-600" />;
-      case 'achievement':
-        return <Info className="w-5 h-5 text-pink-600" />;
+        return <MessageCircle className="w-5 h-5 text-blue-600" />;
+      case 'reminder':
+        return <Clock className="w-5 h-5 text-orange-600" />;
+      case 'info':
+        return <Bell className="w-5 h-5 text-purple-600" />;
+      case 'warning':
+        return <AlertCircle className="w-5 h-5 text-yellow-600" />;
       default:
         return <Bell className="w-5 h-5 text-gray-600" />;
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'border-l-red-500';
-      case 'medium':
-        return 'border-l-yellow-500';
-      case 'low':
-        return 'border-l-green-500';
-      default:
-        return 'border-l-gray-300';
-    }
-  };
-
-  const toggleNotificationSelection = (id: number) => {
-    setSelectedNotifications(prev => 
-      prev.includes(id) 
-        ? prev.filter(n => n !== id)
-        : [...prev, id]
-    );
-  };
-
-  const markAllAsRead = () => {
-    // Handle mark all as read logic here
-    console.log('Mark all as read');
-  };
-
-  const deleteSelected = () => {
-    // Handle delete selected notifications logic here
-    console.log('Delete selected:', selectedNotifications);
-    setSelectedNotifications([]);
-  };
-
-  const filteredNotifications = activeTab === 'all' 
-    ? mockNotifications 
-    : mockNotifications.filter(n => 
-        activeTab === 'unread' ? !n.isRead : n.isRead
-      );
-
-  const unreadCount = mockNotifications.filter(n => !n.isRead).length;
-  const readCount = mockNotifications.filter(n => n.isRead).length;
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Title */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-2">
-                <span className="text-white font-bold text-lg">GM</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
-                <p className="text-sm text-gray-500">Generation Matching</p>
-              </div>
+              <Link href="/dashboard" className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">GM</span>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">GenMatch</h1>
+                  <p className="text-sm text-gray-600">แพลตฟอร์มจิตอาสา</p>
+                </div>
+              </Link>
             </div>
-
-            {/* Back to Home Button */}
-            <Link 
-              href="/"
-              className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
-            >
-              กลับหน้าหลัก
-            </Link>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setShowClearAll(!showClearAll)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                จัดการ
+              </button>
+              <Link 
+                href="/dashboard"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>กลับ Dashboard</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">การแจ้งเตือน</h2>
-          <p className="text-gray-600">จัดการการแจ้งเตือนและข้อความสำคัญ</p>
-        </div>
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
+                <Bell className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">การแจ้งเตือน</h1>
+                <p className="text-gray-600">ติดตามกิจกรรมและข้อความล่าสุด</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-purple-600">{unreadCount}</div>
+              <div className="text-sm text-gray-600">ข้อความใหม่</div>
+            </div>
+          </div>
 
-        {/* Notification Statistics */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600 mb-1">{mockNotifications.length}</div>
-            <div className="text-sm text-gray-600">ทั้งหมด</div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-1">{unreadCount}</div>
-            <div className="text-sm text-gray-600">ยังไม่อ่าน</div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-1">{readCount}</div>
-            <div className="text-sm text-gray-600">อ่านแล้ว</div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap justify-between items-center mb-6">
-          <div className="flex space-x-2 mb-4 sm:mb-0">
+          {/* Filter Tabs */}
+          <div className="flex space-x-2">
             <button
-              onClick={markAllAsRead}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+              onClick={() => setFilter('all')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filter === 'all'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
             >
-              อ่านทั้งหมด
+              ทั้งหมด ({notifications.length})
             </button>
-            {selectedNotifications.length > 0 && (
+            <button
+              onClick={() => setFilter('unread')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filter === 'unread'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              ยังไม่อ่าน ({unreadCount})
+            </button>
+            <button
+              onClick={() => setFilter('read')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filter === 'read'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              อ่านแล้ว ({notifications.filter(n => n.read).length})
+            </button>
+          </div>
+
+          {/* Action Buttons */}
+          {showClearAll && (
+            <div className="mt-4 flex space-x-3">
               <button
-                onClick={deleteSelected}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                onClick={markAllAsRead}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
-                ลบที่เลือก ({selectedNotifications.length})
+                อ่านทั้งหมด
               </button>
-            )}
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                activeTab === 'all'
-                  ? 'bg-white text-purple-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              ทั้งหมด
-            </button>
-            <button
-              onClick={() => setActiveTab('unread')}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                activeTab === 'unread'
-                  ? 'bg-white text-purple-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              ยังไม่อ่าน
-            </button>
-          </div>
+              <button
+                onClick={clearAllRead}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+              >
+                ลบที่อ่านแล้ว
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Notifications List */}
         <div className="space-y-4">
           {filteredNotifications.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Bell className="w-8 h-8 text-gray-400" />
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Bell className="w-10 h-10 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">ไม่มีการแจ้งเตือน</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">ไม่มีการแจ้งเตือน</h3>
               <p className="text-gray-600">
-                {activeTab === 'unread' ? 'คุณได้อ่านการแจ้งเตือนทั้งหมดแล้ว' : 'ยังไม่มีการแจ้งเตือน'}
+                {filter === 'unread' 
+                  ? 'คุณได้อ่านการแจ้งเตือนทั้งหมดแล้ว'
+                  : filter === 'read'
+                  ? 'ยังไม่มีการแจ้งเตือนที่อ่านแล้ว'
+                  : 'ยังไม่มีการแจ้งเตือนใดๆ'
+                }
               </p>
             </div>
           ) : (
             filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`bg-white border border-gray-200 rounded-2xl p-6 shadow-sm ${
-                  !notification.isRead ? 'border-l-4' : ''
-                } ${getPriorityColor(notification.priority)}`}
+                className={`bg-white rounded-2xl shadow-lg p-6 transition-all duration-200 ${
+                  !notification.read ? 'ring-2 ring-purple-200' : ''
+                }`}
               >
                 <div className="flex items-start space-x-4">
-                  {/* Checkbox */}
-                  <input
-                    type="checkbox"
-                    checked={selectedNotifications.includes(notification.id)}
-                    onChange={() => toggleNotificationSelection(notification.id)}
-                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 mt-1"
-                  />
-
-                  {/* Notification Icon */}
-                  <div className="flex-shrink-0">
+                  {/* Icon */}
+                  <div className={`w-12 h-12 ${notification.bgColor} rounded-xl flex items-center justify-center flex-shrink-0`}>
                     {getNotificationIcon(notification.type)}
                   </div>
 
-                  {/* Notification Content */}
+                  {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className={`text-lg font-semibold mb-2 ${
-                          !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                        }`}>
+                        <h3 className="font-semibold text-gray-900 mb-1">
                           {notification.title}
-                        </h4>
-                        <p className="text-gray-600 mb-3">{notification.message}</p>
+                        </h3>
+                        <p className="text-gray-600 mb-2">
+                          {notification.message}
+                        </p>
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           <span className="flex items-center">
                             <Clock className="w-4 h-4 mr-1" />
                             {notification.time}
                           </span>
-                          {!notification.isRead && (
-                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                          {!notification.read && (
+                            <span className="px-2 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-medium">
                               ใหม่
                             </span>
                           )}
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-col space-y-2">
-                    {!notification.isRead && (
-                      <button className="p-2 text-gray-400 hover:text-green-600 transition-colors">
-                        <Check className="w-5 h-5" />
-                      </button>
-                    )}
-                    <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                      {/* Actions */}
+                      <div className="flex items-center space-x-2">
+                        {!notification.read && (
+                          <button
+                            onClick={() => markAsRead(notification.id)}
+                            className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="ทำเครื่องหมายว่าอ่านแล้ว"
+                          >
+                            <CheckCircle className="w-5 h-5" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => deleteNotification(notification.id)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="ลบการแจ้งเตือน"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="mt-4 flex space-x-3">
+                      {notification.type === 'message' && (
+                        <Link
+                          href="/chat"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                        >
+                          ดูข้อความ
+                        </Link>
+                      )}
+                      {notification.type === 'reminder' && (
+                        <Link
+                          href="/search"
+                          className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+                        >
+                          ดูรายละเอียดงาน
+                        </Link>
+                      )}
+                      {notification.type === 'info' && (
+                        <Link
+                          href="/search"
+                          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                        >
+                          ดูงานใหม่
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -288,28 +331,26 @@ export default function NotificationsPage() {
           )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-12 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">การดำเนินการอย่างรวดเร็ว</h3>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href="/search"
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
-            >
-              ค้นหางาน
-            </Link>
-            <Link
-              href="/my-tasks"
-              className="px-6 py-3 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium"
-            >
-              งานของฉัน
-            </Link>
-            <Link
-              href="/profile"
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              โปรไฟล์
-            </Link>
+        {/* Quick Stats */}
+        <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">สถิติการแจ้งเตือน</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-purple-50 rounded-xl">
+              <div className="text-2xl font-bold text-purple-600">{notifications.length}</div>
+              <div className="text-sm text-gray-600">ทั้งหมด</div>
+            </div>
+            <div className="text-center p-4 bg-blue-50 rounded-xl">
+              <div className="text-2xl font-bold text-blue-600">{unreadCount}</div>
+              <div className="text-sm text-gray-600">ยังไม่อ่าน</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-xl">
+              <div className="text-2xl font-bold text-green-600">{notifications.filter(n => n.type === 'success').length}</div>
+              <div className="text-sm text-gray-600">งานเสร็จสิ้น</div>
+            </div>
+            <div className="text-center p-4 bg-orange-50 rounded-xl">
+              <div className="text-2xl font-bold text-orange-600">{notifications.filter(n => n.type === 'message').length}</div>
+              <div className="text-sm text-gray-600">ข้อความ</div>
+            </div>
           </div>
         </div>
       </main>

@@ -2,219 +2,243 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { 
   ArrowLeft, 
-  Search, 
   Send, 
-  MoreHorizontal, 
   Phone, 
-  Video, 
-  Image, 
-  Paperclip,
-  Users,
-  Star,
-  Award,
-  TrendingUp,
-  Target,
-  Zap,
-  Crown,
-  Shield,
-  Building,
-  GraduationCap,
-  Globe,
-  Wrench,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  HelpCircle,
-  MessageCircle,
-  User,
+  MapPin, 
+  Calendar, 
   Clock,
-  MapPin,
-  Calendar
-} from 'lucide-react'
-import Link from 'next/link';
-
-interface ChatMessage {
-  id: string;
-  text: string;
-  sender: 'me' | 'other';
-  timestamp: Date;
-  isRead: boolean;
-  type: 'text' | 'image' | 'file';
-}
-
-interface ChatContact {
-  id: string;
-  name: string;
-  avatar: string;
-  lastMessage: string;
-  lastMessageTime: Date;
-  unreadCount: number;
-  isOnline: boolean;
-  userType: string;
-}
+  Users,
+  MessageSquare,
+  Search,
+  Plus
+} from 'lucide-react';
 
 export default function ChatPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [selectedChat, setSelectedChat] = useState<ChatContact | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get('taskId');
+  
+  const [activeChat, setActiveChat] = useState<any>(null);
+  const [chats, setChats] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Mock chat contacts
-  const chatContacts: ChatContact[] = [
-    {
-      id: '1',
-      name: 'สมศรี ใจดี',
-      avatar: '👵',
-      lastMessage: 'ขอบคุณมากที่ช่วยเหลือค่ะ',
-      lastMessageTime: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      unreadCount: 2,
-      isOnline: true,
-      userType: 'ELDERLY'
-    },
-    {
-      id: '2',
-      name: 'ประยุทธ สมบูรณ์',
-      avatar: '👴',
-      lastMessage: 'งานเสร็จแล้วครับ',
-      lastMessageTime: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      unreadCount: 0,
-      isOnline: false,
-      userType: 'ELDERLY'
-    },
-    {
-      id: '3',
-      name: 'น้องใหม่ จิตอาสา',
-      avatar: '👨‍🎓',
-      lastMessage: 'จะไปช่วยงานพรุ่งนี้ครับ',
-      lastMessageTime: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      unreadCount: 1,
-      isOnline: true,
-      userType: 'STUDENT'
-    }
-  ];
-
-  // Mock messages for selected chat
-  const mockMessages: { [key: string]: ChatMessage[] } = {
-    '1': [
-      {
-        id: '1',
-        text: 'สวัสดีค่ะ ต้องการความช่วยเหลือในการซื้อของที่ซุปเปอร์มาร์เก็ต',
-        sender: 'other',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-        isRead: true,
-        type: 'text'
-      },
-      {
-        id: '2',
-        text: 'สวัสดีครับ ยินดีช่วยเหลือครับ',
-        sender: 'me',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5),
-        isRead: true,
-        type: 'text'
-      },
-      {
-        id: '3',
-        text: 'ขอบคุณมากที่ช่วยเหลือค่ะ',
-        sender: 'other',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30),
-        isRead: false,
-        type: 'text'
-      }
-    ]
-  };
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
       return;
     }
+    
+    if (user) {
+      loadChats();
+    }
   }, [user, loading, router]);
 
   useEffect(() => {
-    if (selectedChat) {
-      setMessages(mockMessages[selectedChat.id] || []);
-      scrollToBottom();
+    if (taskId && chats.length > 0) {
+      const chat = chats.find(c => c.taskId === parseInt(taskId));
+      if (chat) {
+        setActiveChat(chat);
+        loadMessages(chat.id);
+      }
     }
-  }, [selectedChat]);
+  }, [taskId, chats]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim() || !selectedChat) return;
-
-    const message: ChatMessage = {
-      id: Date.now().toString(),
-      text: newMessage,
-      sender: 'me',
-      timestamp: new Date(),
-      isRead: false,
-      type: 'text'
-    };
-
-    setMessages(prev => [...prev, message]);
-    setNewMessage('');
+  const loadChats = async () => {
+    setIsLoading(true);
     
-    // Simulate typing indicator
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      // Simulate reply
-      const reply: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        text: 'ได้รับข้อความแล้วค่ะ ขอบคุณมาก',
-        sender: 'other',
-        timestamp: new Date(),
-        isRead: false,
-        type: 'text'
+    try {
+      // Mock data for chats
+      if (user?.userType === 'ELDERLY') {
+        setChats([
+          {
+            id: 1,
+            taskId: 1,
+            taskTitle: 'ช่วยพาออกกำลังกาย',
+            participant: {
+              id: 1,
+              name: 'สมชาย ใจดี',
+              phone: '0812345678',
+              avatar: 'SM'
+            },
+            lastMessage: 'สวัสดีครับ ผมพร้อมช่วยเหลือแล้ว',
+            lastMessageTime: '14:30',
+            unreadCount: 2,
+            task: {
+              location: 'กรุงเทพมหานคร',
+              date: '25 ส.ค. 2568',
+              time: '15.00 - 17.00'
+            }
+          },
+          {
+            id: 2,
+            taskId: 2,
+            taskTitle: 'งานซ่อมแซมบ้าน',
+            participant: {
+              id: 2,
+              name: 'สมหญิง รักดี',
+              phone: '0823456789',
+              avatar: 'SR'
+            },
+            lastMessage: 'ขอดูรายละเอียดงานก่อนครับ',
+            lastMessageTime: '12:15',
+            unreadCount: 0,
+            task: {
+              location: 'กรุงเทพมหานคร',
+              date: '30 ส.ค. 2568',
+              time: '14.00 - 16.00'
+            }
+          }
+        ]);
+      } else {
+        // Student users
+        setChats([
+          {
+            id: 1,
+            taskId: 1,
+            taskTitle: 'ช่วยพาออกกำลังกาย',
+            participant: {
+              id: 1,
+              name: 'ทอง ใจดี',
+              phone: '0829151870',
+              avatar: 'TJ'
+            },
+            lastMessage: 'ขอบคุณที่ช่วยเหลือครับ',
+            lastMessageTime: '16:45',
+            unreadCount: 1,
+            task: {
+              location: 'กรุงเทพมหานคร',
+              date: '25 ส.ค. 2568',
+              time: '15.00 - 17.00'
+            }
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error loading chats:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadMessages = async (chatId: number) => {
+    try {
+      // Mock messages
+      const mockMessages = [
+        {
+          id: 1,
+          senderId: user?.id === '1' ? '1' : '2',
+          senderName: user?.id === '1' ? 'คุณ' : 'สมชาย ใจดี',
+          content: 'สวัสดีครับ ผมพร้อมช่วยเหลือแล้ว',
+          timestamp: '14:30',
+          isOwn: user?.id === '1'
+        },
+        {
+          id: 2,
+          senderId: user?.id === '1' ? '2' : '1',
+          senderName: user?.id === '1' ? 'สมชาย ใจดี' : 'คุณ',
+          content: 'ขอบคุณมากครับ ตอนนี้เราอยู่ที่ไหนกันครับ?',
+          timestamp: '14:32',
+          isOwn: user?.id !== '1'
+        },
+        {
+          id: 3,
+          senderId: user?.id === '1' ? '1' : '2',
+          senderName: user?.id === '1' ? 'คุณ' : 'สมชาย ใจดี',
+          content: 'เรานัดกันที่สวนสุขภาพลุมพินีครับ ตรงไหนดีครับ?',
+          timestamp: '14:35',
+          isOwn: user?.id === '1'
+        },
+        {
+          id: 4,
+          senderId: user?.id === '1' ? '2' : '1',
+          senderName: user?.id === '1' ? 'สมชาย ใจดี' : 'คุณ',
+          content: 'ตรงประตูหลักครับ ผมจะไปรอตั้งแต่ 14:45 น.',
+          timestamp: '14:37',
+          isOwn: user?.id !== '1'
+        }
+      ];
+      
+      setMessages(mockMessages);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !activeChat) return;
+
+    try {
+      const message = {
+        id: messages.length + 1,
+        senderId: user?.id,
+        senderName: 'คุณ',
+        content: newMessage,
+        timestamp: new Date().toLocaleTimeString('th-TH', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
+        isOwn: true
       };
-      setMessages(prev => [...prev, reply]);
-    }, 2000);
+
+      setMessages(prev => [...prev, message]);
+      setNewMessage('');
+
+      // Simulate reply after 2 seconds
+      setTimeout(() => {
+        const reply = {
+          id: messages.length + 2,
+          senderId: activeChat.participant.id,
+          senderName: activeChat.participant.name,
+          content: 'ได้รับข้อความแล้วครับ ขอบคุณมาก',
+          timestamp: new Date().toLocaleTimeString('th-TH', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          isOwn: false
+        };
+        setMessages(prev => [...prev, reply]);
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      sendMessage();
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      // Handle file upload logic here
-      console.log('Files to upload:', files);
-    }
-  };
-
-  const formatTime = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (minutes < 1) return 'ตอนนี้';
-    if (minutes < 60) return `${minutes} นาที`;
-    if (hours < 24) return `${hours} ชั่วโมง`;
-    if (days < 7) return `${days} วัน`;
-    return date.toLocaleDateString('th-TH');
-  };
+  const filteredChats = chats.filter(chat =>
+    chat.taskTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    chat.participant.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">กำลังโหลด...</p>
         </div>
       </div>
@@ -227,285 +251,211 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Status Bar */}
-      <div className="bg-white px-4 py-3 text-sm text-gray-600 text-center border-b border-gray-100 md:hidden">
-        <div className="flex items-center justify-between">
-          <span>9:41</span>
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Link href="/dashboard" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">GM</span>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">GenMatch</h1>
+                  <p className="text-sm text-gray-600">ระบบแชท</p>
+                </div>
+              </Link>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Link 
+                href="/task-management"
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+              >
+                จัดการงาน
+              </Link>
+              <Link 
+                href="/dashboard"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2 inline" />
+                กลับแดชบอร์ด
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {!selectedChat ? (
-        /* Chat List View */
-        <>
-          {/* Header */}
-          <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-            <div className="px-4 py-4">
-              <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold text-gray-900">แชท</h1>
-                <div className="flex items-center space-x-2">
-                  <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                    <Search className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                    <MoreHorizontal className="w-5 h-5" />
-                  </button>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-3 h-[600px]">
+            {/* Chat List */}
+            <div className="lg:col-span-1 border-r border-gray-200">
+              {/* Search */}
+              <div className="p-4 border-b border-gray-200">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="ค้นหาการสนทนา..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
                 </div>
               </div>
-            </div>
-          </header>
 
-          {/* Search Bar */}
-          <div className="bg-white px-4 py-3 border-b border-gray-200">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ค้นหาการสนทนา..."
-                className="w-full pl-10 pr-4 py-3 bg-gray-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
-              />
-            </div>
-          </div>
-
-          {/* Chat List */}
-          <main className="flex-1">
-            <div className="space-y-1">
-              {chatContacts
-                .filter(contact => 
-                  contact.name.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .map((contact) => (
+              {/* Chat List */}
+              <div className="overflow-y-auto h-[500px]">
+                {filteredChats.map((chat) => (
                   <div
-                    key={contact.id}
-                    onClick={() => setSelectedChat(contact)}
-                    className="bg-white px-4 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                    key={chat.id}
+                    onClick={() => {
+                      setActiveChat(chat);
+                      loadMessages(chat.id);
+                    }}
+                    className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                      activeChat?.id === chat.id ? 'bg-purple-50 border-purple-200' : ''
+                    }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      {/* Avatar */}
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-xl text-white">
-                          {contact.avatar}
-                        </div>
-                        {contact.isOnline && (
-                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                        )}
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-sm font-bold">
+                          {chat.participant.avatar}
+                        </span>
                       </div>
-
-                      {/* Contact Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-gray-900 truncate">
-                            {contact.name}
+                          <h3 className="text-sm font-semibold text-gray-900 truncate">
+                            {chat.participant.name}
                           </h3>
-                          <span className="text-xs text-gray-500">
-                            {formatTime(contact.lastMessageTime)}
-                          </span>
+                          <span className="text-xs text-gray-500">{chat.lastMessageTime}</span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-600 truncate">
-                            {contact.lastMessage}
-                          </p>
-                          {contact.unreadCount > 0 && (
-                            <span className="ml-2 px-2 py-1 bg-indigo-600 text-white text-xs rounded-full min-w-[20px] text-center">
-                              {contact.unreadCount}
+                        <p className="text-xs text-gray-600 truncate mb-1">{chat.taskTitle}</p>
+                        <p className="text-sm text-gray-700 truncate">{chat.lastMessage}</p>
+                        {chat.unreadCount > 0 && (
+                          <div className="mt-2">
+                            <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">
+                              {chat.unreadCount}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs text-gray-500">
-                            {contact.userType === 'ELDERLY' ? 'ผู้สูงอายุ' : 'นักศึกษา'}
-                          </span>
-                        </div>
+                          </div>
+                        )}
                       </div>
-
-                      <ChevronRight className="w-5 h-5 text-gray-400" />
                     </div>
                   </div>
                 ))}
-            </div>
-
-            {/* Empty State */}
-            {chatContacts.length === 0 && (
-              <div className="text-center py-12 px-4">
-                <MessageCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">ยังไม่มีแชท</h3>
-                <p className="text-gray-600 mb-6">
-                  เริ่มต้นการสนทนากับผู้ใช้คนอื่นเพื่อทำงานจิตอาสาร่วมกัน
-                </p>
-                <Link
-                  href="/search"
-                  className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
-                >
-                  ค้นหางาน
-                </Link>
-              </div>
-            )}
-          </main>
-        </>
-      ) : (
-        /* Chat Detail View */
-        <>
-          {/* Chat Header */}
-          <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-            <div className="px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setSelectedChat(null)}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                  </button>
-                  
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-lg text-white">
-                      {selectedChat.avatar}
-                    </div>
-                    {selectedChat.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <h2 className="font-semibold text-gray-900">{selectedChat.name}</h2>
-                    <p className="text-sm text-gray-600">
-                      {selectedChat.isOnline ? 'ออนไลน์' : 'ออฟไลน์'}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                    <Phone className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                    <Video className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-                </div>
               </div>
             </div>
-          </header>
 
-          {/* Messages */}
-          <main className="flex-1 overflow-y-auto bg-gray-100 px-4 py-4">
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
-                      message.sender === 'me'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-white text-gray-900'
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed">{message.text}</p>
-                    <div className={`flex items-center justify-end space-x-1 mt-2 ${
-                      message.sender === 'me' ? 'text-indigo-200' : 'text-gray-500'
-                    }`}>
-                      <span className="text-xs">
-                        {message.timestamp.toLocaleTimeString('th-TH', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
-                      {message.sender === 'me' && (
-                        <span className="ml-1">
-                          {message.isRead ? (
-                            <CheckCheck className="w-3 h-3" />
-                          ) : (
-                            <Check className="w-3 h-3" />
-                          )}
-                        </span>
-                      )}
+            {/* Chat Area */}
+            <div className="lg:col-span-2 flex flex-col">
+              {activeChat ? (
+                <>
+                  {/* Chat Header */}
+                  <div className="p-4 border-b border-gray-200 bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-bold">
+                            {activeChat.participant.avatar}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{activeChat.participant.name}</h3>
+                          <p className="text-sm text-gray-600">{activeChat.taskTitle}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
+                          <Phone className="w-4 h-4" />
+                        </button>
+                        <Link
+                          href={`/task-management?taskId=${activeChat.taskId}`}
+                          className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        >
+                          <MapPin className="w-4 h-4" />
+                        </Link>
+                      </div>
+                    </div>
+                    
+                    {/* Task Info */}
+                    <div className="mt-3 grid grid-cols-3 gap-4 text-xs text-gray-600">
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-3 h-3" />
+                        <span>{activeChat.task.location}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>{activeChat.task.date}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{activeChat.task.time}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              
-              {/* Typing Indicator */}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-white px-4 py-3 rounded-2xl">
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+
+                  {/* Messages */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                            message.isOwn
+                              ? 'bg-purple-600 text-white'
+                              : 'bg-gray-100 text-gray-900'
+                          }`}
+                        >
+                          <p className="text-sm">{message.content}</p>
+                          <p className={`text-xs mt-1 ${
+                            message.isOwn ? 'text-purple-100' : 'text-gray-500'
+                          }`}>
+                            {message.timestamp}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </div>
+
+                  {/* Message Input */}
+                  <div className="p-4 border-t border-gray-200">
+                    <div className="flex space-x-3">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="พิมพ์ข้อความ..."
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      />
+                      <button
+                        onClick={sendMessage}
+                        disabled={!newMessage.trim()}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
                     </div>
+                  </div>
+                </>
+              ) : (
+                /* No Chat Selected */
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">เลือกการสนทนา</h3>
+                    <p className="text-gray-600">เลือกการสนทนาจากรายการด้านซ้ายเพื่อเริ่มแชท</p>
                   </div>
                 </div>
               )}
-              
-              <div ref={messagesEndRef} />
             </div>
-          </main>
-
-          {/* Message Input */}
-          <div className="bg-white border-t border-gray-200 px-4 py-4">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <Paperclip className="w-5 h-5" />
-              </button>
-              
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <ImageIcon className="w-5 h-5" />
-              </button>
-              
-              <div className="flex-1 relative">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="พิมพ์ข้อความ..."
-                  className="w-full px-4 py-3 bg-gray-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
-                />
-                <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                  <Smile className="w-5 h-5" />
-                </button>
-              </div>
-              
-              <button
-                onClick={handleSendMessage}
-                disabled={!newMessage.trim()}
-                className={`p-3 rounded-xl transition-all duration-200 ${
-                  newMessage.trim()
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                <Send className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*,.pdf,.doc,.docx"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
           </div>
-        </>
-      )}
-
-      {/* Mobile Safe Area */}
-      <div className="h-6 bg-gray-50 md:hidden"></div>
+        </div>
+      </main>
     </div>
   );
 }

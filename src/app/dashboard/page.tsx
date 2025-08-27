@@ -25,7 +25,12 @@ import {
   Globe,
   Users,
   TrendingUp,
-  Award
+  Award,
+  BarChart3,
+  CheckSquare,
+  MessageSquare,
+  Image,
+  Shield
 } from 'lucide-react'
 import LogoIcon from '@/components/LogoIcon'
 
@@ -170,11 +175,14 @@ export default function DashboardPage() {
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-white" />
+                  <span className="text-white font-bold text-lg">
+                    {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                  </span>
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900">{user.firstName} {user.lastName}</div>
                   <div className="text-sm text-gray-500">{user.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'}</div>
+                  <div className="text-xs text-gray-400">{user.phone}</div>
                 </div>
               </div>
               
@@ -205,7 +213,9 @@ export default function DashboardPage() {
         {/* Welcome Section - Mobile Friendly */}
         <div className="text-center bg-white rounded-2xl p-6 shadow-sm">
           <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-white" />
+            <span className="text-white font-bold text-xl">
+              {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+            </span>
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">
             ยินดีต้อนรับ, {user.firstName}!
@@ -216,6 +226,9 @@ export default function DashboardPage() {
               : 'คุณเป็นผู้สูงอายุที่สามารถสร้างงานอาสาเพื่อให้นักศึกษาได้ช่วยเหลือ'
             }
           </p>
+          <div className="mt-3 text-xs text-gray-500">
+            เบอร์โทร: {user.phone}
+          </div>
         </div>
 
         {/* Service Categories Grid - Mobile Optimized */}
@@ -223,18 +236,18 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4 px-2">
             หมวดหม่งานจิตอาสา
           </h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {serviceCategories.map((category) => (
               <Link
                 key={category.id}
                 href={category.href}
-                className={`${category.bgColor} rounded-2xl p-4 text-center text-white shadow-lg active:scale-95 transition-all duration-200 touch-manipulation`}
+                className={`${category.bgColor} rounded-2xl p-5 text-center text-white shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200 touch-manipulation`}
               >
-                <div className="text-2xl mb-2">{category.emoji}</div>
-                <h3 className="text-base font-semibold mb-1">{category.title}</h3>
-                <p className="text-xs text-white/90 leading-tight">{category.description}</p>
-                <div className="mt-3 flex items-center justify-center">
-                  <ChevronRight className="w-4 h-4 text-white/70" />
+                <div className="text-3xl mb-3">{category.emoji}</div>
+                <h3 className="text-base font-bold mb-2">{category.title}</h3>
+                <p className="text-xs text-white/90 leading-tight mb-3">{category.description}</p>
+                <div className="flex items-center justify-center">
+                  <ChevronRight className="w-4 h-4 text-white/80" />
                 </div>
               </Link>
             ))}
@@ -243,27 +256,16 @@ export default function DashboardPage() {
 
         {/* Quick Stats - Mobile Optimized */}
         <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">สถิติของคุณ</h3>
-          <div className="grid grid-cols-3 gap-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">ข้อมูลผู้ใช้</h3>
+          <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-3 bg-indigo-50 rounded-xl">
-              <div className="text-2xl font-bold text-indigo-600">{user.rating || 4.5}</div>
-              <div className="text-xs text-gray-600">คะแนน</div>
+              <div className="text-2xl font-bold text-indigo-600">{user.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'}</div>
+              <div className="text-xs text-gray-600">ประเภทผู้ใช้</div>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-xl">
-              <div className="text-2xl font-bold text-green-600">{user.completedTasks || 0}</div>
-              <div className="text-xs text-gray-600">งานเสร็จ</div>
+              <div className="text-2xl font-bold text-green-600">{user.phone}</div>
+              <div className="text-xs text-gray-600">เบอร์โทร</div>
             </div>
-            {user.userType === 'STUDENT' ? (
-              <div className="text-center p-3 bg-blue-50 rounded-xl">
-                <div className="text-2xl font-bold text-blue-600">{user.totalHours || 0}</div>
-                <div className="text-xs text-gray-600">ชั่วโมง</div>
-              </div>
-            ) : (
-              <div className="text-center p-3 bg-purple-50 rounded-xl">
-                <div className="text-2xl font-bold text-purple-600">-</div>
-                <div className="text-xs text-gray-600">ผู้ช่วย</div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -302,24 +304,79 @@ export default function DashboardPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">การดำเนินการด่วน</h3>
           <div className="space-y-3">
             {user.userType === 'ELDERLY' ? (
-              <Link href="/add-task" className="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-white active:scale-95 transition-all duration-200">
-                <Plus className="w-6 h-6 mr-3" />
-                <div className="flex-1 text-left">
-                  <div className="font-semibold">สร้างงานใหม่</div>
-                  <div className="text-sm text-indigo-100">โพสต์งานที่ต้องการความช่วยเหลือ</div>
-                </div>
-                <ChevronRight className="w-5 h-5" />
-              </Link>
+              <>
+                <Link href="/add-task" className="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+                  <Plus className="w-6 h-6 mr-3" />
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold">สร้างงานใหม่</div>
+                    <div className="text-sm text-indigo-100">โพสต์งานที่ต้องการความช่วยเหลือ</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+                <Link href="/task-management" className="flex items-center p-4 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+                  <BarChart3 className="w-6 h-6 mr-3" />
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold">จัดการงาน</div>
+                    <div className="text-sm text-orange-100">ติดตามความคืบหน้าและสถานะ</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+              </>
             ) : (
-              <Link href="/search" className="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl text-white active:scale-95 transition-all duration-200">
-                <Search className="w-6 h-6 mr-3" />
+              <>
+                <Link href="/search" className="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+                  <Search className="w-6 h-6 mr-3" />
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold">ค้นหางานอาสา</div>
+                    <div className="text-sm text-green-100">ค้นหางานที่คุณสามารถช่วยเหลือได้</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+                <Link href="/task-management" className="flex items-center p-4 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+                  <CheckSquare className="w-6 h-6 mr-3" />
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold">งานของฉัน</div>
+                    <div className="text-sm text-blue-100">ติดตามงานที่เข้าร่วม</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+              </>
+            )}
+                         <Link href="/chat" className="flex items-center p-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+               <MessageSquare className="w-6 h-6 mr-3" />
+               <div className="flex-1 text-left">
+                 <div className="font-semibold">แชท</div>
+                 <div className="text-sm text-green-100">สื่อสารกับจิตอาสา/ผู้สร้างงาน</div>
+               </div>
+               <ChevronRight className="w-5 h-5" />
+             </Link>
+                           <Link href="/photo-verification" className="flex items-center p-4 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+                <Image className="w-6 h-6 mr-3" />
                 <div className="flex-1 text-left">
-                  <div className="font-semibold">ค้นหางานอาสา</div>
-                  <div className="text-sm text-green-100">ค้นหางานที่คุณสามารถช่วยเหลือได้</div>
+                  <div className="font-semibold">ยืนยันรูปถ่าย</div>
+                  <div className="text-sm text-pink-100">ดูและยืนยันรูปถ่ายการทำงาน</div>
                 </div>
                 <ChevronRight className="w-5 h-5" />
               </Link>
-            )}
+              <Link href="/ratings" className="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+                <Star className="w-6 h-6 mr-3" />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold">คะแนนและรีวิว</div>
+                  <div className="text-sm text-yellow-100">ให้คะแนนและรีวิวการทำงาน</div>
+                </div>
+                <ChevronRight className="w-5 h-5" />
+              </Link>
+              {/* Admin Panel - Only show for admin users */}
+              {user.userType === 'STUDENT' && user.firstName === 'Leo' && (
+                <Link href="/admin" className="flex items-center p-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl text-white active:scale-95 transition-all duration-200">
+                  <Shield className="w-6 h-6 mr-3" />
+                  <div className="flex-1 text-left">
+                    <div className="font-semibold">ผู้ดูแลระบบ</div>
+                    <div className="text-sm text-red-100">จัดการและติดตามระบบ</div>
+                  </div>
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+              )}
           </div>
         </div>
       </main>
