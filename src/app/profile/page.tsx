@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Edit, MapPin, Phone, Mail, Calendar, Star, Award, Users, Clock, Heart } from 'lucide-react';
+import { Edit, MapPin, Phone, Mail, Calendar, Star, Award, Users, Clock, Heart, ArrowLeft } from 'lucide-react';
 
 export default function ProfilePage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: 'สมชาย',
@@ -15,6 +19,26 @@ export default function ProfilePage() {
     bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก',
     birthDate: '1985-03-15'
   });
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+      return;
+    }
+    
+    if (user) {
+      // Update profile data with user data
+      setProfileData({
+        firstName: user.firstName || 'สมชาย',
+        lastName: user.lastName || 'ใจดี',
+        email: user.email || 'user@example.com',
+        phone: user.phone || '081-234-5678',
+        location: 'กรุงเทพมหานคร',
+        bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก',
+        birthDate: '1985-03-15'
+      });
+    }
+  }, [user, loading, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -72,6 +96,21 @@ export default function ProfilePage() {
     { id: 4, name: 'ผู้รักษ์สิ่งแวดล้อม', icon: '🌱', description: 'ทำกิจกรรมรักษ์สิ่งแวดล้อม 20+ ครั้ง' }
   ];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลดโปรไฟล์...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -89,13 +128,16 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Back to Home Button */}
-            <Link 
-              href="/"
-              className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
-            >
-              กลับหน้าหลัก
-            </Link>
+            {/* Navigation Buttons */}
+            <div className="flex items-center space-x-3">
+              <Link 
+                href="/dashboard"
+                className="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>กลับแดชบอร์ด</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -292,7 +334,7 @@ export default function ProfilePage() {
           <h3 className="text-xl font-semibold text-gray-900 mb-6">งานล่าสุด</h3>
           <div className="space-y-4">
             {mockRecentTasks.map((task) => (
-              <div key={task.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg">
+              <div key={task.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:shadow-md transition-shadow">
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900 mb-1">{task.title}</h4>
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
@@ -303,20 +345,28 @@ export default function ProfilePage() {
                     <span className="text-green-600">{task.status}</span>
                   </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <span className="text-sm text-gray-600">คะแนน:</span>
-                  <div className="flex space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <span
-                        key={i}
-                        className={`text-lg ${
-                          i < task.rating ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
-                      >
-                        ★
-                      </span>
-                    ))}
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-1">
+                    <span className="text-sm text-gray-600">คะแนน:</span>
+                    <div className="flex space-x-1">
+                      {[...Array(5)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={`text-lg ${
+                            i < task.rating ? 'text-yellow-400' : 'text-gray-300'
+                          }`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
                   </div>
+                  <Link
+                    href={`/task/${task.id}`}
+                    className="px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    ดู
+                  </Link>
                 </div>
               </div>
             ))}

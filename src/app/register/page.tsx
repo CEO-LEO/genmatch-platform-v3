@@ -85,6 +85,12 @@ export default function RegisterPage() {
     setMessage(null);
 
     try {
+      console.log('📤 Sending registration data:', {
+        ...formData,
+        password: '[HIDDEN]',
+        confirmPassword: '[HIDDEN]'
+      });
+      
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -93,24 +99,40 @@ export default function RegisterPage() {
         body: JSON.stringify(formData),
       });
 
+      console.log('📨 API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       const data = await response.json();
+      console.log('📋 Response data:', data);
 
       if (response.ok) {
-        setMessage({ type: 'success', text: data.message });
-        setFormData({
+        setMessage({ type: 'success', text: data.message || 'สมัครสมาชิกสำเร็จแล้ว!' });
+        
+        // Clear form
+      setFormData({
           userType: '',
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          studentId: '',
-          university: '',
-          address: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        studentId: '',
+        university: '',
+        address: '',
           password: '',
           confirmPassword: ''
         });
+        
+        // Auto redirect to login after 2 seconds
+      setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      
       } else {
-        setMessage({ type: 'error', text: data.error });
+        const errorMsg = data.error || data.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก';
+        setMessage({ type: 'error', text: errorMsg });
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
@@ -136,10 +158,10 @@ export default function RegisterPage() {
                   <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">แพลตฟอร์มจิตอาสา</p>
                 </div>
               </Link>
-            </div>
+      </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <Link 
-                href="/"
+        <Link 
+          href="/" 
                 className="px-3 sm:px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base font-medium"
               >
                 หน้าหลัก
@@ -149,7 +171,7 @@ export default function RegisterPage() {
                 className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 text-sm sm:text-base font-medium shadow-lg"
               >
                 เข้าสู่ระบบ
-              </Link>
+        </Link>
             </div>
           </div>
         </div>
@@ -174,7 +196,7 @@ export default function RegisterPage() {
             <div>
               <label htmlFor="userType" className="block text-sm font-semibold text-gray-700 mb-2">
                 ประเภทผู้ใช้ *
-              </label>
+            </label>
               <div className="relative">
                 <select
                   id="userType"
@@ -199,8 +221,8 @@ export default function RegisterPage() {
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
-              </div>
             </div>
+          </div>
 
             {/* Name Fields - Mobile Stacked */}
             <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
@@ -287,12 +309,12 @@ export default function RegisterPage() {
                       รหัสนักศึกษา *
                     </label>
                     <div className="relative">
-                      <input
+                  <input
                         id="studentId"
                         ref={studentIdRef}
-                        type="text"
-                        name="studentId"
-                        value={formData.studentId}
+                    type="text"
+                    name="studentId"
+                    value={formData.studentId}
                         onChange={handleInputChange}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -301,24 +323,24 @@ export default function RegisterPage() {
                           }
                         }}
                         required
-                        placeholder="รหัสนักศึกษา"
+                    placeholder="รหัสนักศึกษา"
                         className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
                         tabIndex={5}
-                      />
+                  />
                       <GraduationCap className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     </div>
-                  </div>
-                  <div>
+                </div>
+                <div>
                     <label htmlFor="university" className="block text-sm font-semibold text-gray-700 mb-2">
                       มหาวิทยาลัย *
-                    </label>
+                  </label>
                     <div className="relative">
-                      <input
+                  <input
                         id="university"
                         ref={universityRef}
-                        type="text"
-                        name="university"
-                        value={formData.university}
+                    type="text"
+                    name="university"
+                    value={formData.university}
                         onChange={handleInputChange}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -327,10 +349,10 @@ export default function RegisterPage() {
                           }
                         }}
                         required
-                        placeholder="ชื่อมหาวิทยาลัย"
+                    placeholder="ชื่อมหาวิทยาลัย"
                         className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
                         tabIndex={6}
-                      />
+                  />
                       <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     </div>
                   </div>
@@ -364,13 +386,13 @@ export default function RegisterPage() {
                 />
                 <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               </div>
-            </div>
+              </div>
 
             {/* Address */}
-            <div>
+              <div>
               <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-2">
                 ที่อยู่ *
-              </label>
+                </label>
               <div className="relative">
                 <textarea
                   id="address"

@@ -41,13 +41,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Check if user is logged in on mount
     const checkAuth = async () => {
       try {
-        // Check localStorage for user data
+        // Check localStorage for user data and token
         const userData = localStorage.getItem('user');
-        if (userData) {
-          setUser(JSON.parse(userData));
+        const token = localStorage.getItem('token');
+        
+        if (userData && token) {
+          // Verify token is still valid (simple check)
+          try {
+            const parsedUser = JSON.parse(userData);
+            // Additional validation could be added here
+            if (parsedUser && parsedUser.id && parsedUser.firstName && parsedUser.phone) {
+              setUser(parsedUser);
+            } else {
+              // Invalid user data, clear storage
+              localStorage.removeItem('user');
+              localStorage.removeItem('token');
+            }
+          } catch (parseError) {
+            console.error('Error parsing user data:', parseError);
+            // Clear corrupted data
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+          }
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        // Clear potentially corrupted data
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }

@@ -18,22 +18,30 @@ export default function MyTasksPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-      return;
-    }
-    
-    if (user) {
+    if (!loading) {
+      if (!user) {
+        console.log('No user found, redirecting to login...');
+        router.push('/login');
+        return;
+      }
+      
+      // User is authenticated, load tasks
       loadUserTasks();
     }
   }, [user, loading, router]);
 
   const loadUserTasks = async () => {
+    if (!user) {
+      console.log('Cannot load tasks: No user data');
+      setIsLoading(false);
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       // Mock data based on user type
-      if (user?.userType === 'ELDERLY') {
+      if (user.userType === 'ELDERLY') {
         // Elderly users create tasks
         setTasks({
           ongoing: [
@@ -126,6 +134,12 @@ export default function MyTasksPage() {
       }
     } catch (error) {
       console.error('Error loading tasks:', error);
+      // Set empty tasks on error to prevent crashes
+      setTasks({
+        ongoing: [],
+        completed: [],
+        created: []
+      });
     } finally {
       setIsLoading(false);
     }
@@ -149,14 +163,21 @@ export default function MyTasksPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">กำลังโหลด...</p>
+          <p className="text-gray-600">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
         </div>
       </div>
     );
   }
 
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังนำทางไปหน้าเข้าสู่ระบบ...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

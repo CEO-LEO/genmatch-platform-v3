@@ -125,10 +125,10 @@ export default function SearchPage() {
     }
   };
 
-  // Load tasks on component mount
+  // Load tasks on component mount - Show all tasks by default
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [searchQuery, selectedCategory, selectedLocation]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,10 +137,12 @@ export default function SearchPage() {
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(selectedCategory === categoryId ? '' : categoryId);
+    // fetchTasks will be triggered automatically by useEffect
   };
 
   const handleLocationChange = (location: string) => {
     setSelectedLocation(selectedLocation === location ? '' : location);
+    // fetchTasks will be triggered automatically by useEffect
   };
 
   const getStatusColor = (status: string) => {
@@ -200,7 +202,8 @@ export default function SearchPage() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Search Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">ค้นหางานจิตอาสา</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">ค้นหางานจิตอาสา</h2>
+          <p className="text-gray-600 mb-6">เลือกประเภทงานหรือสถานที่เพื่อค้นหางานที่สนใจ หรือดูงานทั้งหมดด้านล่าง</p>
           
           {/* Search Form */}
           <form onSubmit={handleSearch} className="mb-6">
@@ -280,10 +283,47 @@ export default function SearchPage() {
           </div>
         </div>
 
-        {/* Results Section */}
+                  {/* Active Filters */}
+          {(selectedCategory || selectedLocation || searchQuery) && (
+            <div className="bg-purple-50 rounded-xl p-4 mb-6">
+              <h4 className="text-sm font-semibold text-purple-900 mb-2">ตัวกรองที่เลือก:</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedCategory && (
+                  <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-medium">
+                    {categories.find(c => c.id === selectedCategory)?.name}
+                  </span>
+                )}
+                {selectedLocation && (
+                  <span className="px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium">
+                    📍 {selectedLocation}
+                  </span>
+                )}
+                {searchQuery && (
+                  <span className="px-3 py-1 bg-green-600 text-white rounded-full text-sm font-medium">
+                    🔍 "{searchQuery}"
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedCategory('');
+                    setSelectedLocation('');
+                    setSearchQuery('');
+                    fetchTasks();
+                  }}
+                  className="px-3 py-1 bg-red-600 text-white rounded-full text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  ✕ ล้างทั้งหมด
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Results Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">ผลการค้นหา</h3>
+            <h3 className="text-2xl font-bold text-gray-900">
+              {(selectedCategory || selectedLocation || searchQuery) ? 'ผลการค้นหา' : 'งานจิตอาสาทั้งหมด'}
+            </h3>
             <div className="text-sm text-gray-600">
               พบ {tasks.length} งาน
             </div>

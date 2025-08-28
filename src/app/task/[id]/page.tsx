@@ -155,8 +155,19 @@ export default function TaskDetailPage() {
     }
   };
 
+  const [isAccepting, setIsAccepting] = useState(false);
+
   const handleAcceptTask = async () => {
-    if (!task || !user) return;
+    if (!task || !user || isAccepting) return;
+
+    // Show confirmation dialog
+    const confirmAccept = window.confirm(
+      `คุณต้องการรับงาน "${task.title}" ใช่หรือไม่?\n\nงานนี้จะถูกเพิ่มในรายการงานของคุณ`
+    );
+    
+    if (!confirmAccept) return;
+
+    setIsAccepting(true);
 
     try {
       const response = await fetch(`/api/tasks/${task.id}/accept`, {
@@ -171,20 +182,25 @@ export default function TaskDetailPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert('รับงานสำเร็จแล้ว!');
+        alert('🎉 รับงานสำเร็จแล้ว!\n\nคุณสามารถดูงานในหน้า "งานของฉัน" ได้เลย');
         router.push('/my-tasks');
       } else {
-        alert('เกิดข้อผิดพลาดในการรับงาน');
+        const errorData = await response.json();
+        alert(`❌ เกิดข้อผิดพลาดในการรับงาน\n\n${errorData.error || 'กรุณาลองใหม่อีกครั้ง'}`);
       }
     } catch (error) {
       console.error('Accept task error:', error);
-      alert('เกิดข้อผิดพลาดในระบบ');
+      alert('❌ เกิดข้อผิดพลาดในระบบ\n\nกรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต และลองใหม่อีกครั้ง');
+    } finally {
+      setIsAccepting(false);
     }
   };
 
   const handleContactCreator = () => {
-    // Handle contact creator
-    console.log('Contacting creator...');
+    if (!task) return;
+    
+    // Navigate to chat with the task creator
+    router.push(`/chat?taskId=${task.id}&userId=${task.creator.id}`);
   };
 
   const formatDate = (dateString: string) => {
@@ -409,17 +425,29 @@ export default function TaskDetailPage() {
         <div className="space-y-3 pb-6">
           <button
             onClick={handleAcceptTask}
-            className="w-full py-4 bg-indigo-600 text-white rounded-xl font-semibold text-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all duration-200 active:scale-95"
+            disabled={isAccepting}
+            className={`w-full py-4 rounded-xl font-semibold text-lg focus:ring-4 transition-all duration-200 active:scale-95 ${
+              isAccepting 
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-200'
+            }`}
           >
-            รับงานนี้
+            {isAccepting ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                กำลังรับงาน...
+              </div>
+            ) : (
+              'รับงานนี้'
+            )}
           </button>
           
           <button
             onClick={handleContactCreator}
-            className="w-full py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold text-lg hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 active:scale-95"
+            className="w-full py-4 border-2 border-purple-300 text-purple-700 rounded-xl font-semibold text-lg hover:border-purple-500 hover:text-purple-800 hover:bg-purple-50 transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md"
           >
             <MessageCircle className="w-5 h-5 inline mr-2" />
-            ติดต่อผู้สร้างงาน
+            💬 ติดต่อผู้สร้างงาน
           </button>
         </div>
       </main>

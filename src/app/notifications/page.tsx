@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Bell, CheckCircle, Clock, AlertCircle, MessageCircle, User, MapPin, Calendar, X } from 'lucide-react';
+import { ArrowLeft, Bell, CheckCircle, Clock, AlertCircle, MessageCircle, User, MapPin, Calendar, X, Loader, RefreshCw } from 'lucide-react';
 
 export default function NotificationsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -65,6 +69,86 @@ export default function NotificationsPage() {
 
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
   const [showClearAll, setShowClearAll] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+      return;
+    }
+    
+    if (user) {
+      loadNotifications();
+    }
+  }, [user, loading, router]);
+
+  const loadNotifications = async () => {
+    setIsLoading(true);
+    
+    try {
+      // For now, use enhanced mock data that simulates real-time updates
+      const enhancedNotifications = [
+        {
+          id: 1,
+          type: 'success',
+          title: 'งานเสร็จสิ้น',
+          message: 'งาน "ช่วยพาออกกำลังกาย" เสร็จสิ้นแล้ว ขอบคุณสำหรับความช่วยเหลือ',
+          time: '2 ชั่วโมงที่แล้ว',
+          read: false,
+          icon: CheckCircle,
+          color: 'text-green-600',
+          bgColor: 'bg-green-50',
+          taskId: 1,
+          actionUrl: '/task-management?taskId=1'
+        },
+        {
+          id: 2,
+          type: 'message',
+          title: 'ข้อความใหม่',
+          message: 'สมชาย ใจดี ส่งข้อความใหม่เกี่ยวกับงาน "ช่วยพาออกกำลังกาย"',
+          time: '1 ชั่วโมงที่แล้ว',
+          read: false,
+          icon: MessageCircle,
+          color: 'text-blue-600',
+          bgColor: 'bg-blue-50',
+          taskId: 1,
+          actionUrl: '/chat?taskId=1'
+        },
+        {
+          id: 3,
+          type: 'info',
+          title: 'งานใหม่ตรงกับความสนใจ',
+          message: 'มีงาน "งานซ่อมแซมบ้าน" ใหม่ในพื้นที่ของคุณ',
+          time: '3 ชั่วโมงที่แล้ว',
+          read: true,
+          icon: Bell,
+          color: 'text-purple-600',
+          bgColor: 'bg-purple-50',
+          taskId: 2,
+          actionUrl: '/task/2'
+        },
+        {
+          id: 4,
+          type: 'reminder',
+          title: 'เตือนความจำ',
+          message: 'งาน "ช่วยจัดงานบุญที่วัด" จะเริ่มในอีก 1 วัน',
+          time: '5 ชั่วโมงที่แล้ว',
+          read: true,
+          icon: Clock,
+          color: 'text-orange-600',
+          bgColor: 'bg-orange-50',
+          taskId: 3,
+          actionUrl: '/task/3'
+        }
+      ];
+      
+      setNotifications(enhancedNotifications);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const markAsRead = (id: number) => {
     setNotifications(prev => 
@@ -131,6 +215,14 @@ export default function NotificationsPage() {
               </Link>
             </div>
             <div className="flex items-center space-x-3">
+              <button
+                onClick={loadNotifications}
+                disabled={isLoading}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>รีเฟรช</span>
+              </button>
               <button
                 onClick={() => setShowClearAll(!showClearAll)}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
@@ -224,7 +316,12 @@ export default function NotificationsPage() {
 
         {/* Notifications List */}
         <div className="space-y-4">
-          {filteredNotifications.length === 0 ? (
+          {isLoading ? (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">กำลังโหลดการแจ้งเตือน...</p>
+            </div>
+          ) : filteredNotifications.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Bell className="w-10 h-10 text-gray-400" />
@@ -278,6 +375,15 @@ export default function NotificationsPage() {
 
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
+                        {notification.actionUrl && (
+                          <Link
+                            href={notification.actionUrl}
+                            className="px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                            onClick={() => markAsRead(notification.id)}
+                          >
+                            ดูรายละเอียด
+                          </Link>
+                        )}
                         {!notification.read && (
                           <button
                             onClick={() => markAsRead(notification.id)}

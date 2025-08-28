@@ -38,7 +38,6 @@ export default function DashboardPage() {
   const { user, loading, logout } = useAuth()
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('home')
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -226,6 +225,18 @@ export default function DashboardPage() {
               : 'คุณเป็นผู้สูงอายุที่สามารถสร้างงานอาสาเพื่อให้นักศึกษาได้ช่วยเหลือ'
             }
           </p>
+          
+          {/* Prominent Create Task Button for ELDERLY */}
+          {user.userType === 'ELDERLY' && (
+            <Link
+              href="/add-task"
+              className="inline-flex items-center mt-4 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
+            >
+              <Plus className="w-5 h-5 mr-2" strokeWidth={2.5} />
+              สร้างงานใหม่
+            </Link>
+          )}
+          
           <div className="mt-3 text-xs text-gray-500">
             เบอร์โทร: {user.phone}
           </div>
@@ -233,9 +244,14 @@ export default function DashboardPage() {
 
         {/* Service Categories Grid - Mobile Optimized */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 px-2">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2 px-2">
             หมวดหม่งานจิตอาสา
           </h2>
+          {user.userType === 'ELDERLY' && (
+            <p className="text-sm text-gray-600 mb-4 px-2 bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
+              💡 <strong>คำแนะนำ:</strong> กดปุ่ม <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">+ สร้างงานใหม่</span> เพื่อโพสต์งานที่ต้องการความช่วยเหลือ หรือเลือกหมวดหมู่ด้านล่าง
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-4">
             {serviceCategories.map((category) => (
               <Link
@@ -305,13 +321,13 @@ export default function DashboardPage() {
           <div className="space-y-3">
             {user.userType === 'ELDERLY' ? (
               <>
-                <Link href="/add-task" className="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-white active:scale-95 transition-all duration-200">
-                  <Plus className="w-6 h-6 mr-3" />
+                <Link href="/add-task" className="flex items-center p-5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl text-white active:scale-95 transition-all duration-200 shadow-lg">
+                  <Plus className="w-8 h-8 mr-4" strokeWidth={2.5} />
                   <div className="flex-1 text-left">
-                    <div className="font-semibold">สร้างงานใหม่</div>
-                    <div className="text-sm text-indigo-100">โพสต์งานที่ต้องการความช่วยเหลือ</div>
+                    <div className="font-bold text-lg">สร้างงานใหม่</div>
+                    <div className="text-base text-green-100">โพสต์งานที่ต้องการความช่วยเหลือ</div>
                   </div>
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </Link>
                 <Link href="/task-management" className="flex items-center p-4 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl text-white active:scale-95 transition-all duration-200">
                   <BarChart3 className="w-6 h-6 mr-3" />
@@ -384,82 +400,50 @@ export default function DashboardPage() {
       {/* Bottom Navigation Bar - Mobile Optimized */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 shadow-lg">
         <div className="flex items-center justify-around">
-          <button 
-            onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
-              activeTab === 'home' 
-                ? 'text-indigo-600 bg-indigo-50' 
-                : 'text-gray-400 hover:text-indigo-600'
-            }`}
-          >
+          <Link href="/dashboard" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-indigo-600 bg-indigo-50">
             <Home className="w-6 h-6 mb-1" />
             <span className="text-xs font-medium">หน้าหลัก</span>
-          </button>
+          </Link>
           
-          <button 
-            onClick={() => setActiveTab('search')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
-              activeTab === 'search' 
-                ? 'text-indigo-600 bg-indigo-50' 
-                : 'text-gray-400 hover:text-indigo-600'
-            }`}
-          >
+          <Link href="/search" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-gray-400 hover:text-indigo-600 active:text-indigo-600">
             <Search className="w-6 h-6 mb-1" />
             <span className="text-xs">ค้นหา</span>
-          </button>
+          </Link>
           
           {user.userType === 'ELDERLY' ? (
-            <button 
-              onClick={() => setActiveTab('add')}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
-                activeTab === 'add' 
-                  ? 'text-indigo-600 bg-indigo-50' 
-                  : 'text-gray-400 hover:text-indigo-600'
-              }`}
-            >
+            <Link href="/add-task" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-gray-400 hover:text-indigo-600 active:text-indigo-600">
               <Plus className="w-6 h-6 mb-1" />
               <span className="text-xs">เพิ่มงาน</span>
-            </button>
+            </Link>
           ) : (
-            <button 
-              onClick={() => setActiveTab('tasks')}
-              className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
-                activeTab === 'tasks' 
-                  ? 'text-indigo-600 bg-indigo-50' 
-                  : 'text-gray-400 hover:text-indigo-600'
-              }`}
-            >
+            <Link href="/my-tasks" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-gray-400 hover:text-indigo-600 active:text-indigo-600">
               <Users className="w-6 h-6 mb-1" />
               <span className="text-xs">งานของฉัน</span>
-            </button>
+            </Link>
           )}
           
-          <button 
-            onClick={() => setActiveTab('notifications')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 relative ${
-              activeTab === 'notifications' 
-                ? 'text-indigo-600 bg-indigo-50' 
-                : 'text-gray-400 hover:text-indigo-600'
-            }`}
-          >
+          <Link href="/notifications" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 relative text-gray-400 hover:text-indigo-600 active:text-indigo-600">
             <Bell className="w-6 h-6 mb-1" />
             <span className="text-xs">แจ้งเตือน</span>
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">5</span>
-          </button>
+          </Link>
           
-          <button 
-            onClick={() => setActiveTab('profile')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
-              activeTab === 'profile' 
-                ? 'text-indigo-600 bg-indigo-50' 
-                : 'text-gray-400 hover:text-indigo-600'
-            }`}
-          >
+          <Link href="/profile" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-gray-400 hover:text-indigo-600 active:text-indigo-600">
             <User className="w-6 h-6 mb-1" />
             <span className="text-xs">โปรไฟล์</span>
-          </button>
+          </Link>
         </div>
       </nav>
+
+      {/* Floating Action Button for ELDERLY users - Prominent Create Task Button */}
+      {user.userType === 'ELDERLY' && (
+        <Link
+          href="/add-task"
+          className="fixed bottom-20 right-4 w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full shadow-xl hover:shadow-2xl active:scale-95 transition-all duration-200 flex items-center justify-center z-40 animate-pulse"
+        >
+          <Plus className="w-8 h-8 text-white font-bold" strokeWidth={3} />
+        </Link>
+      )}
 
       {/* Safe Area for Mobile */}
       <div className="h-6 bg-gray-50"></div>
