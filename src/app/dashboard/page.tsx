@@ -38,6 +38,10 @@ export default function DashboardPage() {
   const { user, loading, logout } = useAuth()
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [userStats, setUserStats] = useState<any>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [recentActivities, setRecentActivities] = useState<any[]>([])
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -45,6 +49,50 @@ export default function DashboardPage() {
       router.push('/login')
     }
   }, [user, loading, router])
+
+  // Fetch user stats when user is loaded
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      if (!user) return;
+      
+      try {
+        setStatsLoading(true);
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+
+        const response = await fetch('/api/user/stats', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setUserStats(data.data.stats);
+            setRecentActivities(data.data.stats.recentActivities || []);
+            setUnreadNotifications(data.data.unreadNotifications || 0);
+          }
+        } else {
+          console.error('Failed to fetch user stats:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    if (user && !loading) {
+      fetchUserStats();
+    }
+  }, [user, loading])
 
   const handleLogout = async () => {
     await logout()
@@ -54,13 +102,23 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลด...</p>
+        </div>
       </div>
     )
   }
 
   if (!user) {
-    return null
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังนำทางไปหน้าเข้าสู่ระบบ...</p>
+        </div>
+      </div>
+    )
   }
 
   // หมวดหม่งานตาม Figma prototype - Mobile Optimized
@@ -213,11 +271,11 @@ export default function DashboardPage() {
         <div className="text-center bg-white rounded-2xl p-6 shadow-sm">
           <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-xl">
-              {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+              {(user.firstName || 'U')?.charAt(0)}{(user.lastName || 'S')?.charAt(0)}
             </span>
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">
-            ยินดีต้อนรับ, {user.firstName}!
+            ยินดีต้อนรับ, {user.firstName || 'ผู้ใช้'}!
           </h1>
           <p className="text-sm text-gray-600 leading-relaxed">
             {user.userType === 'STUDENT' 
@@ -238,7 +296,7 @@ export default function DashboardPage() {
           )}
           
           <div className="mt-3 text-xs text-gray-500">
-            เบอร์โทร: {user.phone}
+            เบอร์โทร: {user.phone || 'ไม่ระบุ'}
           </div>
         </div>
 
@@ -272,17 +330,65 @@ export default function DashboardPage() {
 
         {/* Quick Stats - Mobile Optimized */}
         <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">ข้อมูลผู้ใช้</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-indigo-50 rounded-xl">
-              <div className="text-2xl font-bold text-indigo-600">{user.userType === 'STUDENT' ? 'นักศึกษา' : 'ผู้สูงอายุ'}</div>
-              <div className="text-xs text-gray-600">ประเภทผู้ใช้</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">สถิติของฉัน</h3>
+          {statsLoading ? (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-gray-50 rounded-xl animate-pulse">
+                <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </div>
+              <div className="text-center p-3 bg-gray-50 rounded-xl animate-pulse">
+                <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </div>
             </div>
-            <div className="text-center p-3 bg-green-50 rounded-xl">
-              <div className="text-2xl font-bold text-green-600">{user.phone}</div>
-              <div className="text-xs text-gray-600">เบอร์โทร</div>
+          ) : userStats ? (
+            <div className="grid grid-cols-2 gap-4">
+              {user.userType === 'STUDENT' ? (
+                <>
+                  <div className="text-center p-3 bg-blue-50 rounded-xl">
+                    <div className="text-2xl font-bold text-blue-600">{userStats.totalJoinedTasks || 0}</div>
+                    <div className="text-xs text-gray-600">งานที่เข้าร่วม</div>
+                  </div>
+                  <div className="text-center p-3 bg-green-50 rounded-xl">
+                    <div className="text-2xl font-bold text-green-600">{userStats.completedTasks || 0}</div>
+                    <div className="text-xs text-gray-600">งานที่เสร็จแล้ว</div>
+                  </div>
+                  <div className="text-center p-3 bg-yellow-50 rounded-xl">
+                    <div className="text-2xl font-bold text-yellow-600">{userStats.photoStats?.approved || 0}</div>
+                    <div className="text-xs text-gray-600">รูปที่อนุมัติ</div>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 rounded-xl">
+                    <div className="text-2xl font-bold text-orange-600">{userStats.photoStats?.pending || 0}</div>
+                    <div className="text-xs text-gray-600">รูปรอตรวจ</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-center p-3 bg-purple-50 rounded-xl">
+                    <div className="text-2xl font-bold text-purple-600">{userStats.totalCreatedTasks || 0}</div>
+                    <div className="text-xs text-gray-600">งานที่สร้าง</div>
+                  </div>
+                  <div className="text-center p-3 bg-green-50 rounded-xl">
+                    <div className="text-2xl font-bold text-green-600">{userStats.completedTasks || 0}</div>
+                    <div className="text-xs text-gray-600">งานที่เสร็จแล้ว</div>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-xl">
+                    <div className="text-2xl font-bold text-blue-600">{userStats.totalVolunteers || 0}</div>
+                    <div className="text-xs text-gray-600">จิตอาสาทั้งหมด</div>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 rounded-xl">
+                    <div className="text-2xl font-bold text-orange-600">{userStats.activeTasks || 0}</div>
+                    <div className="text-xs text-gray-600">งานที่กำลังดำเนิน</div>
+                  </div>
+                </>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              ไม่สามารถโหลดข้อมูลสถิติได้
+            </div>
+          )}
         </div>
 
         {/* Recent Activity - Mobile Optimized */}
@@ -292,26 +398,79 @@ export default function DashboardPage() {
             <Link href="/notifications" className="text-sm text-indigo-600">ดูทั้งหมด</Link>
           </div>
           <div className="space-y-3">
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl active:bg-gray-100 transition-colors">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+            {statsLoading ? (
+              <>
+                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl animate-pulse">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl animate-pulse">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              </>
+            ) : recentActivities.length > 0 ? (
+              recentActivities.map((activity, index) => {
+                const getIcon = () => {
+                  switch (activity.icon) {
+                    case 'CheckCircle': return <CheckCircle className="w-5 h-5 text-green-600" />;
+                    case 'Users': return <Users className="w-5 h-5 text-blue-600" />;
+                    case 'MessageCircle': return <MessageCircle className="w-5 h-5 text-purple-600" />;
+                    default: return <CheckCircle className="w-5 h-5 text-gray-600" />;
+                  }
+                };
+                
+                const getBgColor = () => {
+                  switch (activity.color) {
+                    case 'green': return 'bg-green-100';
+                    case 'blue': return 'bg-blue-100';
+                    case 'purple': return 'bg-purple-100';
+                    default: return 'bg-gray-100';
+                  }
+                };
+
+                const formatTime = (timeString: string) => {
+                  const now = new Date();
+                  const activityTime = new Date(timeString);
+                  const diffInMinutes = Math.floor((now.getTime() - activityTime.getTime()) / (1000 * 60));
+                  
+                  if (diffInMinutes < 60) {
+                    return `${diffInMinutes} นาทีที่แล้ว`;
+                  } else if (diffInMinutes < 1440) {
+                    const hours = Math.floor(diffInMinutes / 60);
+                    return `${hours} ชั่วโมงที่แล้ว`;
+                  } else {
+                    const days = Math.floor(diffInMinutes / 1440);
+                    return `${days} วันที่แล้ว`;
+                  }
+                };
+
+                return (
+                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl active:bg-gray-100 transition-colors">
+                    <div className={`w-10 h-10 ${getBgColor()} rounded-full flex items-center justify-center`}>
+                      {getIcon()}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                      <p className="text-xs text-gray-500">{formatTime(activity.time)}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                <MessageCircle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <p className="text-sm">ยังไม่มีกิจกรรมล่าสุด</p>
+                <p className="text-xs">เริ่มต้นใช้งานเพื่อดูกิจกรรม</p>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">งานเสร็จสิ้น</p>
-                <p className="text-xs text-gray-500">เมื่อ 2 ชั่วโมงที่แล้ว</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl active:bg-gray-100 transition-colors">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">ข้อความใหม่</p>
-                <p className="text-xs text-gray-500">เมื่อ 1 วันที่แล้ว</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-            </div>
+            )}
           </div>
         </div>
 
@@ -425,7 +584,11 @@ export default function DashboardPage() {
           <Link href="/notifications" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 relative text-gray-400 hover:text-indigo-600 active:text-indigo-600">
             <Bell className="w-6 h-6 mb-1" />
             <span className="text-xs">แจ้งเตือน</span>
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">5</span>
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {unreadNotifications > 99 ? '99+' : unreadNotifications}
+              </span>
+            )}
           </Link>
           
           <Link href="/profile" className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-gray-400 hover:text-indigo-600 active:text-indigo-600">

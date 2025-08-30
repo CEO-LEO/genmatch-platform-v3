@@ -36,6 +36,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in on mount
@@ -71,11 +72,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.removeItem('token');
       } finally {
         setLoading(false);
+        setMounted(true);
       }
     };
 
     checkAuth();
   }, []);
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <AuthContext.Provider value={{
+        user: null,
+        loading: true,
+        login: async () => {},
+        register: async () => {},
+        logout: () => {}
+      }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
   const login = async (phone: string, password: string) => {
     try {

@@ -99,7 +99,7 @@ export default function NotificationsPage() {
           color: 'text-green-600',
           bgColor: 'bg-green-50',
           taskId: 1,
-          actionUrl: '/task-management?taskId=1'
+          actionUrl: '/my-tasks'
         },
         {
           id: 2,
@@ -112,7 +112,7 @@ export default function NotificationsPage() {
           color: 'text-blue-600',
           bgColor: 'bg-blue-50',
           taskId: 1,
-          actionUrl: '/chat?taskId=1'
+          actionUrl: '/chat'
         },
         {
           id: 3,
@@ -125,7 +125,7 @@ export default function NotificationsPage() {
           color: 'text-purple-600',
           bgColor: 'bg-purple-50',
           taskId: 2,
-          actionUrl: '/task/2'
+          actionUrl: '/search'
         },
         {
           id: 4,
@@ -138,7 +138,7 @@ export default function NotificationsPage() {
           color: 'text-orange-600',
           bgColor: 'bg-orange-50',
           taskId: 3,
-          actionUrl: '/task/3'
+          actionUrl: '/search'
         }
       ];
       

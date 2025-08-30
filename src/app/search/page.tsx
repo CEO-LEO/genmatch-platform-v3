@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, Clock, User, Heart, Filter, Calendar, Users } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { Search, MapPin, Clock, User, Filter, Calendar, Users } from 'lucide-react';
 
 export default function SearchPage() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
@@ -143,6 +147,43 @@ export default function SearchPage() {
   const handleLocationChange = (location: string) => {
     setSelectedLocation(selectedLocation === location ? '' : location);
     // fetchTasks will be triggered automatically by useEffect
+  };
+
+  const handleJoinTask = async (taskId: string, taskTitle: string) => {
+    if (!user) {
+      alert('กรุณาเข้าสู่ระบบก่อนสมัครเข้าร่วมงาน');
+      router.push('/login');
+      return;
+    }
+
+    const confirmJoin = window.confirm(`คุณต้องการสมัครเข้าร่วมงาน "${taskTitle}" ใช่หรือไม่?`);
+    if (!confirmJoin) return;
+
+    try {
+      // Call API to join task
+      const response = await fetch(`/api/tasks/${taskId}/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          userId: user.id
+        })
+      });
+
+      if (response.ok) {
+        alert('🎉 สมัครเข้าร่วมงานสำเร็จ!\n\nคุณสามารถดูงานในหน้า "งานของฉัน" ได้');
+        // Optionally refresh tasks to update status
+        fetchTasks();
+      } else {
+        const errorData = await response.json();
+        alert(`❌ เกิดข้อผิดพลาด: ${errorData.error || 'ไม่สามารถสมัครเข้าร่วมงานได้'}`);
+      }
+    } catch (error) {
+      console.error('Error joining task:', error);
+      alert('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ\n\nกรุณาลองใหม่อีกครั้ง');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -378,9 +419,6 @@ export default function SearchPage() {
                       </div>
                     )}
                   </div>
-                  <button className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-full">
-                    <Heart className="h-5 w-5" />
-                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -419,10 +457,16 @@ export default function SearchPage() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                    <Link
+                      href={`/task/${task.id}`}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                    >
                       ดูรายละเอียด
-                    </button>
-                    <button className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium">
+                    </Link>
+                    <button 
+                      onClick={() => handleJoinTask(task.id, task.title)}
+                      className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium hover:bg-purple-600 hover:text-white"
+                    >
                       สมัครเข้าร่วม
                     </button>
                   </div>

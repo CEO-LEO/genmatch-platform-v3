@@ -1,12 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MapPin, Calendar, Clock, Users, Tag, Phone } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { MapPin, Calendar, Clock, Users, Tag, Phone, ArrowLeft } from 'lucide-react';
 
 export default function AddTaskPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      console.log('No user found, redirecting to login...');
+      router.push('/login');
+    }
+  }, [user, loading, router]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -15,6 +26,8 @@ export default function AddTaskPage() {
     date: '',
     startTime: '',
     endTime: '',
+    maxVolunteers: '1',
+    requirements: '',
     tags: '',
     contactName: '',
     contactPhone: '',
@@ -31,18 +44,37 @@ export default function AddTaskPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🔥 Form submitted!');
+    console.log('📋 Form data:', formData);
+    console.log('👤 User:', user);
+    
+    // Validate required fields
+    const requiredFields = ['title', 'description', 'category', 'location', 'date', 'startTime', 'endTime'];
+    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+    
+    if (missingFields.length > 0) {
+      setMessage({ 
+        type: 'error', 
+        text: `กรุณากรอกข้อมูลให้ครบถ้วน: ${missingFields.join(', ')}` 
+      });
+      console.log('❌ Missing fields:', missingFields);
+      return;
+    }
+    
     setIsLoading(true);
     setMessage(null);
 
     try {
-      // Get user info from localStorage (if logged in)
-      const userStr = localStorage.getItem('user');
-      let creatorId = 1; // Default for demo
-      
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        creatorId = user.id;
+      if (!user) {
+        setMessage({ type: 'error', text: 'กรุณาเข้าสู่ระบบก่อนสร้างงาน' });
+        setIsLoading(false);
+        return;
       }
+
+      console.log('📤 Creating task with data:', {
+        ...formData,
+        creatorId: user.id
+      });
 
       const response = await fetch('/api/tasks', {
         method: 'POST',
@@ -51,14 +83,26 @@ export default function AddTaskPage() {
         },
         body: JSON.stringify({
           ...formData,
-          creatorId
+          creatorId: user.id
         }),
       });
 
       const data = await response.json();
 
+      console.log('📨 API Response:', {
+        status: response.status,
+        ok: response.ok,
+        data
+      });
+
       if (response.ok) {
-        setMessage({ type: 'success', text: data.message });
+        setMessage({ type: 'success', text: data.message || 'สร้างงานสำเร็จแล้ว!' });
+        
+        // Auto redirect to dashboard after 2 seconds
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 2000);
+        
         // Reset form
         setFormData({
           title: '',
@@ -68,6 +112,8 @@ export default function AddTaskPage() {
           date: '',
           startTime: '',
           endTime: '',
+          maxVolunteers: '1',
+          requirements: '',
           tags: '',
           contactName: '',
           contactPhone: '',
@@ -77,10 +123,17 @@ export default function AddTaskPage() {
         setMessage({ type: 'error', text: data.error });
       }
     } catch (error) {
+      console.error('❌ Error creating task:', error);
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Check if form is valid for submit
+  const isFormValid = () => {
+    const requiredFields = ['title', 'description', 'category', 'location', 'date', 'startTime', 'endTime'];
+    return requiredFields.every(field => formData[field as keyof typeof formData]?.trim());
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -90,6 +143,21 @@ export default function AddTaskPage() {
       [name]: value
     }));
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลด...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -103,6 +171,7 @@ export default function AddTaskPage() {
                 <span className="text-white font-bold text-lg">GM</span>
               </div>
               <div>
+                
                 <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
                 <p className="text-sm text-gray-500">Generation Matching</p>
               </div>
@@ -379,9 +448,14 @@ export default function AddTaskPage() {
           <div className="text-center">
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
+              onClick={(e) => {
+                console.log('🖱️ Button clicked!');
+                console.log('📝 Form valid:', isFormValid());
+                console.log('⏳ Loading:', isLoading);
+              }}
               className={`px-12 py-4 text-white text-lg font-bold rounded-xl transition-all duration-200 transform hover:scale-105 ${
-                isLoading 
+                isLoading || !isFormValid()
                   ? 'bg-gray-400 cursor-not-allowed shadow-md' 
                   : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl'
               }`}
@@ -395,6 +469,22 @@ export default function AddTaskPage() {
                 'สร้างงานจิตอาสา'
               )}
             </button>
+            
+            {/* Form Status Info */}
+            <div className="mt-4 text-sm text-gray-500">
+              {!isFormValid() && (
+                <div className="flex items-center justify-center text-orange-600">
+                  <span className="mr-2">⚠️</span>
+                  กรุณากรอกข้อมูลให้ครบถ้วนก่อนสร้างงาน
+                </div>
+              )}
+              {isFormValid() && !isLoading && (
+                <div className="flex items-center justify-center text-green-600">
+                  <span className="mr-2">✅</span>
+                  พร้อมสร้างงานแล้ว
+                </div>
+              )}
+            </div>
           </div>
         </form>
 

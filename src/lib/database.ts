@@ -554,3 +554,98 @@ export async function getDatabaseStats() {
   };
 }
 
+// Export mockDatabase for API routes
+export const mockDatabase = {
+  get: (key: string) => {
+    switch (key) {
+      case 'users':
+        return Array.from(global.mockUsers.values());
+      case 'tasks':
+        return [
+          {
+            id: 1,
+            title: 'ช่วยพาออกกำลังกาย',
+            description: 'ต้องการจิตอาสาช่วยพาผู้สูงอายุออกกำลังกายที่สวนสุขภาพ',
+            location: 'สวนสุขภาพ เขตบางนา',
+            date: '2024-08-25',
+            time: '15:00-17:00',
+            category: 'exercise',
+            creatorId: 4,
+            status: 'active',
+            volunteers: [1, 2],
+            maxVolunteers: 2,
+            requirements: 'มีความอดทนและใจเย็น',
+            createdAt: '2024-08-20T10:00:00Z',
+            updatedAt: '2024-08-25T14:00:00Z'
+          },
+          {
+            id: 2,
+            title: 'ช่วยซ่อมแซมบ้าน',
+            description: 'ต้องการจิตอาสาช่วยซ่อมแซมหลังคาบ้านที่รั่ว',
+            location: 'บ้านเลขที่ 123 ถนนสุขุมวิท',
+            date: '2024-08-26',
+            time: '09:00-12:00',
+            category: 'repair',
+            creatorId: 4,
+            status: 'active',
+            volunteers: [],
+            maxVolunteers: 3,
+            requirements: 'มีประสบการณ์งานช่าง',
+            createdAt: '2024-08-21T08:00:00Z',
+            updatedAt: '2024-08-21T08:00:00Z'
+          },
+          {
+            id: 3,
+            title: 'ช่วงงานบุญที่วัด',
+            description: 'ต้องการจิตอาสาช่วยจัดงานบุญประจำปีที่วัด',
+            location: 'วัดพระแก้ว',
+            date: '2024-08-27',
+            time: '06:00-18:00',
+            category: 'temple',
+            creatorId: 4,
+            status: 'completed',
+            volunteers: [1, 2, 3],
+            maxVolunteers: 5,
+            requirements: 'มีจิตอาสาและความเสียสละ',
+            createdAt: '2024-08-15T06:00:00Z',
+            updatedAt: '2024-08-27T18:00:00Z'
+          }
+        ];
+      case 'photos':
+        return Array.from(global.mockPhotos.values());
+      case 'notifications':
+        return [
+          {
+            id: 1,
+            userId: 1,
+            type: 'task_completed',
+            title: 'งานเสร็จสิ้น',
+            message: 'งาน "ช่วยพาออกกำลังกาย" เสร็จสิ้นแล้ว',
+            read: false,
+            createdAt: '2024-08-25T17:00:00Z'
+          },
+          {
+            id: 2,
+            userId: 2,
+            type: 'photo_approved',
+            title: 'รูปถ่ายได้รับการอนุมัติ',
+            message: 'รูปถ่ายการทำงานได้รับการอนุมัติแล้ว',
+            read: false,
+            createdAt: '2024-08-25T16:30:00Z'
+          },
+          {
+            id: 3,
+            userId: 4,
+            type: 'volunteer_joined',
+            title: 'มีจิตอาสาเข้าร่วม',
+            message: 'มีจิตอาสา 2 คนเข้าร่วมงาน "ช่วยพาออกกำลังกาย"',
+            read: true,
+            createdAt: '2024-08-25T14:00:00Z'
+          }
+        ];
+      default:
+        return [];
+    }
+  }
+};
+
