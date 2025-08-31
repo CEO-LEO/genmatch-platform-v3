@@ -16,6 +16,9 @@ export default function AddTaskPage() {
     if (!loading && !user) {
       console.log('No user found, redirecting to login...');
       router.push('/login');
+    } else if (!loading && user && user.userType === 'STUDENT') {
+      console.log('Students cannot create tasks, redirecting to search...');
+      router.push('/search');
     }
   }, [user, loading, router]);
   const [formData, setFormData] = useState({
@@ -159,6 +162,60 @@ export default function AddTaskPage() {
     return null;
   }
 
+  // Show access denied for students
+  if (user.userType === 'STUDENT') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center p-8 bg-white rounded-2xl shadow-lg">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">🚫</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">ไม่สามารถเข้าถึงได้</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            หน้านี้สำหรับ<strong>ผู้สูงอายุ</strong>เท่านั้น<br/>
+            นักศึกษาสามารถ<strong>ค้นหาและรับงาน</strong>ได้
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                console.log('🔍 Navigating to search...');
+                // Add visual feedback
+                const button = document.activeElement as HTMLButtonElement;
+                if (button) {
+                  button.style.transform = 'scale(0.95)';
+                  setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                  }, 100);
+                }
+                router.push('/search');
+              }}
+              className="block w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 active:scale-95 cursor-pointer"
+            >
+              🔍 ค้นหางานจิตอาสา
+            </button>
+            <button
+              onClick={() => {
+                console.log('🏠 Navigating to dashboard...');
+                // Add visual feedback
+                const button = document.activeElement as HTMLButtonElement;
+                if (button) {
+                  button.style.transform = 'scale(0.95)';
+                  setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                  }, 100);
+                }
+                router.push('/dashboard');
+              }}
+              className="block w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors active:scale-95 cursor-pointer"
+            >
+              🏠 กลับหน้าหลัก
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -171,7 +228,10 @@ export default function AddTaskPage() {
                 <span className="text-white font-bold text-lg">GM</span>
               </div>
               <div>
-                
+
+              
+          
+          
                 <h1 className="text-2xl font-bold text-gray-900">GenMatch</h1>
                 <p className="text-sm text-gray-500">Generation Matching</p>
               </div>
@@ -290,7 +350,8 @@ export default function AddTaskPage() {
               </div>
 
               <div>
-                <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="date" className="block 
+                text-sm font-medium text-gray-700 mb-2">
                   วันที่ *
                 </label>
                 <input

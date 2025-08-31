@@ -142,33 +142,33 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header - Mobile Optimized */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      {/* Header - Modern Design */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-purple-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity">
-                <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-sm sm:text-lg">GM</span>
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <Link href="/" className="flex items-center space-x-3 sm:space-x-4 hover:opacity-80 transition-all duration-300">
+                <ArrowLeft className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200">
+                  <span className="text-white font-bold text-lg sm:text-xl">GM</span>
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-gray-900">GenMatch</h1>
-                  <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">แพลตฟอร์มจิตอาสา</p>
+                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">GenMatch</h1>
+                  <p className="text-sm sm:text-base text-purple-600/70 font-medium">แพลตฟอร์มจิตอาสา</p>
                 </div>
               </Link>
       </div>
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-3 sm:space-x-4">
         <Link 
           href="/" 
-                className="px-3 sm:px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base font-medium"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 text-purple-600 border-2 border-purple-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 transition-all duration-300 text-sm sm:text-base font-semibold"
               >
                 หน้าหลัก
               </Link>
               <Link 
                 href="/login"
-                className="px-3 sm:px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 text-sm sm:text-base font-medium shadow-lg"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base font-semibold shadow-lg shadow-purple-200 hover:shadow-purple-300"
               >
                 เข้าสู่ระบบ
         </Link>
@@ -177,25 +177,28 @@ export default function RegisterPage() {
         </div>
       </header>
 
-      {/* Main Content - Mobile First */}
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
-          {/* Header */}
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-3">
+      {/* Main Content - Enhanced Design */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl shadow-purple-100/50 border border-white/20 p-6 sm:p-8 lg:p-12">
+          {/* Header - Enhanced */}
+          <div className="text-center mb-8 sm:mb-12">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-200">
+              <User className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 bg-clip-text text-transparent mb-3 sm:mb-4">
               สมัครสมาชิก GenMatch
             </h2>
-            <p className="text-gray-600 text-sm sm:text-base sm:text-lg">
-              เข้าร่วมชุมชนจิตอาสาและสร้างการเปลี่ยนแปลงในสังคม
+            <p className="text-gray-600 text-base sm:text-lg leading-relaxed max-w-md mx-auto">
+              เข้าร่วมชุมชนจิตอาสาและสร้างการเปลี่ยนแปลงที่ดีในสังคม
             </p>
           </div>
 
-          {/* Form - Mobile Optimized */}
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          {/* Form - Enhanced Design */}
+          <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
             {/* User Type */}
-            <div>
-              <label htmlFor="userType" className="block text-sm font-semibold text-gray-700 mb-2">
-                ประเภทผู้ใช้ *
+            <div className="group">
+              <label htmlFor="userType" className="block text-sm font-bold text-gray-800 mb-3">
+                ประเภทผู้ใช้ <span className="text-purple-500">*</span>
             </label>
               <div className="relative">
                 <select
@@ -211,24 +214,24 @@ export default function RegisterPage() {
                     }
                   }}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors bg-white text-base"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                   tabIndex={1}
                 >
                   <option value="">เลือกประเภทผู้ใช้</option>
-                  <option value="student">นักศึกษา</option>
-                  <option value="elderly">ผู้สูงอายุ</option>
+                  <option value="student">🎓 นักศึกษา</option>
+                  <option value="elderly">👴 ผู้สูงอายุ</option>
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                  <User className="h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
                 </div>
             </div>
           </div>
 
-            {/* Name Fields - Mobile Stacked */}
-            <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  ชื่อ *
+            {/* Name Fields - Enhanced */}
+            <div className="space-y-6 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
+              <div className="group">
+                <label htmlFor="firstName" className="block text-sm font-bold text-gray-800 mb-3">
+                  ชื่อ <span className="text-purple-500">*</span>
                 </label>
                 <input
                   id="firstName"
@@ -245,13 +248,13 @@ export default function RegisterPage() {
                   }}
                   required
                   placeholder="ชื่อจริง"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                   tabIndex={2}
                 />
               </div>
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  นามสกุล *
+              <div className="group">
+                <label htmlFor="lastName" className="block text-sm font-bold text-gray-800 mb-3">
+                  นามสกุล <span className="text-purple-500">*</span>
                 </label>
                 <input
                   id="lastName"
@@ -268,7 +271,7 @@ export default function RegisterPage() {
                   }}
                   required
                   placeholder="นามสกุล"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                  className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                   tabIndex={3}
                 />
               </div>
@@ -277,9 +280,9 @@ export default function RegisterPage() {
             {/* Student-specific fields */}
             {formData.userType === 'student' && (
               <>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                    อีเมล *
+                <div className="group">
+                  <label htmlFor="email" className="block text-sm font-bold text-gray-800 mb-3">
+                    อีเมล <span className="text-purple-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -297,24 +300,24 @@ export default function RegisterPage() {
                       }}
                       required
                       placeholder="your@email.com"
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                       tabIndex={4}
                     />
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
                   </div>
                 </div>
-                <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
-                  <div>
-                    <label htmlFor="studentId" className="block text-sm font-semibold text-gray-700 mb-2">
-                      รหัสนักศึกษา *
+                <div className="space-y-6 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
+                  <div className="group">
+                    <label htmlFor="studentId" className="block text-sm font-bold text-gray-800 mb-3">
+                      รหัสนักศึกษา <span className="text-purple-500">*</span>
                     </label>
                     <div className="relative">
-                  <input
+                      <input
                         id="studentId"
                         ref={studentIdRef}
-                    type="text"
-                    name="studentId"
-                    value={formData.studentId}
+                        type="text"
+                        name="studentId"
+                        value={formData.studentId}
                         onChange={handleInputChange}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -323,24 +326,24 @@ export default function RegisterPage() {
                           }
                         }}
                         required
-                    placeholder="รหัสนักศึกษา"
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                        placeholder="รหัสนักศึกษา"
+                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                         tabIndex={5}
-                  />
-                      <GraduationCap className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      />
+                      <GraduationCap className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
                     </div>
-                </div>
-                <div>
-                    <label htmlFor="university" className="block text-sm font-semibold text-gray-700 mb-2">
-                      มหาวิทยาลัย *
-                  </label>
+                  </div>
+                  <div className="group">
+                    <label htmlFor="university" className="block text-sm font-bold text-gray-800 mb-3">
+                      มหาวิทยาลัย <span className="text-purple-500">*</span>
+                    </label>
                     <div className="relative">
-                  <input
+                      <input
                         id="university"
                         ref={universityRef}
-                    type="text"
-                    name="university"
-                    value={formData.university}
+                        type="text"
+                        name="university"
+                        value={formData.university}
                         onChange={handleInputChange}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -349,11 +352,11 @@ export default function RegisterPage() {
                           }
                         }}
                         required
-                    placeholder="ชื่อมหาวิทยาลัย"
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                        placeholder="ชื่อมหาวิทยาลัย"
+                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                         tabIndex={6}
-                  />
-                      <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      />
+                      <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
                     </div>
                   </div>
                 </div>
@@ -361,9 +364,9 @@ export default function RegisterPage() {
             )}
 
             {/* Phone */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                เบอร์โทรศัพท์ *
+            <div className="group">
+              <label htmlFor="phone" className="block text-sm font-bold text-gray-800 mb-3">
+                เบอร์โทรศัพท์ <span className="text-purple-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -381,18 +384,18 @@ export default function RegisterPage() {
                   }}
                   required
                   placeholder="081-234-5678"
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                   tabIndex={formData.userType === 'student' ? 7 : 4}
                 />
-                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
               </div>
-              </div>
+            </div>
 
             {/* Address */}
-              <div>
-              <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-2">
-                ที่อยู่ *
-                </label>
+            <div className="group">
+              <label htmlFor="address" className="block text-sm font-bold text-gray-800 mb-3">
+                ที่อยู่ <span className="text-purple-500">*</span>
+              </label>
               <div className="relative">
                 <textarea
                   id="address"
@@ -409,18 +412,18 @@ export default function RegisterPage() {
                   required
                   rows={3}
                   placeholder="ที่อยู่ปัจจุบัน"
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors resize-none text-base"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium resize-none hover:border-purple-300 group-hover:border-purple-300"
                   tabIndex={formData.userType === 'student' ? 8 : 5}
                 />
-                <MapPin className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                <MapPin className="absolute left-4 top-4 h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
               </div>
             </div>
 
-            {/* Password Fields - Mobile Stacked */}
-            <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                  รหัสผ่าน *
+            {/* Password Fields - Enhanced */}
+            <div className="space-y-6 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
+              <div className="group">
+                <label htmlFor="password" className="block text-sm font-bold text-gray-800 mb-3">
+                  รหัสผ่าน <span className="text-purple-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -438,23 +441,23 @@ export default function RegisterPage() {
                     }}
                     required
                     placeholder="รหัสผ่าน"
-                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                     tabIndex={formData.userType === 'student' ? 9 : 6}
                   />
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-purple-400 hover:text-purple-600 p-1 rounded-lg hover:bg-purple-50 transition-all duration-200"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                  ยืนยันรหัสผ่าน *
+              <div className="group">
+                <label htmlFor="confirmPassword" className="block text-sm font-bold text-gray-800 mb-3">
+                  ยืนยันรหัสผ่าน <span className="text-purple-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -472,14 +475,14 @@ export default function RegisterPage() {
                     }}
                     required
                     placeholder="ยืนยันรหัสผ่าน"
-                    className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-base"
+                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-400 transition-all duration-300 bg-white/80 backdrop-blur-sm text-base font-medium hover:border-purple-300 group-hover:border-purple-300"
                     tabIndex={formData.userType === 'student' ? 10 : 7}
                   />
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-400 group-hover:text-purple-500 transition-colors" />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-purple-400 hover:text-purple-600 p-1 rounded-lg hover:bg-purple-50 transition-all duration-200"
                     tabIndex={-1}
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -488,32 +491,61 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Message */}
+            {/* Message - Enhanced */}
             {message && (
-              <div className={`p-4 rounded-lg ${
+              <div className={`p-5 rounded-2xl border-2 font-medium ${
                 message.type === 'success' 
-                  ? 'bg-green-50 border border-green-200 text-green-800' 
-                  : 'bg-red-50 border border-red-200 text-red-800'
+                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 text-green-800' 
+                  : 'bg-gradient-to-r from-red-50 to-pink-50 border-red-200 text-red-800'
               }`}>
-                {message.text}
+                <div className="flex items-center space-x-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                    message.type === 'success' ? 'bg-green-200' : 'bg-red-200'
+                  }`}>
+                    <span className="text-sm">
+                      {message.type === 'success' ? '✓' : '✕'}
+                    </span>
+                  </div>
+                  <span>{message.text}</span>
+                </div>
               </div>
             )}
 
-            {/* Submit Button - Mobile Optimized */}
+            {/* Submit Button - Enhanced */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 sm:py-4 px-6 rounded-lg font-semibold text-base sm:text-lg hover:from-purple-700 hover:to-blue-700 focus:ring-4 focus:ring-purple-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="group w-full bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white py-4 sm:py-5 px-8 rounded-2xl font-bold text-lg sm:text-xl hover:from-purple-700 hover:via-purple-600 hover:to-blue-700 focus:ring-4 focus:ring-purple-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-purple-200 hover:shadow-purple-300 hover:scale-[1.02] active:scale-[0.98] transform"
             >
-              {isLoading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิก'}
+              <div className="flex items-center justify-center space-x-3">
+                {isLoading ? (
+                  <>
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>กำลังสมัครสมาชิก...</span>
+                  </>
+                ) : (
+                  <>
+                    <User className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    <span>สมัครสมาชิก</span>
+                  </>
+                )}
+              </div>
             </button>
           </form>
 
-          {/* Footer */}
-          <div className="mt-6 sm:mt-8 text-center">
-            <p className="text-sm sm:text-base text-gray-600">
+          {/* Footer - Enhanced */}
+          <div className="mt-8 sm:mt-12 text-center">
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              <div className="h-px bg-gradient-to-r from-transparent via-purple-200 to-transparent flex-1"></div>
+              <span className="text-gray-400 text-sm font-medium">หรือ</span>
+              <div className="h-px bg-gradient-to-r from-transparent via-purple-200 to-transparent flex-1"></div>
+            </div>
+            <p className="text-base sm:text-lg text-gray-600 font-medium">
               มีบัญชีอยู่แล้ว?{' '}
-              <Link href="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+              <Link 
+                href="/login" 
+                className="text-purple-600 hover:text-purple-700 font-bold hover:underline transition-all duration-200 decoration-2 underline-offset-2"
+              >
                 เข้าสู่ระบบ
               </Link>
             </p>
