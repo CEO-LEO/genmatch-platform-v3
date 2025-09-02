@@ -33,94 +33,19 @@ export default function SearchPage() {
     setError(null);
     
     try {
-      // For demo purposes, use mock data that simulates real tasks
-      // In production, this would fetch from the actual API
-      const mockTasks = [
-                 {
-           id: 1,
-           title: 'ช่วยพาออกกำลังกาย',
-           description: 'ช่วยพาออกกำลังกายที่สวนสุขภาพ ต้องการจิตอาสาที่มีประสบการณ์ในการดูแลผู้สูงอายุ',
-           category: 'exercise',
-           location: 'กรุงเทพมหานคร',
-           date: '25 ส.ค. 2568',
-           startTime: '09:00',
-           endTime: '11:00',
-           status: 'PENDING',
-           firstName: 'ทอง',
-           lastName: 'ใจดี',
-           creatorPhone: '0829151870',
-           tags: 'ออกกำลังกาย, ผู้สูงอายุ, สุขภาพ'
-         },
-                 {
-           id: 2,
-           title: 'งานซ่อมแซมบ้าน',
-           description: 'ต้องการช่วยซ่อมแซมบ้านหลังเล็ก งานไม่หนัก ต้องการจิตอาสาที่มีทักษะการซ่อมแซม',
-           category: 'repair',
-           location: 'เชียงใหม่',
-           date: '26 ส.ค. 2568',
-           startTime: '14:00',
-           endTime: '17:00',
-           status: 'PENDING',
-           firstName: 'สมชาย',
-           lastName: 'รักดี',
-           creatorPhone: '0812345678',
-           tags: 'งานซ่อม, บ้าน, ช่วยเหลือ'
-         },
-                 {
-           id: 3,
-           title: 'ช่วยจัดงานบุญที่วัด',
-           description: 'ช่วยจัดงานบุญประจำปี ต้องการจิตอาสาในการจัดเตรียมสถานที่และดูแลผู้เข้าร่วมงาน',
-           category: 'temple',
-           location: 'ภูเก็ต',
-           date: '27 ส.ค. 2568',
-           startTime: '08:00',
-           endTime: '12:00',
-           status: 'PENDING',
-           firstName: 'ลุงปู่',
-           lastName: 'ใจบุญ',
-           creatorPhone: '0898765432',
-           tags: 'วัด, งานบุญ, จัดงาน'
-         },
-         {
-           id: 4,
-           title: 'ช่วยดูแลผู้ป่วยในโรงพยาบาล',
-           description: 'ช่วยดูแลผู้ป่วยสูงอายุในโรงพยาบาล งานไม่หนัก ต้องการจิตอาสาที่มีใจรักในการช่วยเหลือ',
-           category: 'hospital',
-           location: 'พัทยา',
-           date: '28 ส.ค. 2568',
-           startTime: '10:00',
-           endTime: '16:00',
-           status: 'PENDING',
-           firstName: 'คุณยาย',
-           lastName: 'ใจดี',
-           creatorPhone: '0854321098',
-           tags: 'โรงพยาบาล, ผู้ป่วย, ดูแล'
-         }
-      ];
+      const params = new URLSearchParams();
+      if (searchQuery) params.set('search', searchQuery);
+      if (selectedCategory) params.set('category', selectedCategory);
+      if (selectedLocation) params.set('location', selectedLocation);
 
-      // Filter tasks based on search criteria
-      let filteredTasks = mockTasks;
-
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        filteredTasks = filteredTasks.filter(task => 
-          task.title.toLowerCase().includes(query) ||
-          task.description.toLowerCase().includes(query) ||
-          task.tags.toLowerCase().includes(query)
-        );
+      const res = await fetch(`/api/tasks?${params.toString()}`);
+      const data = await res.json();
+      if (res.ok) {
+        setTasks(data.tasks || []);
+      } else {
+        setError(data.error || 'เกิดข้อผิดพลาดในการดึงข้อมูล');
+        setTasks([]);
       }
-
-      if (selectedCategory) {
-        filteredTasks = filteredTasks.filter(task => task.category === selectedCategory);
-      }
-
-      if (selectedLocation) {
-        filteredTasks = filteredTasks.filter(task => 
-          task.location.includes(selectedLocation)
-        );
-      }
-
-      setTasks(filteredTasks);
       
     } catch (error) {
       setError('เกิดข้อผิดพลาดในการดึงข้อมูล');

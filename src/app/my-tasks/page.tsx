@@ -40,97 +40,16 @@ export default function MyTasksPage() {
     setIsLoading(true);
     
     try {
-      // Mock data based on user type
-      if (user.userType === 'ELDERLY') {
-        // Elderly users create tasks
+      const res = await fetch(`/api/tasks/my-tasks?userId=${user.id}&userType=${user.userType}`);
+      const data = await res.json();
+      if (res.ok) {
         setTasks({
-          ongoing: [
-            {
-              id: 1,
-              title: 'ช่วยพาออกกำลังกาย',
-              category: 'ออกกำลังกาย',
-              location: 'กรุงเทพมหานคร',
-              date: '25 ส.ค. 2568',
-              time: '15.00 - 17.00',
-              progress: 60,
-              status: 'กำลังดำเนินการ',
-              volunteers: 2,
-              maxVolunteers: 3
-            }
-          ],
-          completed: [
-            {
-              id: 2,
-              title: 'งานซ่อมแซมบ้าน',
-              category: 'งานซ่อม',
-              location: 'กรุงเทพมหานคร',
-              date: '20 ส.ค. 2568',
-              time: '14.00 - 16.00',
-              progress: 100,
-              status: 'เสร็จสิ้น',
-              rating: 5,
-              volunteers: 2
-            }
-          ],
-          created: [
-            {
-              id: 3,
-              title: 'ช่วยพาออกกำลังกาย',
-              category: 'ออกกำลังกาย',
-              location: 'กรุงเทพมหานคร',
-              date: '25 ส.ค. 2568',
-              time: '15.00 - 17.00',
-              progress: 60,
-              volunteers: 2,
-              maxVolunteers: 3,
-              status: 'กำลังดำเนินการ'
-            },
-            {
-              id: 4,
-              title: 'งานซ่อมแซมบ้าน',
-              category: 'งานซ่อม',
-              location: 'กรุงเทพมหานคร',
-              date: '20 ส.ค. 2568',
-              time: '14.00 - 16.00',
-              progress: 100,
-              volunteers: 2,
-              maxVolunteers: 2,
-              status: 'เสร็จสิ้น'
-            }
-          ]
+          ongoing: data.ongoing || [],
+          completed: data.completed || [],
+          created: data.created || []
         });
       } else {
-        // Student users join tasks
-        setTasks({
-          ongoing: [
-            {
-              id: 1,
-              title: 'ช่วยพาออกกำลังกาย',
-              category: 'ออกกำลังกาย',
-              location: 'กรุงเทพมหานคร',
-              date: '25 ส.ค. 2568',
-              time: '15.00 - 17.00',
-              progress: 60,
-              status: 'กำลังดำเนินการ',
-              createdBy: 'สมชาย ใจดี'
-            }
-          ],
-          completed: [
-            {
-              id: 2,
-              title: 'งานซ่อมแซมบ้าน',
-              category: 'งานซ่อม',
-              location: 'กรุงเทพมหานคร',
-              date: '20 ส.ค. 2568',
-              time: '14.00 - 16.00',
-              progress: 100,
-              status: 'เสร็จสิ้น',
-              rating: 5,
-              createdBy: 'สมหญิง รักดี'
-            }
-          ],
-          created: []
-        });
+        setTasks({ ongoing: [], completed: [], created: [] });
       }
     } catch (error) {
       console.error('Error loading tasks:', error);

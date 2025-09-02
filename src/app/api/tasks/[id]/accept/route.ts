@@ -18,8 +18,7 @@ export async function POST(
       );
     }
 
-    try {
-      const db = await getDatabase();
+    const db = await getDatabase();
 
       // Check if task exists and is available
       const task = await db.get('SELECT * FROM tasks WHERE id = ? AND status = "PENDING"', [id]);
@@ -37,17 +36,6 @@ export async function POST(
         success: true,
         message: 'รับงานจิตอาสาสำเร็จ'
       });
-
-    } catch (dbError) {
-      console.error('Database error, using mock response:', dbError);
-      
-      // Mock success response for demo
-      return NextResponse.json({
-        success: true,
-        message: 'รับงานจิตอาสาสำเร็จ (Demo Mode)',
-        note: 'ข้อมูลจะถูกเก็บในหน่วยความจำชั่วคราว'
-      });
-    }
 
   } catch (error) {
     console.error('Accept task error:', error);

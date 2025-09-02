@@ -9,63 +9,7 @@ import { ArrowLeft, Bell, CheckCircle, Clock, AlertCircle, MessageCircle, User, 
 export default function NotificationsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'success',
-      title: 'งานเสร็จสิ้น',
-      message: 'งาน "ช่วยเหลือในโรงพยาบาล" เสร็จสิ้นแล้ว ขอบคุณสำหรับความช่วยเหลือ',
-      time: '2 ชั่วโมงที่แล้ว',
-      read: false,
-      icon: CheckCircle,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
-    },
-    {
-      id: 2,
-      type: 'message',
-      title: 'ข้อความใหม่',
-      message: 'คุณสมศรี ส่งข้อความใหม่เกี่ยวกับงาน "ช่วยซื้อของ"',
-      time: '1 วันที่แล้ว',
-      read: false,
-      icon: MessageCircle,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
-      id: 3,
-      type: 'reminder',
-      title: 'เตือนความจำ',
-      message: 'งาน "ช่วยสอนหนังสือเด็ก" จะเริ่มในอีก 2 ชั่วโมง',
-      time: '3 ชั่วโมงที่แล้ว',
-      read: true,
-      icon: Clock,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
-    },
-    {
-      id: 4,
-      type: 'info',
-      title: 'ข้อมูลใหม่',
-      message: 'มีงานจิตอาสาใหม่ในพื้นที่ของคุณ ไปดูกันเลย!',
-      time: '1 วันที่แล้ว',
-      read: true,
-      icon: Bell,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
-    },
-    {
-      id: 5,
-      type: 'warning',
-      title: 'การเปลี่ยนแปลง',
-      message: 'งาน "ช่วยจัดงานวัด" มีการเปลี่ยนแปลงเวลา กรุณาตรวจสอบ',
-      time: '2 วันที่แล้ว',
-      read: true,
-      icon: AlertCircle,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50'
-    }
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
   const [showClearAll, setShowClearAll] = useState(false);
@@ -84,67 +28,17 @@ export default function NotificationsPage() {
 
   const loadNotifications = async () => {
     setIsLoading(true);
-    
     try {
-      // For now, use enhanced mock data that simulates real-time updates
-      const enhancedNotifications = [
-        {
-          id: 1,
-          type: 'success',
-          title: 'งานเสร็จสิ้น',
-          message: 'งาน "ช่วยพาออกกำลังกาย" เสร็จสิ้นแล้ว ขอบคุณสำหรับความช่วยเหลือ',
-          time: '2 ชั่วโมงที่แล้ว',
-          read: false,
-          icon: CheckCircle,
-          color: 'text-green-600',
-          bgColor: 'bg-green-50',
-          taskId: 1,
-          actionUrl: '/my-tasks'
-        },
-        {
-          id: 2,
-          type: 'message',
-          title: 'ข้อความใหม่',
-          message: 'สมชาย ใจดี ส่งข้อความใหม่เกี่ยวกับงาน "ช่วยพาออกกำลังกาย"',
-          time: '1 ชั่วโมงที่แล้ว',
-          read: false,
-          icon: MessageCircle,
-          color: 'text-blue-600',
-          bgColor: 'bg-blue-50',
-          taskId: 1,
-          actionUrl: '/chat'
-        },
-        {
-          id: 3,
-          type: 'info',
-          title: 'งานใหม่ตรงกับความสนใจ',
-          message: 'มีงาน "งานซ่อมแซมบ้าน" ใหม่ในพื้นที่ของคุณ',
-          time: '3 ชั่วโมงที่แล้ว',
-          read: true,
-          icon: Bell,
-          color: 'text-purple-600',
-          bgColor: 'bg-purple-50',
-          taskId: 2,
-          actionUrl: '/search'
-        },
-        {
-          id: 4,
-          type: 'reminder',
-          title: 'เตือนความจำ',
-          message: 'งาน "ช่วยจัดงานบุญที่วัด" จะเริ่มในอีก 1 วัน',
-          time: '5 ชั่วโมงที่แล้ว',
-          read: true,
-          icon: Clock,
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-50',
-          taskId: 3,
-          actionUrl: '/search'
-        }
-      ];
-      
-      setNotifications(enhancedNotifications);
+      const res = await fetch(`/api/notifications?userId=${user?.id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setNotifications(data.notifications || []);
+      } else {
+        setNotifications([]);
+      }
     } catch (error) {
       console.error('Error loading notifications:', error);
+      setNotifications([]);
     } finally {
       setIsLoading(false);
     }

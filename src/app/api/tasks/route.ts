@@ -59,28 +59,50 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
-      title,
-      description,
-      category,
-      location,
-      date,
-      startTime,
-      endTime,
-      maxVolunteers,
-      requirements,
-      tags,
-      contactName,
-      contactPhone,
-      contactEmail,
-      creatorId
-    } = body;
+      title: rawTitle,
+      description: rawDescription,
+      category: rawCategory,
+      location: rawLocation,
+      date: rawDate,
+      startTime: rawStartTime,
+      endTime: rawEndTime,
+      maxVolunteers: rawMaxVolunteers,
+      requirements: rawRequirements,
+      tags: rawTags,
+      contactName: rawContactName,
+      contactPhone: rawContactPhone,
+      contactEmail: rawContactEmail,
+      creatorId: rawCreatorId
+    } = body || {};
+
+    // Normalize and coerce types
+    const title = (rawTitle || '').toString().trim();
+    const description = (rawDescription || '').toString().trim();
+    const category = (rawCategory || '').toString().trim();
+    const location = (rawLocation || '').toString().trim();
+    const date = (rawDate || '').toString().trim();
+    const startTime = (rawStartTime || '').toString().trim();
+    const endTime = (rawEndTime || '').toString().trim();
+    const maxVolunteers = Number.parseInt((rawMaxVolunteers ?? 1).toString(), 10) || 1;
+    const requirements = (rawRequirements || '').toString().trim();
+    const tags = (rawTags || '').toString().trim();
+    const contactName = (rawContactName || '').toString().trim();
+    const contactPhone = (rawContactPhone || '').toString().trim();
+    const contactEmail = (rawContactEmail || '').toString().trim();
+    const creatorId = (rawCreatorId || '').toString().trim();
 
     // Validation
-    if (!title || !description || !category || !location || !date || 
-        !startTime || !endTime || !maxVolunteers || !contactName || 
-        !contactPhone || !creatorId) {
+    if (!title || !description || !category || !location || !date ||
+        !startTime || !endTime || !contactName || !contactPhone || !creatorId) {
       return NextResponse.json(
         { error: 'กรุณากรอกข้อมูลให้ครบถ้วน' },
+        { status: 400 }
+      );
+    }
+
+    if (!Number.isInteger(maxVolunteers) || maxVolunteers < 1) {
+      return NextResponse.json(
+        { error: 'จำนวนอาสาสมัครต้องเป็นตัวเลขตั้งแต่ 1 ขึ้นไป' },
         { status: 400 }
       );
     }
@@ -96,15 +118,15 @@ export async function POST(request: NextRequest) {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       title, description, category, location, date, startTime, endTime,
-      maxVolunteers, requirements || '', tags || '', contactName,
-      contactPhone, contactEmail || '', creatorId
+      maxVolunteers, requirements, tags, contactName,
+      contactPhone, contactEmail, creatorId
     ]);
 
     return NextResponse.json({
       success: true,
       message: 'สร้างงานจิตอาสาสำเร็จ',
       taskId: result.lastID
-    });
+    }, { status: 201 });
 
   } catch (error) {
     console.error('Create task error:', error);

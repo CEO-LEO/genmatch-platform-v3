@@ -20,6 +20,10 @@ export default function ProfilePage() {
     birthDate: '1985-03-15'
   });
 
+  const [stats, setStats] = useState<any | null>(null);
+  const [statsLoading, setStatsLoading] = useState<boolean>(true);
+  const [recentTasks, setRecentTasks] = useState<any[]>([]);
+
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
@@ -31,12 +35,43 @@ export default function ProfilePage() {
       setProfileData({
         firstName: user.firstName || 'สมชาย',
         lastName: user.lastName || 'ใจดี',
-        email: user.email || 'user@example.com',
+        email: (user as any).email || 'user@example.com',
         phone: user.phone || '081-234-5678',
         location: 'กรุงเทพมหานคร',
         bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก',
         birthDate: '1985-03-15'
       });
+
+      // Fetch realtime stats
+      const fetchStats = async () => {
+        try {
+          setStatsLoading(true);
+          const token = localStorage.getItem('token');
+          const res = await fetch('/api/user/stats', {
+            headers: {
+              'Authorization': token ? `Bearer ${token}` : ''
+            }
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setStats(data.data?.stats || {});
+            // If backend provides recentActivities but not concrete tasks, keep list empty
+            setRecentTasks([]);
+          } else {
+            console.warn('Failed to fetch stats:', data?.error || res.statusText);
+            setStats(null);
+            setRecentTasks([]);
+          }
+        } catch (err) {
+          console.error('Stats fetch error:', err);
+          setStats(null);
+          setRecentTasks([]);
+        } finally {
+          setStatsLoading(false);
+        }
+      };
+
+      fetchStats();
     }
   }, [user, loading, router]);
 
@@ -54,40 +89,28 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
-  const mockStats = {
-    totalTasks: 25,
-    completedTasks: 20,
-    totalHours: 120,
-    rating: 4.8,
-    badges: 8
-  };
-
-  const mockRecentTasks = [
-    {
-      id: 1,
-      title: 'ช่วยเหลือในโรงพยาบาล',
-      category: 'โรงพยาบาล',
-      date: '20 ส.ค. 2568',
-      status: 'เสร็จสิ้น',
-      rating: 5
-    },
-    {
-      id: 2,
-      title: 'ทำความสะอาดวัด',
-      category: 'วัด',
-      date: '18 ส.ค. 2568',
-      status: 'เสร็จสิ้น',
-      rating: 4
-    },
-    {
-      id: 3,
-      title: 'สอนคอมพิวเตอร์',
-      category: 'การศึกษา',
-      date: '15 ส.ค. 2568',
-      status: 'เสร็จสิ้น',
-      rating: 5
+  // Derive counters from fetched stats to avoid showing fake data
+  const derivedCounters = (() => {
+    if (!stats || !user) {
+      return { total: 0, completed: 0, hours: 0, rating: 0, badges: 0 };
     }
-  ];
+    if (user.userType === 'STUDENT') {
+      return {
+        total: stats.totalJoinedTasks || 0,
+        completed: stats.completedTasks || 0,
+        hours: stats.totalHours || 0,
+        rating: stats.rating || 0,
+        badges: stats.badges || 0
+      };
+    }
+    return {
+      total: stats.totalCreatedTasks || 0,
+      completed: stats.completedTasks || 0,
+      hours: 0,
+      rating: 0,
+      badges: 0
+    };
+  })();
 
   const mockBadges = [
     { id: 1, name: 'จิตอาสาต้นแบบ', icon: '🏆', description: 'ทำจิตอาสาเกิน 100 ชั่วโมง' },
@@ -194,23 +217,23 @@ export default function ProfilePage() {
         {/* Profile Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600 mb-1">{mockStats.totalTasks}</div>
+            <div className="text-2xl font-bold text-purple-600 mb-1">{derivedCounters.total}</div>
             <div className="text-sm text-gray-600">งานทั้งหมด</div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-1">{mockStats.completedTasks}</div>
+            <div className="text-2xl font-bold text-green-600 mb-1">{derivedCounters.completed}</div>
             <div className="text-sm text-gray-600">งานเสร็จ</div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-1">{mockStats.totalHours}</div>
+            <div className="text-2xl font-bold text-blue-600 mb-1">{derivedCounters.hours}</div>
             <div className="text-sm text-gray-600">ชั่วโมง</div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-yellow-600 mb-1">{mockStats.rating}</div>
+            <div className="text-2xl font-bold text-yellow-600 mb-1">{derivedCounters.rating}</div>
             <div className="text-sm text-gray-600">คะแนน</div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-pink-600 mb-1">{mockStats.badges}</div>
+            <div className="text-2xl font-bold text-pink-600 mb-1">{derivedCounters.badges}</div>
             <div className="text-sm text-gray-600">เหรียญ</div>
           </div>
         </div>
@@ -329,36 +352,25 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Recent Tasks */}
+        {/* Recent Tasks - show empty state if none */}
         <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-8">
           <h3 className="text-xl font-semibold text-gray-900 mb-6">งานล่าสุด</h3>
-          <div className="space-y-4">
-            {mockRecentTasks.map((task) => (
-              <div key={task.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:shadow-md transition-shadow">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">{task.title}</h4>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
-                      {task.category}
-                    </span>
-                    <span>{task.date}</span>
-                    <span className="text-green-600">{task.status}</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-1">
-                    <span className="text-sm text-gray-600">คะแนน:</span>
-                    <div className="flex space-x-1">
-                      {[...Array(5)].map((_, i) => (
-                        <span
-                          key={i}
-                          className={`text-lg ${
-                            i < task.rating ? 'text-yellow-400' : 'text-gray-300'
-                          }`}
-                        >
-                          ★
-                        </span>
-                      ))}
+          {statsLoading ? (
+            <div className="text-gray-500">กำลังโหลด...</div>
+          ) : recentTasks.length === 0 ? (
+            <div className="text-gray-500">ยังไม่มีประวัติงานล่าสุด</div>
+          ) : (
+            <div className="space-y-4">
+              {recentTasks.map((task) => (
+                <div key={task.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:shadow-md transition-shadow">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 mb-1">{task.title}</h4>
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                        {task.category}
+                      </span>
+                      <span>{task.date}</span>
+                      <span className="text-green-600">{task.status}</span>
                     </div>
                   </div>
                   <Link
@@ -368,9 +380,9 @@ export default function ProfilePage() {
                     ดู
                   </Link>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Badges and Achievements */}

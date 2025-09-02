@@ -15,7 +15,8 @@ import {
   MapPin,
   Calendar,
   MessageSquare,
-  BarChart3
+  BarChart3,
+  Image
 } from 'lucide-react';
 
 export default function TaskManagementPage() {
@@ -42,111 +43,36 @@ export default function TaskManagementPage() {
 
   const loadUserTasks = async () => {
     setIsLoading(true);
-    
     try {
-      // Mock data for task management
-      if (user?.userType === 'ELDERLY') {
+      const res = await fetch(`/api/tasks/my-tasks?userId=${user?.id}&userType=${user?.userType}`);
+      const data = await res.json();
+      if (res.ok) {
+        const toCard = (t: any) => ({
+          id: t.id,
+          title: t.title,
+          category: t.category,
+          location: t.location,
+          date: t.date,
+          time: `${t.startTime || ''}${t.endTime ? ' - ' + t.endTime : ''}`.trim(),
+          status: t.status === 'PENDING' ? 'PENDING' : t.status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
+          progress: t.progress || 0,
+          maxVolunteers: t.maxVolunteers,
+          volunteers: t.volunteers || [],
+          description: t.description,
+          requirements: t.requirements,
+          notes: t.notes
+        });
         setTasks({
-          active: [
-            {
-              id: 1,
-              title: 'ช่วยพาออกกำลังกาย',
-              category: 'ออกกำลังกาย',
-              location: 'กรุงเทพมหานคร',
-              date: '25 ส.ค. 2568',
-              time: '15.00 - 17.00',
-              status: 'IN_PROGRESS',
-              progress: 60,
-              volunteers: [
-                { id: 1, name: 'สมชาย ใจดี', phone: '0812345678', status: 'ACTIVE' },
-                { id: 2, name: 'สมหญิง รักดี', phone: '0823456789', status: 'ACTIVE' }
-              ],
-              maxVolunteers: 3,
-              description: 'ช่วยพาออกกำลังกายที่สวนสุขภาพ ต้องการจิตอาสาที่มีประสบการณ์ในการดูแลผู้สูงอายุ',
-              requirements: 'มีประสบการณ์ดูแลผู้สูงอายุ, อายุ 18+ ปี',
-              notes: 'จิตอาสาทั้งสองคนทำงานได้ดีมาก ควรให้โอกาสทำงานร่วมกันอีก'
-            }
-          ],
-          pending: [
-            {
-              id: 2,
-              title: 'งานซ่อมแซมบ้าน',
-              category: 'งานซ่อม',
-              location: 'กรุงเทพมหานคร',
-              date: '30 ส.ค. 2568',
-              time: '14.00 - 16.00',
-              status: 'PENDING',
-              progress: 0,
-              volunteers: [],
-              maxVolunteers: 2,
-              description: 'ต้องการช่วยซ่อมแซมบ้านหลังเล็ก งานไม่หนัก',
-              requirements: 'มีทักษะการซ่อมแซมพื้นฐาน',
-              notes: 'รอจิตอาสาที่มีทักษะการซ่อมแซม'
-            }
-          ],
-          completed: [
-            {
-              id: 3,
-              title: 'ช่วยจัดงานบุญที่วัด',
-              category: 'วัด',
-              location: 'กรุงเทพมหานคร',
-              date: '20 ส.ค. 2568',
-              time: '08.00 - 12.00',
-              status: 'COMPLETED',
-              progress: 100,
-              volunteers: [
-                { id: 3, name: 'ลุงปู่ ใจบุญ', phone: '0834567890', status: 'COMPLETED' },
-                { id: 4, name: 'คุณยาย ใจดี', phone: '0845678901', status: 'COMPLETED' }
-              ],
-              maxVolunteers: 5,
-              description: 'ช่วยจัดงานบุญประจำปี ต้องการจิตอาสาในการจัดเตรียมสถานที่',
-              requirements: 'มีใจรักในการช่วยเหลือ',
-              notes: 'งานเสร็จเรียบร้อยดีมาก จิตอาสาทำงานได้ดี'
-            }
-          ]
+          active: (data.ongoing || []).map(toCard),
+          pending: [],
+          completed: (data.completed || []).map(toCard)
         });
       } else {
-        // Student users - tasks they joined
-        setTasks({
-          active: [
-            {
-              id: 1,
-              title: 'ช่วยพาออกกำลังกาย',
-              category: 'ออกกำลังกาย',
-              location: 'กรุงเทพมหานคร',
-              date: '25 ส.ค. 2568',
-              time: '15.00 - 17.00',
-              status: 'IN_PROGRESS',
-              progress: 60,
-              creator: 'ทอง ใจดี',
-              creatorPhone: '0829151870',
-              description: 'ช่วยพาออกกำลังกายที่สวนสุขภาพ',
-              requirements: 'มีประสบการณ์ดูแลผู้สูงอายุ, อายุ 18+ ปี',
-              notes: 'ทำงานได้ดี ควรให้โอกาสทำงานร่วมกันอีก'
-            }
-          ],
-          pending: [],
-          completed: [
-            {
-              id: 2,
-              title: 'งานซ่อมแซมบ้าน',
-              category: 'งานซ่อม',
-              location: 'กรุงเทพมหานคร',
-              date: '20 ส.ค. 2568',
-              time: '14.00 - 16.00',
-              status: 'COMPLETED',
-              progress: 100,
-              creator: 'สมชาย รักดี',
-              creatorPhone: '0812345678',
-              description: 'ช่วยซ่อมแซมบ้านหลังเล็ก',
-              requirements: 'มีทักษะการซ่อมแซมพื้นฐาน',
-              notes: 'งานเสร็จเรียบร้อยดีมาก'
-            }
-          ]
-        });
+        setTasks({ active: [], pending: [], completed: [] });
       }
     } catch (error) {
       console.error('Error loading tasks:', error);
+      setTasks({ active: [], pending: [], completed: [] });
     } finally {
       setIsLoading(false);
     }
@@ -154,16 +80,12 @@ export default function TaskManagementPage() {
 
   const updateTaskStatus = async (taskId: number, newStatus: string) => {
     try {
-      // In production, this would call the API
-      setTasks(prev => ({
-        ...prev,
-        active: prev.active.map(task => 
-          task.id === taskId ? { ...task, status: newStatus } : task
-        ),
-        pending: prev.pending.map(task => 
-          task.id === taskId ? { ...task, status: newStatus } : task
-        )
-      }));
+      await fetch(`/api/tasks/${taskId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      await loadUserTasks();
     } catch (error) {
       console.error('Error updating task status:', error);
     }
@@ -171,12 +93,12 @@ export default function TaskManagementPage() {
 
   const updateProgress = async (taskId: number, newProgress: number) => {
     try {
-      setTasks(prev => ({
-        ...prev,
-        active: prev.active.map(task => 
-          task.id === taskId ? { ...task, progress: newProgress } : task
-        )
-      }));
+      await fetch(`/api/tasks/${taskId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'IN_PROGRESS', progress: newProgress })
+      });
+      await loadUserTasks();
     } catch (error) {
       console.error('Error updating progress:', error);
     }

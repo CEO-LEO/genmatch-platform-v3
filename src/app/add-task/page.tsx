@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -86,6 +87,7 @@ export default function AddTaskPage() {
         },
         body: JSON.stringify({
           ...formData,
+          maxVolunteers: parseInt(formData.maxVolunteers || '1', 10) || 1,
           creatorId: user.id
         }),
       });

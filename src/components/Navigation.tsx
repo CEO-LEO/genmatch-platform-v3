@@ -78,15 +78,27 @@ export default function Navigation() {
     return pathname.startsWith(href);
   };
 
-  const getNotificationCount = () => {
-    // TODO: Implement actual notification count
-    return 3;
-  };
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
 
-  const getUnreadChatCount = () => {
-    // TODO: Implement actual unread chat count
-    return 2;
-  };
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        if (!user) return;
+        const notifRes = await fetch(`/api/notifications?userId=${user.id}&isRead=false&limit=1`);
+        const notifData = await notifRes.json();
+        if (notifRes.ok) setNotificationCount((notifData.notifications || []).length);
+
+        // For chats, approximate unread as 0 for now or compute from server later
+        setUnreadChatCount(0);
+      } catch {}
+    };
+    fetchCounts();
+  }, [user]);
+
+  const getNotificationCount = () => notificationCount;
+
+  const getUnreadChatCount = () => unreadChatCount;
 
   return (
     <>
@@ -110,6 +122,11 @@ export default function Navigation() {
                 const hasBadge = (item.href === '/notifications' && getNotificationCount() > 0) ||
                                (item.href === '/chat' && getUnreadChatCount() > 0);
 
+                const handleClick = () => {
+                  setIsMobileMenuOpen(false);
+                  setIsProfileDropdownOpen(false);
+                };
+
                 return (
                   <Link
                     key={item.href}
@@ -117,6 +134,7 @@ export default function Navigation() {
                     className={`sidebar-link group ${
                       isActive ? 'active' : ''
                     }`}
+                    onClick={handleClick}
                   >
                     <Icon className="w-5 h-5 mr-3" />
                     <span className="flex-1">{item.label}</span>
@@ -263,6 +281,11 @@ export default function Navigation() {
                 const hasBadge = (item.href === '/notifications' && getNotificationCount() > 0) ||
                                (item.href === '/chat' && getUnreadChatCount() > 0);
 
+                const handleClick = () => {
+                  setIsMobileMenuOpen(false);
+                  setIsProfileDropdownOpen(false);
+                };
+
                 return (
                   <Link
                     key={item.href}
@@ -272,6 +295,7 @@ export default function Navigation() {
                         ? 'bg-white/20 text-white'
                         : 'text-white/70 hover:text-white hover:bg-white/10'
                     }`}
+                    onClick={handleClick}
                   >
                     <Icon className="w-5 h-5 mr-3" />
                     <span className="flex-1">{item.label}</span>
@@ -309,6 +333,7 @@ export default function Navigation() {
                       <Link
                         href="/profile"
                         className="flex items-center p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        onClick={() => { setIsMobileMenuOpen(false); setIsProfileDropdownOpen(false); }}
                       >
                         <User className="w-4 h-4 mr-3" />
                         โปรไฟล์
@@ -316,6 +341,7 @@ export default function Navigation() {
                       <Link
                         href="/settings"
                         className="flex items-center p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        onClick={() => { setIsMobileMenuOpen(false); setIsProfileDropdownOpen(false); }}
                       >
                         <Settings className="w-4 h-4 mr-3" />
                         ตั้งค่า

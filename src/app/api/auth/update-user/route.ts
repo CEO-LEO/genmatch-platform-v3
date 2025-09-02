@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabase } from '@/lib/database';
 
 export async function PUT(request: NextRequest) {
   try {
@@ -13,35 +14,29 @@ export async function PUT(request: NextRequest) {
 
     const token = authHeader.substring(7);
     const updateData = await request.json();
-    
-    // In production, you would:
-    // 1. Verify the token
-    // 2. Update user data in database
-    // 3. Return updated user data
-    
-    // For demo purposes, return mock updated user
-    const mockUpdatedUser = {
-      id: '1',
-      firstName: updateData.firstName || 'สมชาย',
-      lastName: updateData.lastName || 'ใจดี',
-      email: updateData.email || 'somchai@example.com',
-      phone: updateData.phone || '0812345678',
-      userType: updateData.userType || 'STUDENT',
-      studentId: updateData.studentId || '6400000001',
-      university: updateData.university || 'มหาวิทยาลัยมหิดล',
-      address: updateData.address || 'กรุงเทพมหานคร',
-      city: updateData.city || 'กรุงเทพมหานคร',
-      province: updateData.province || 'กรุงเทพมหานคร',
-      postalCode: updateData.postalCode || '10100',
-      avatar: updateData.avatar || '',
-      rating: updateData.rating || 4.8,
-      totalHours: updateData.totalHours || 25,
-      completedTasks: updateData.completedTasks || 8,
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: new Date().toISOString(),
-    };
 
-    return NextResponse.json(mockUpdatedUser);
+    // TODO: verify token (skipped in demo)
+
+    const db = await getDatabase();
+    await db.run(
+      `UPDATE users SET firstName = ?, lastName = ?, email = ?, phone = ?, userType = ?, address = ? WHERE id = ?`,
+      [
+        updateData.firstName,
+        updateData.lastName,
+        updateData.email,
+        updateData.phone,
+        updateData.userType,
+        updateData.address,
+        updateData.id
+      ]
+    );
+
+    const user = await db.get(
+      `SELECT id, firstName, lastName, email, phone, userType FROM users WHERE id = ?`,
+      [updateData.id]
+    );
+
+    return NextResponse.json(user);
   } catch (error) {
     console.error('Update user error:', error);
     return NextResponse.json(

@@ -1,36 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabase } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
-    // Simple my tasks - return demo data for now
-    const tasks = [
-      {
-        id: '1',
-        title: 'Help with grocery shopping',
-        description: 'Need assistance with grocery shopping at local market',
-        category: 'EXERCISE',
-        status: 'PENDING',
-        budget: 3,
-        volunteerHours: 2,
-        estimatedHours: 2,
-        address: '123 Main St',
-        city: 'Bangkok',
-        province: 'Bangkok',
-        postalCode: '10400',
-        scheduledDate: new Date().toISOString(),
-        scheduledTime: '09:00',
-        createdAt: new Date().toISOString(),
-        creator: {
-          id: 'user-1',
-          firstName: 'John',
-          lastName: 'Doe',
-          userType: 'ELDERLY'
-        },
-        accepter: null
-      }
-    ];
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const userType = searchParams.get('userType');
 
-    return NextResponse.json(tasks);
+    if (!userId || !userType) {
+      return NextResponse.json({ error: 'missing userId or userType' }, { status: 400 });
+    }
+
+    const db = await getDatabase();
+
+    let rows: any[] = [];
+    if (userType === 'ELDERLY') {
+      rows = await db.all(`
+        SELECT t.*, u.firstName, u.lastName, u.phone as creatorPhone
+        FROM tasks t
+        JOIN users u ON t.creatorId = u.id
+        WHERE t.creatorId = ?
+        ORDER BY t.createdAt DESC
+      `, [userId]);
+    } else {
+      rows = await db.all(`
+        SELECT t.*, u.firstName, u.lastName, u.phone as creatorPhone
+        FROM tasks t
+        JOIN users u ON t.creatorId = u.id
+        WHERE t.volunteerId = ?
+        ORDER BY t.createdAt DESC
+      `, [userId]);
+    }
+
+    const ongoing = rows.filter(r => r.status !== 'COMPLETED');
+    const completed = rows.filter(r => r.status === 'COMPLETED');
+    const created = userType === 'ELDERLY' ? rows : [];
+
+    return NextResponse.json({ created, ongoing, completed });
   } catch (error) {
     console.error('Get my tasks error:', error);
     return NextResponse.json(

@@ -63,76 +63,37 @@ export default function ChatPage() {
 
   const loadChats = async () => {
     setIsLoading(true);
-    
     try {
-      // Mock data for chats
-      if (user?.userType === 'ELDERLY') {
-        setChats([
-          {
-            id: 1,
-            taskId: 1,
-            taskTitle: 'ช่วยพาออกกำลังกาย',
-            participant: {
-              id: 1,
-              name: 'สมชาย ใจดี',
-              phone: '0812345678',
-              avatar: 'SM'
-            },
-            lastMessage: 'สวัสดีครับ ผมพร้อมช่วยเหลือแล้ว',
-            lastMessageTime: '14:30',
-            unreadCount: 2,
-            task: {
-              location: 'กรุงเทพมหานคร',
-              date: '25 ส.ค. 2568',
-              time: '15.00 - 17.00'
-            }
-          },
-          {
-            id: 2,
-            taskId: 2,
-            taskTitle: 'งานซ่อมแซมบ้าน',
-            participant: {
-              id: 2,
-              name: 'สมหญิง รักดี',
-              phone: '0823456789',
-              avatar: 'SR'
-            },
-            lastMessage: 'ขอดูรายละเอียดงานก่อนครับ',
-            lastMessageTime: '12:15',
-            unreadCount: 0,
-            task: {
-              location: 'กรุงเทพมหานคร',
-              date: '30 ส.ค. 2568',
-              time: '14.00 - 16.00'
-            }
-          }
-        ]);
-      } else {
-        // Student users
-        setChats([
-          {
-            id: 1,
-            taskId: 1,
-            taskTitle: 'ช่วยพาออกกำลังกาย',
-            participant: {
-              id: 1,
-              name: 'ทอง ใจดี',
-              phone: '0829151870',
-              avatar: 'TJ'
-            },
-            lastMessage: 'ขอบคุณที่ช่วยเหลือครับ',
-            lastMessageTime: '16:45',
-            unreadCount: 1,
-            task: {
-              location: 'กรุงเทพมหานคร',
-              date: '25 ส.ค. 2568',
-              time: '15.00 - 17.00'
-            }
-          }
-        ]);
-      }
+      // Build chat list from tasks the user created/joined
+      const res = await fetch(`/api/tasks/my-tasks?userId=${user?.id}&userType=${user?.userType}`);
+      const data = await res.json();
+      const source = [
+        ...(data.ongoing || []),
+        ...(data.completed || [])
+      ];
+      const mapped = source.map((t: any, idx: number) => ({
+        id: t.id || idx + 1,
+        taskId: t.id,
+        taskTitle: t.title,
+        participant: {
+          id: user?.userType === 'ELDERLY' ? (t.volunteers?.[0] || 0) : t.creatorId,
+          name: user?.userType === 'ELDERLY' ? 'จิตอาสา' : 'ผู้สร้างงาน',
+          phone: '',
+          avatar: 'GM'
+        },
+        lastMessage: '',
+        lastMessageTime: '',
+        unreadCount: 0,
+        task: {
+          location: t.location,
+          date: t.date,
+          time: `${t.startTime || ''}${t.endTime ? ' - ' + t.endTime : ''}`.trim()
+        }
+      }));
+      setChats(mapped);
     } catch (error) {
       console.error('Error loading chats:', error);
+      setChats([]);
     } finally {
       setIsLoading(false);
     }
@@ -140,45 +101,24 @@ export default function ChatPage() {
 
   const loadMessages = async (chatId: number) => {
     try {
-      // Mock messages
-      const mockMessages = [
-        {
-          id: 1,
-          senderId: user?.id === '1' ? '1' : '2',
-          senderName: user?.id === '1' ? 'คุณ' : 'สมชาย ใจดี',
-          content: 'สวัสดีครับ ผมพร้อมช่วยเหลือแล้ว',
-          timestamp: '14:30',
-          isOwn: user?.id === '1'
-        },
-        {
-          id: 2,
-          senderId: user?.id === '1' ? '2' : '1',
-          senderName: user?.id === '1' ? 'สมชาย ใจดี' : 'คุณ',
-          content: 'ขอบคุณมากครับ ตอนนี้เราอยู่ที่ไหนกันครับ?',
-          timestamp: '14:32',
-          isOwn: user?.id !== '1'
-        },
-        {
-          id: 3,
-          senderId: user?.id === '1' ? '1' : '2',
-          senderName: user?.id === '1' ? 'คุณ' : 'สมชาย ใจดี',
-          content: 'เรานัดกันที่สวนสุขภาพลุมพินีครับ ตรงไหนดีครับ?',
-          timestamp: '14:35',
-          isOwn: user?.id === '1'
-        },
-        {
-          id: 4,
-          senderId: user?.id === '1' ? '2' : '1',
-          senderName: user?.id === '1' ? 'สมชาย ใจดี' : 'คุณ',
-          content: 'ตรงประตูหลักครับ ผมจะไปรอตั้งแต่ 14:45 น.',
-          timestamp: '14:37',
-          isOwn: user?.id !== '1'
-        }
-      ];
-      
-      setMessages(mockMessages);
+      if (!activeChat) return;
+      const res = await fetch(`/api/chat?taskId=${activeChat.taskId}`);
+      const data = await res.json();
+      if (res.ok) {
+        const mapped = (data.messages || []).map((m: any) => ({
+          id: m.id,
+          senderId: m.senderId,
+          content: m.message,
+          timestamp: new Date(m.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+          isOwn: m.senderId?.toString() === user?.id?.toString()
+        }));
+        setMessages(mapped);
+      } else {
+        setMessages([]);
+      }
     } catch (error) {
       console.error('Error loading messages:', error);
+      setMessages([]);
     }
   };
 
@@ -186,39 +126,30 @@ export default function ChatPage() {
     if (!newMessage.trim() || !activeChat) return;
 
     try {
-      const message = {
-        id: messages.length + 1,
+      const pending = {
+        id: `temp_${Date.now()}`,
         senderId: user?.id,
-        senderName: 'คุณ',
         content: newMessage,
-        timestamp: new Date().toLocaleTimeString('th-TH', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        }),
+        timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
         isOwn: true
       };
-
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => [...prev, pending]);
       setNewMessage('');
 
-      // Simulate reply after 2 seconds
-      setTimeout(() => {
-        const reply = {
-          id: messages.length + 2,
-          senderId: activeChat.participant.id,
-          senderName: activeChat.participant.name,
-          content: 'ได้รับข้อความแล้วครับ ขอบคุณมาก',
-          timestamp: new Date().toLocaleTimeString('th-TH', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }),
-          isOwn: false
-        };
-        setMessages(prev => [...prev, reply]);
-      }, 2000);
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId: activeChat.taskId, senderId: user?.id, message: pending.content })
+      });
+      if (!res.ok) {
+        throw new Error('send failed');
+      }
+      // Reload from server to get authoritative message ids/order
+      await loadMessages(activeChat.id);
 
     } catch (error) {
       console.error('Error sending message:', error);
+      // Optionally show a toast here
     }
   };
 

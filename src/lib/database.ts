@@ -6,10 +6,14 @@ declare global {
   var mockPhotos: Map<number, any>;
   var mockRatings: Map<number, any>;
   var mockNotifications: Map<number, any>;
+  var mockChatMessages: Array<any>;
+  var mockTasks: Map<number, any>;
   var mockNextId: number;
   var mockNextPhotoId: number;
   var mockNextRatingId: number;
   var mockNextNotificationId: number;
+  var mockNextChatMessageId: number;
+  var mockNextTaskId: number;
 }
 
 // Initialize global variables if they don't exist
@@ -29,6 +33,14 @@ if (!global.mockNotifications) {
   global.mockNotifications = new Map();
   global.mockNextNotificationId = 1;
 }
+if (!global.mockChatMessages) {
+  global.mockChatMessages = [];
+  global.mockNextChatMessageId = 1;
+}
+if (!global.mockTasks) {
+  global.mockTasks = new Map();
+  global.mockNextTaskId = 1;
+}
 
 // Check if we should use real database
 const USE_REAL_DATABASE = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -38,6 +50,8 @@ class MockDatabase {
   constructor() {
     // Initialize with all demo users if not already present
     this.initializeDemoUsers();
+    this.initializeDemoChats();
+    this.initializeDemoTasks();
   }
 
   initializeDemoUsers() {
@@ -112,6 +126,73 @@ class MockDatabase {
     global.mockNextId = Math.max(...Array.from(global.mockUsers.values()).map(u => u.id)) + 1;
     
     console.log('📊 Mock Database: Total users initialized:', global.mockUsers.size);
+  }
+
+  initializeDemoChats() {
+    // Seed a few demo chat messages bound to taskId 1
+    if (global.mockChatMessages.length === 0) {
+      const now = new Date();
+      const fmt = (d: Date) => d.toISOString();
+      global.mockChatMessages.push(
+        { id: global.mockNextChatMessageId++, taskId: 1, senderId: 1, message: 'สวัสดีครับ ผมพร้อมช่วยเหลือแล้ว', createdAt: fmt(new Date(now.getTime() - 1000 * 60 * 10)) },
+        { id: global.mockNextChatMessageId++, taskId: 1, senderId: 4, message: 'ขอบคุณมากครับ ตอนนี้เราอยู่ที่ไหนกันครับ?', createdAt: fmt(new Date(now.getTime() - 1000 * 60 * 9)) },
+        { id: global.mockNextChatMessageId++, taskId: 1, senderId: 1, message: 'เรานัดกันที่สวนสุขภาพลุมพินีครับ ตรงไหนดีครับ?', createdAt: fmt(new Date(now.getTime() - 1000 * 60 * 8)) }
+      );
+    }
+  }
+
+  initializeDemoTasks() {
+    if (global.mockTasks.size === 0) {
+      const seedTasks = [
+        {
+          id: global.mockNextTaskId++,
+          title: 'ช่วยพาออกกำลังกาย',
+          description: 'ต้องการจิตอาสาช่วยพาผู้สูงอายุออกกำลังกายที่สวนสุขภาพ',
+          location: 'สวนสุขภาพ เขตบางนา',
+          date: '2024-08-25',
+          startTime: '15:00',
+          endTime: '17:00',
+          category: 'exercise',
+          creatorId: 4,
+          status: 'PENDING',
+          volunteers: [1, 2],
+          maxVolunteers: 2,
+          requirements: 'มีความอดทนและใจเย็น',
+          tags: 'ออกกำลังกาย,ผู้สูงอายุ',
+          contactName: 'คุณยาย',
+          contactPhone: '0845678901',
+          contactEmail: 'grandma@demo.com',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          progress: 0,
+          notes: ''
+        },
+        {
+          id: global.mockNextTaskId++,
+          title: 'ช่วยซ่อมแซมบ้าน',
+          description: 'ต้องการจิตอาสาช่วยซ่อมแซมหลังคาบ้านที่รั่ว',
+          location: 'บ้านเลขที่ 123 ถนนสุขุมวิท',
+          date: '2024-08-26',
+          startTime: '09:00',
+          endTime: '12:00',
+          category: 'repair',
+          creatorId: 4,
+          status: 'PENDING',
+          volunteers: [],
+          maxVolunteers: 3,
+          requirements: 'มีประสบการณ์งานช่าง',
+          tags: 'ซ่อมแซม,บ้าน',
+          contactName: 'คุณยาย',
+          contactPhone: '0845678901',
+          contactEmail: 'grandma@demo.com',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          progress: 0,
+          notes: ''
+        }
+      ];
+      seedTasks.forEach(t => global.mockTasks.set(t.id, t));
+    }
   }
 
   initializeDemoPhotos() {
@@ -221,6 +302,99 @@ class MockDatabase {
   async run(sql: string, params: any[] = []) {
     console.log('🔧 Mock Database run:', sql, params);
     
+    // Handle UPDATE users
+    if (sql.includes('UPDATE users')) {
+      // We expect a set of fields and an id at the end
+      const id = params[params.length - 1];
+      const userId = typeof id === 'string' ? parseInt(id, 10) : id;
+      const usersArray = Array.from(global.mockUsers.values());
+      const entry = usersArray.find(u => u.id === userId);
+      if (!entry) return { changes: 0 };
+      const indexPhone = Array.from(global.mockUsers.keys()).find(phone => global.mockUsers.get(phone)?.id === userId);
+      if (!indexPhone) return { changes: 0 };
+      const updated = { ...entry } as any;
+      // best-effort: map common fields from params order if used in route; also accept object case via sql builder not available here
+      // We will rely on route building explicit params in fixed order
+      const fieldsOrder = ['firstName','lastName','email','phone','address','userType'];
+      for (let i = 0; i < Math.min(fieldsOrder.length, params.length - 1); i++) {
+        const value = params[i];
+        const key = fieldsOrder[i] as string;
+        if (key && value !== undefined && value !== null) {
+          (updated as any)[key] = value;
+        }
+      }
+      const phoneKey: string = indexPhone as string;
+      global.mockUsers.set(phoneKey, updated);
+      return { changes: 1 };
+    }
+
+    // Handle INSERT INTO tasks
+    if (sql.includes('INSERT INTO tasks')) {
+      const [
+        title, description, category, location, date, startTime, endTime,
+        maxVolunteers, requirements, tags, contactName, contactPhone,
+        contactEmail, creatorId
+      ] = params;
+
+      const newTask = {
+        id: global.mockNextTaskId++,
+        title: title?.toString() ?? '',
+        description: description?.toString() ?? '',
+        category: category?.toString() ?? '',
+        location: location?.toString() ?? '',
+        date: date?.toString() ?? '',
+        startTime: startTime?.toString() ?? '',
+        endTime: endTime?.toString() ?? '',
+        maxVolunteers: Number(maxVolunteers) || 1,
+        requirements: requirements?.toString() ?? '',
+        tags: tags?.toString() ?? '',
+        contactName: contactName?.toString() ?? '',
+        contactPhone: contactPhone?.toString() ?? '',
+        contactEmail: contactEmail?.toString() ?? '',
+        creatorId: typeof creatorId === 'string' ? parseInt(creatorId, 10) : creatorId,
+        status: 'PENDING',
+        volunteers: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        progress: 0,
+        notes: ''
+      };
+      global.mockTasks.set(newTask.id, newTask);
+      console.log('📝 Mock Database: Task stored:', newTask.id, newTask.title);
+      return { lastID: newTask.id };
+    }
+
+    // Handle UPDATE tasks
+    if (sql.includes('UPDATE tasks') && sql.includes('SET status')) {
+      const [status, progress, notes, id] = params;
+      const taskId = typeof id === 'string' ? parseInt(id, 10) : id;
+      if (global.mockTasks.has(taskId)) {
+        const task = global.mockTasks.get(taskId);
+        task.status = status;
+        task.progress = Number(progress) || 0;
+        task.notes = notes?.toString() ?? '';
+        task.updatedAt = new Date().toISOString();
+        global.mockTasks.set(taskId, task);
+        return { changes: 1 };
+      }
+      return { changes: 0 };
+    }
+
+    // Handle INSERT INTO chat_messages
+    if (sql.includes('INSERT INTO chat_messages')) {
+      const [taskId, senderId, message] = params;
+      const newMessage = {
+        id: global.mockNextChatMessageId++,
+        taskId: typeof taskId === 'string' ? parseInt(taskId, 10) : taskId,
+        senderId: typeof senderId === 'string' ? parseInt(senderId, 10) : senderId,
+        message: message?.toString() ?? '',
+        createdAt: new Date().toISOString()
+      };
+      global.mockChatMessages.push(newMessage);
+      console.log('💬 Mock Database: Chat message stored:', newMessage);
+      return { lastID: newMessage.id };
+    }
+
     // Handle INSERT INTO users
     if (sql.includes('INSERT INTO users')) {
       const [firstName, lastName, email, phone, userType, studentId, university, address, password] = params;
@@ -265,10 +439,10 @@ class MockDatabase {
       
       const newPhoto = {
         id: global.mockNextPhotoId++,
-        taskId,
+        taskId: typeof taskId === 'string' ? parseInt(taskId, 10) : taskId,
         photoUrl,
         description,
-        uploadedBy,
+        uploadedBy: typeof uploadedBy === 'string' ? parseInt(uploadedBy, 10) : uploadedBy,
         status: status || 'PENDING',
         uploadedAt: new Date().toISOString(),
         approvedAt: null,
@@ -319,10 +493,74 @@ class MockDatabase {
   async all(sql: string, params: any[] = []) {
     console.log('🔧 Mock Database all:', sql, params);
     
+    // Handle tasks list queries with optional filters
+    if (sql.includes('FROM tasks t')) {
+      let list = Array.from(global.mockTasks.values());
+      // params correspond to filters built in route: category, location (LIKE), search (title/description/tags)
+      // We can't rely on exact order; we'll infer by checking placeholders in sql string order used in route
+      const conditions: any = {};
+      if (sql.includes('t.category = ?')) {
+        conditions.category = params.shift();
+      }
+      if (sql.includes('t.location LIKE ?')) {
+        conditions.location = params.shift();
+      }
+      if (sql.includes('(t.title LIKE ? OR t.description LIKE ? OR t.tags LIKE ?)')) {
+        const term = params.shift();
+        // skip two more same terms if present due to push
+        params.shift();
+        params.shift();
+        conditions.search = term;
+      }
+      if (conditions.category) {
+        list = list.filter(t => t.category === conditions.category);
+      }
+      if (conditions.location) {
+        const like = String(conditions.location).replace(/%/g, '').toLowerCase();
+        list = list.filter(t => (t.location || '').toLowerCase().includes(like));
+      }
+      if (conditions.search) {
+        const like = String(conditions.search).replace(/%/g, '').toLowerCase();
+        list = list.filter(t => (t.title + ' ' + t.description + ' ' + (t.tags||'')).toLowerCase().includes(like));
+      }
+      // join with users minimal fields
+      const rows = list
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .map(t => {
+          const user = Array.from(global.mockUsers.values()).find(u => u.id === t.creatorId);
+          return { ...t, firstName: user?.firstName ?? '', lastName: user?.lastName ?? '', creatorPhone: user?.phone ?? '' };
+        });
+      return rows;
+    }
+
+    // Handle chat messages list by taskId
+    if (sql.includes('FROM chat_messages')) {
+      const taskId = params[0];
+      const targetTaskId = typeof taskId === 'string' ? parseInt(taskId, 10) : taskId;
+      const rows = global.mockChatMessages
+        .filter(m => m.taskId == targetTaskId)
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+        .map(m => {
+          const user = Array.from(global.mockUsers.values()).find(u => u.id === m.senderId);
+          return {
+            id: m.id,
+            taskId: m.taskId,
+            senderId: m.senderId,
+            message: m.message,
+            createdAt: m.createdAt,
+            firstName: user?.firstName ?? 'Unknown',
+            lastName: user?.lastName ?? 'User',
+            userType: user?.userType ?? 'STUDENT'
+          };
+        });
+      return rows;
+    }
+
     // Handle photos queries
     if (sql.includes('photos') && sql.includes('taskId')) {
       const taskId = params[0];
-      const photos = Array.from(global.mockPhotos.values()).filter(p => p.taskId == taskId);
+      const targetTaskId = typeof taskId === 'string' ? parseInt(taskId, 10) : taskId;
+      const photos = Array.from(global.mockPhotos.values()).filter(p => p.taskId == targetTaskId);
       
       // Join with user information
       const photosWithUsers = photos.map(photo => ({
