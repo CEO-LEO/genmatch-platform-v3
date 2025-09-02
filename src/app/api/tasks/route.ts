@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const location = searchParams.get('location');
     const search = searchParams.get('search');
+    const status = searchParams.get('status');
     
     const db = await getDatabase();
     
@@ -33,6 +34,11 @@ export async function GET(request: NextRequest) {
       query += ' AND (t.title LIKE ? OR t.description LIKE ? OR t.tags LIKE ?)';
       const searchTerm = `%${search}%`;
       params.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    if (status) {
+      query += ' AND t.status = ?';
+      params.push(status);
     }
     
     query += ' ORDER BY t.createdAt DESC';

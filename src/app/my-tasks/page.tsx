@@ -43,10 +43,30 @@ export default function MyTasksPage() {
       const res = await fetch(`/api/tasks/my-tasks?userId=${user.id}&userType=${user.userType}`);
       const data = await res.json();
       if (res.ok) {
+        const toCard = (t: any) => {
+          const statusCode = (t.status || '').toUpperCase();
+          const statusLabel = statusCode === 'COMPLETED' ? 'เสร็จสิ้น' : statusCode === 'IN_PROGRESS' || statusCode === 'ACCEPTED' ? 'กำลังดำเนินการ' : 'รอจิตอาสา';
+        return {
+            id: t.id,
+            title: t.title,
+            category: t.category,
+            location: t.location,
+            date: t.date,
+            time: `${t.startTime || ''}${t.endTime ? ' - ' + t.endTime : ''}`.trim(),
+            status: statusLabel,
+            progress: t.progress || 0,
+            maxVolunteers: t.maxVolunteers,
+            volunteers: t.volunteers || [],
+            description: t.description,
+            requirements: t.requirements,
+            notes: t.notes
+          };
+        };
+
         setTasks({
-          ongoing: data.ongoing || [],
-          completed: data.completed || [],
-          created: data.created || []
+          ongoing: (data.ongoing || []).map(toCard),
+          completed: (data.completed || []).map(toCard),
+          created: (data.created || []).map(toCard)
         });
       } else {
         setTasks({ ongoing: [], completed: [], created: [] });
@@ -272,7 +292,7 @@ export default function MyTasksPage() {
                     >
                       ดูรายละเอียด
                     </Link>
-                    {activeTab === 'ongoing' && (
+                    {activeTab === 'ongoing' && user.userType === 'ELDERLY' && task.status === 'รอจิตอาสา' && (
                       <button className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium">
                         แก้ไข
                       </button>

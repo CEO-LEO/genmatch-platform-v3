@@ -19,7 +19,7 @@ export async function PUT(
       );
     }
 
-    const validStatuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+    const validStatuses = ['PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { error: 'สถานะงานไม่ถูกต้อง' },

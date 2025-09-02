@@ -20,17 +20,19 @@ export async function POST(
 
     const db = await getDatabase();
 
-      // Check if task exists and is available
-      const task = await db.get('SELECT * FROM tasks WHERE id = ? AND status = "PENDING"', [id]);
-      if (!task) {
+      // Update task status to ACCEPTED (compatible with mock/real DB handler)
+      const result = await db.run(`
+        UPDATE tasks 
+        SET status = ?, progress = ?, notes = ?, updatedAt = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `, ['ACCEPTED', 0, 'accepted', id]);
+
+      if (result && result.changes === 0) {
         return NextResponse.json(
-          { error: 'ไม่พบงานหรืองานไม่พร้อมรับจิตอาสา' },
+          { error: 'ไม่พบงานที่ต้องการอัปเดต' },
           { status: 404 }
         );
       }
-
-      // Update task status to ACCEPTED
-      await db.run('UPDATE tasks SET status = "ACCEPTED" WHERE id = ?', [id]);
 
       return NextResponse.json({
         success: true,

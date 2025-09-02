@@ -23,6 +23,29 @@ export async function POST(request: NextRequest) {
     }
 
     const db = await getDatabase();
+
+    // Prevent self-rating
+    if (String(raterId) === String(ratedUserId)) {
+      return NextResponse.json(
+        { error: 'ไม่สามารถให้คะแนนตัวเองได้' },
+        { status: 400 }
+      );
+    }
+
+    // Verify task exists and at least one side is the task creator
+    const task = await db.get(`SELECT id, creatorId FROM tasks WHERE id = ?`, [taskId]);
+    if (!task) {
+      return NextResponse.json(
+        { error: 'ไม่พบนข้อมูลงานที่ต้องการให้คะแนน' },
+        { status: 404 }
+      );
+    }
+    if (String(task.creatorId) !== String(raterId) && String(task.creatorId) !== String(ratedUserId)) {
+      return NextResponse.json(
+        { error: 'การให้คะแนนต้องเกิดขึ้นระหว่างผู้สร้างงานกับผู้เข้าร่วมงานเท่านั้น' },
+        { status: 400 }
+      );
+    }
     
     // Check if user already rated this task
     const existingRating = await db.get(`

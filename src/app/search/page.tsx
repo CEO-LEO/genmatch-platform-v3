@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, MapPin, Clock, User, Filter, Calendar, Users } from 'lucide-react';
 
 export default function SearchPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
@@ -26,6 +27,17 @@ export default function SearchPage() {
   const locations = [
     'กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'พัทยา', 'หาดใหญ่', 'นครราชสีมา'
   ];
+
+  // Initialize filters from URL query (e.g., /search?category=hospital&location=กรุงเทพมหานคร&q=คำค้น)
+  useEffect(() => {
+    const cat = searchParams.get('category') || '';
+    const loc = searchParams.get('location') || '';
+    const q = searchParams.get('q') || '';
+    if (cat && cat !== selectedCategory) setSelectedCategory(cat);
+    if (loc && loc !== selectedLocation) setSelectedLocation(loc);
+    if (q && q !== searchQuery) setSearchQuery(q);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Fetch tasks from API
   const fetchTasks = async () => {

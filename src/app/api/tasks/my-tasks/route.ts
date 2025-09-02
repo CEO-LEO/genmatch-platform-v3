@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       `, [userId]);
     }
 
-    const ongoing = rows.filter(r => r.status !== 'COMPLETED');
+    const ongoing = rows.filter(r => r.status === 'IN_PROGRESS' || r.status === 'ACCEPTED');
     const completed = rows.filter(r => r.status === 'COMPLETED');
     const created = userType === 'ELDERLY' ? rows : [];
 
