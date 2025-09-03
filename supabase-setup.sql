@@ -5,6 +5,9 @@
 ALTER TABLE IF EXISTS users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS photos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS ratings ENABLE ROW LEVEL SECURITY;
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
@@ -38,8 +41,12 @@ CREATE TABLE IF NOT EXISTS tasks (
   contactPhone TEXT NOT NULL,
   contactEmail TEXT,
   creatorId BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  status TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACCEPTED', 'COMPLETED')),
-  createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  volunteerId BIGINT NULL REFERENCES users(id) ON DELETE SET NULL,
+  status TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED')),
+  progress INTEGER DEFAULT 0,
+  notes TEXT,
+  createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updatedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create chat_messages table
@@ -51,6 +58,47 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Photos table
+CREATE TABLE IF NOT EXISTS photos (
+  id BIGSERIAL PRIMARY KEY,
+  taskId BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  photoUrl TEXT NOT NULL,
+  description TEXT,
+  uploadedBy BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING','APPROVED','REJECTED')),
+  uploadedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  approvedAt TIMESTAMP WITH TIME ZONE,
+  approvedBy BIGINT NULL REFERENCES users(id) ON DELETE SET NULL,
+  notes TEXT
+);
+
+-- Notifications table
+CREATE TABLE IF NOT EXISTS notifications (
+  id BIGSERIAL PRIMARY KEY,
+  userId BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  data JSONB DEFAULT '{}'::jsonb,
+  priority TEXT DEFAULT 'NORMAL',
+  isRead BOOLEAN DEFAULT FALSE,
+  createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  readAt TIMESTAMP WITH TIME ZONE
+);
+
+-- Ratings table
+CREATE TABLE IF NOT EXISTS ratings (
+  id BIGSERIAL PRIMARY KEY,
+  taskId BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  raterId BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  ratedUserId BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  rating INTEGER NOT NULL,
+  review TEXT,
+  category TEXT NOT NULL,
+  createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE (taskId, raterId, ratedUserId)
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
 CREATE INDEX IF NOT EXISTS idx_users_userType ON users(userType);
@@ -58,8 +106,15 @@ CREATE INDEX IF NOT EXISTS idx_tasks_creatorId ON tasks(creatorId);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_category ON tasks(category);
 CREATE INDEX IF NOT EXISTS idx_tasks_location ON tasks(location);
+CREATE INDEX IF NOT EXISTS idx_tasks_volunteerId ON tasks(volunteerId);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_taskId ON chat_messages(taskId);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_senderId ON chat_messages(senderId);
+CREATE INDEX IF NOT EXISTS idx_photos_taskId ON photos(taskId);
+CREATE INDEX IF NOT EXISTS idx_photos_uploadedBy ON photos(uploadedBy);
+CREATE INDEX IF NOT EXISTS idx_notifications_userId ON notifications(userId);
+CREATE INDEX IF NOT EXISTS idx_notifications_isRead ON notifications(isRead);
+CREATE INDEX IF NOT EXISTS idx_ratings_taskId ON ratings(taskId);
+CREATE INDEX IF NOT EXISTS idx_ratings_ratedUserId ON ratings(ratedUserId);
 
 -- Insert sample data for testing (optional)
 INSERT INTO users (firstName, lastName, phone, userType, address, password) VALUES
@@ -113,5 +168,5 @@ SELECT
   is_nullable
 FROM information_schema.columns 
 WHERE table_schema = 'public' 
-  AND table_name IN ('users', 'tasks', 'chat_messages')
+  AND table_name IN ('users', 'tasks', 'chat_messages', 'photos', 'notifications', 'ratings')
 ORDER BY table_name, ordinal_position;

@@ -601,6 +601,24 @@ class MockDatabase {
 class SupabaseDatabase {
   constructor(private supabase: any) {}
 
+  private async fetchUsersByIds(ids: Array<number>): Promise<Record<number, any>> {
+    const uniqueIds = Array.from(new Set(ids.filter((v) => v != null)));
+    if (uniqueIds.length === 0) return {};
+    const { data, error } = await this.supabase
+      .from('users')
+      .select('id, firstName, lastName, phone, userType')
+      .in('id', uniqueIds);
+    if (error) {
+      console.error('❌ Supabase fetchUsersByIds error:', error);
+      return {};
+    }
+    const map: Record<number, any> = {};
+    for (const u of data as any[]) {
+      map[u.id] = u;
+    }
+    return map;
+  }
+
   async exec(sql: string) {
     console.log('🔧 Supabase Database exec:', sql);
     return Promise.resolve();
@@ -624,6 +642,48 @@ class SupabaseDatabase {
       }
       
       return data;
+    }
+    
+    // Handle task by id queries
+    if (sql.includes('FROM tasks') && sql.includes('WHERE') && sql.includes('id')) {
+      const idParam = params[0];
+      const id = typeof idParam === 'string' ? parseInt(idParam, 10) : idParam;
+      const statusAccepted = sql.includes('status') && sql.includes('ACCEPTED');
+      let query = this.supabase.from('tasks').select('*').eq('id', id).limit(1).single();
+      if (statusAccepted) {
+        // When checking accepted state in complete route
+        query = this.supabase.from('tasks').select('*').eq('id', id).eq('status', 'ACCEPTED').limit(1).single();
+      }
+      const { data, error } = await query;
+      if (error) {
+        console.error('❌ Supabase get task by id error:', error);
+        return null;
+      }
+      return data;
+    }
+    
+    // Handle photo by id with uploader/approver join
+    if (sql.includes('FROM photos') && sql.includes('WHERE') && sql.includes('id')) {
+      const photoIdParam = params[0];
+      const photoId = typeof photoIdParam === 'string' ? parseInt(photoIdParam, 10) : photoIdParam;
+      const { data: photo, error } = await this.supabase
+        .from('photos')
+        .select('*')
+        .eq('id', photoId)
+        .single();
+      if (error || !photo) {
+        console.error('❌ Supabase get photo error:', error);
+        return null;
+      }
+      const users = await this.fetchUsersByIds([photo.uploadedBy, photo.approvedBy].filter(Boolean) as number[]);
+      return {
+        ...photo,
+        firstName: users[photo.uploadedBy]?.firstName ?? 'Unknown',
+        lastName: users[photo.uploadedBy]?.lastName ?? 'User',
+        uploaderPhone: users[photo.uploadedBy]?.phone ?? '',
+        approverFirstName: photo.approvedBy ? users[photo.approvedBy]?.firstName ?? null : null,
+        approverLastName: photo.approvedBy ? users[photo.approvedBy]?.lastName ?? null : null
+      };
     }
     
     // Handle count queries
@@ -690,6 +750,174 @@ class SupabaseDatabase {
       return { changes: 1 };
     }
     
+    // Handle INSERT INTO tasks
+    if (sql.includes('INSERT INTO tasks')) {
+      const [
+        title, description, category, location, date, startTime, endTime,
+        maxVolunteers, requirements, tags, contactName, contactPhone,
+        contactEmail, creatorId
+      ] = params;
+      const { data, error } = await this.supabase
+        .from('tasks')
+        .insert({
+          title,
+          description,
+          category,
+          location,
+          date,
+          startTime,
+          endTime,
+          maxVolunteers: Number(maxVolunteers) || 1,
+          requirements,
+          tags,
+          contactName,
+          contactPhone,
+          contactEmail,
+          creatorId: typeof creatorId === 'string' ? parseInt(creatorId, 10) : creatorId,
+          status: 'PENDING',
+          progress: 0,
+          notes: ''
+        })
+        .select('id')
+        .single();
+      if (error) {
+        console.error('❌ Supabase insert task error:', error);
+        throw error;
+      }
+      return { lastID: data.id };
+    }
+    
+    // Handle UPDATE tasks (status, progress, notes)
+    if (sql.includes('UPDATE tasks') && sql.includes('SET status')) {
+      const [status, progress, notes, idParam] = params;
+      const id = typeof idParam === 'string' ? parseInt(idParam, 10) : idParam;
+      const { error } = await this.supabase
+        .from('tasks')
+        .update({ status, progress: Number(progress) || 0, notes, updatedAt: new Date().toISOString() })
+        .eq('id', id);
+      if (error) {
+        console.error('❌ Supabase update task error:', error);
+        return { changes: 0 };
+      }
+      return { changes: 1 };
+    }
+    
+    // Handle INSERT INTO chat_messages
+    if (sql.includes('INSERT INTO chat_messages')) {
+      const [taskIdParam, senderIdParam, message] = params;
+      const taskId = typeof taskIdParam === 'string' ? parseInt(taskIdParam, 10) : taskIdParam;
+      const senderId = typeof senderIdParam === 'string' ? parseInt(senderIdParam, 10) : senderIdParam;
+      const { data, error } = await this.supabase
+        .from('chat_messages')
+        .insert({ taskId, senderId, message })
+        .select('id')
+        .single();
+      if (error) {
+        console.error('❌ Supabase insert chat message error:', error);
+        throw error;
+      }
+      return { lastID: data.id };
+    }
+    
+    // Handle INSERT INTO photos
+    if (sql.includes('INSERT INTO photos')) {
+      const [taskIdParam, photoUrl, description, uploadedByParam] = params;
+      const taskId = typeof taskIdParam === 'string' ? parseInt(taskIdParam, 10) : taskIdParam;
+      const uploadedBy = typeof uploadedByParam === 'string' ? parseInt(uploadedByParam, 10) : uploadedByParam;
+      const { data, error } = await this.supabase
+        .from('photos')
+        .insert({ taskId, photoUrl, description, uploadedBy, status: 'PENDING', uploadedAt: new Date().toISOString() })
+        .select('id')
+        .single();
+      if (error) {
+        console.error('❌ Supabase insert photo error:', error);
+        throw error;
+      }
+      return { lastID: data.id };
+    }
+    
+    // Handle UPDATE photos
+    if (sql.includes('UPDATE photos')) {
+      const lastParam = params[params.length - 1];
+      const id = typeof lastParam === 'string' ? parseInt(lastParam, 10) : lastParam;
+      // Determine status from first param
+      const status = params[0];
+      let update: any = {};
+      if (status === 'APPROVED') {
+        update = { status: 'APPROVED', approvedAt: new Date().toISOString(), approvedBy: params[1], notes: params[2] || '' };
+      } else if (status === 'REJECTED') {
+        update = { status: 'REJECTED', notes: params[1] || '' };
+      } else if (status === 'PENDING') {
+        update = { status: 'PENDING', approvedAt: null, approvedBy: null, notes: params[1] || '' };
+      }
+      const { error } = await this.supabase.from('photos').update(update).eq('id', id);
+      if (error) {
+        console.error('❌ Supabase update photo error:', error);
+        return { changes: 0 };
+      }
+      return { changes: 1 };
+    }
+    
+    // Handle INSERT INTO notifications
+    if (sql.includes('INSERT INTO notifications')) {
+      const [userId, type, title, message, dataJson, priority] = params;
+      const { data, error } = await this.supabase
+        .from('notifications')
+        .insert({
+          userId: typeof userId === 'string' ? parseInt(userId, 10) : userId,
+          type,
+          title,
+          message,
+          data: dataJson ? JSON.parse(dataJson) : {},
+          priority: priority || 'NORMAL',
+          isRead: false
+        })
+        .select('id')
+        .single();
+      if (error) {
+        console.error('❌ Supabase insert notification error:', error);
+        throw error;
+      }
+      return { lastID: data.id };
+    }
+    
+    // Handle UPDATE notifications (mark as read)
+    if (sql.includes('UPDATE notifications')) {
+      const [isRead, notificationIdParam] = params;
+      const id = typeof notificationIdParam === 'string' ? parseInt(notificationIdParam, 10) : notificationIdParam;
+      const { error } = await this.supabase
+        .from('notifications')
+        .update({ isRead: !!isRead, readAt: new Date().toISOString() })
+        .eq('id', id);
+      if (error) {
+        console.error('❌ Supabase update notification error:', error);
+        return { changes: 0 };
+      }
+      return { changes: 1 };
+    }
+    
+    // Handle INSERT INTO ratings
+    if (sql.includes('INSERT INTO ratings')) {
+      const [taskIdParam, raterIdParam, ratedUserIdParam, rating, review, category] = params;
+      const { data, error } = await this.supabase
+        .from('ratings')
+        .insert({
+          taskId: typeof taskIdParam === 'string' ? parseInt(taskIdParam, 10) : taskIdParam,
+          raterId: typeof raterIdParam === 'string' ? parseInt(raterIdParam, 10) : raterIdParam,
+          ratedUserId: typeof ratedUserIdParam === 'string' ? parseInt(ratedUserIdParam, 10) : ratedUserIdParam,
+          rating: Number(rating),
+          review: review || '',
+          category
+        })
+        .select('id')
+        .single();
+      if (error) {
+        console.error('❌ Supabase insert rating error:', error);
+        throw error;
+      }
+      return { lastID: data.id, changes: 1 };
+    }
+    
     return { lastID: 0, changes: 0 };
   }
 
@@ -709,6 +937,170 @@ class SupabaseDatabase {
         { cid: 6, name: 'password', type: 'TEXT', notnull: 1, dflt_value: null, pk: 0 },
         { cid: 7, name: 'createdAt', type: 'TIMESTAMP', notnull: 0, dflt_value: 'NOW()', pk: 0 }
       ];
+    }
+    
+    // Handle tasks list queries with optional filters (search page and my-tasks)
+    if (sql.includes('FROM tasks')) {
+      let query = this.supabase.from('tasks').select('*');
+      // Decode filters from SQL + params in the order routes build them
+      const paramQueue = [...params];
+      if (sql.includes('t.category = ?') || sql.includes('category = ?')) {
+        const category = paramQueue.shift();
+        if (category) query = query.eq('category', category);
+      }
+      if (sql.includes('t.location LIKE ?') || sql.includes('location LIKE ?')) {
+        const like = String(paramQueue.shift() || '').replace(/%/g, '');
+        if (like) query = query.ilike('location', `%${like}%`);
+      }
+      if (sql.includes('(t.title LIKE ? OR t.description LIKE ? OR t.tags LIKE ?)') || sql.includes('(title LIKE ? OR description LIKE ? OR tags LIKE ?)')) {
+        // Search term is pushed three times; use the first
+        const term = String(paramQueue.shift() || '').replace(/%/g, '');
+        if (term) {
+          query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%,tags.ilike.%${term}%`);
+          // discard extra duplicated terms if present
+          paramQueue.shift();
+          paramQueue.shift();
+        }
+      }
+      if (sql.includes('t.status = ?') || sql.includes('status = ?')) {
+        const status = paramQueue.shift();
+        if (status) query = query.eq('status', status);
+      }
+      if (sql.includes('t.creatorId = ?') || sql.includes('creatorId = ?')) {
+        const creatorId = paramQueue.shift();
+        if (creatorId) query = query.eq('creatorId', creatorId);
+      }
+      if (sql.includes('t.volunteerId = ?') || sql.includes('volunteerId = ?')) {
+        const volunteerId = paramQueue.shift();
+        if (volunteerId) query = query.eq('volunteerId', volunteerId);
+      }
+      query = query.order('createdAt', { ascending: false });
+      const { data: tasks, error } = await query;
+      if (error) {
+        console.error('❌ Supabase list tasks error:', error);
+        return [];
+      }
+      // Attach creator minimal info to match route expectations
+      const creatorIds = Array.from(new Set((tasks as any[]).map((t) => t.creatorId)));
+      const usersMap = await this.fetchUsersByIds(creatorIds);
+      return (tasks as any[]).map((t) => ({
+        ...t,
+        firstName: usersMap[t.creatorId]?.firstName ?? '',
+        lastName: usersMap[t.creatorId]?.lastName ?? '',
+        creatorPhone: usersMap[t.creatorId]?.phone ?? ''
+      }));
+    }
+    
+    // Handle chat messages list by taskId
+    if (sql.includes('FROM chat_messages')) {
+      const taskIdParam = params[0];
+      const taskId = typeof taskIdParam === 'string' ? parseInt(taskIdParam, 10) : taskIdParam;
+      const { data: messages, error } = await this.supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('taskId', taskId)
+        .order('createdAt', { ascending: true });
+      if (error) {
+        console.error('❌ Supabase list chat messages error:', error);
+        return [];
+      }
+      const userIds = Array.from(new Set((messages as any[]).map((m) => m.senderId)));
+      const usersMap = await this.fetchUsersByIds(userIds);
+      return (messages as any[]).map((m) => ({
+        ...m,
+        firstName: usersMap[m.senderId]?.firstName ?? 'Unknown',
+        lastName: usersMap[m.senderId]?.lastName ?? 'User',
+        userType: usersMap[m.senderId]?.userType ?? 'STUDENT'
+      }));
+    }
+    
+    // Handle photos list by taskId
+    if (sql.includes('photos') && sql.includes('taskId')) {
+      const taskIdParam = params[0];
+      const taskId = typeof taskIdParam === 'string' ? parseInt(taskIdParam, 10) : taskIdParam;
+      const { data: photos, error } = await this.supabase
+        .from('photos')
+        .select('*')
+        .eq('taskId', taskId);
+      if (error) {
+        console.error('❌ Supabase list photos error:', error);
+        return [];
+      }
+      const userIds = Array.from(new Set((photos as any[]).flatMap((p) => [p.uploadedBy, p.approvedBy]).filter(Boolean)));
+      const usersMap = await this.fetchUsersByIds(userIds as number[]);
+      return (photos as any[]).map((p) => ({
+        ...p,
+        firstName: usersMap[p.uploadedBy]?.firstName ?? 'Unknown',
+        lastName: usersMap[p.uploadedBy]?.lastName ?? 'User',
+        uploaderPhone: usersMap[p.uploadedBy]?.phone ?? '',
+        approverFirstName: p.approvedBy ? usersMap[p.approvedBy]?.firstName ?? null : null,
+        approverLastName: p.approvedBy ? usersMap[p.approvedBy]?.lastName ?? null : null
+      }));
+    }
+    
+    // Handle notifications list with filters
+    if (sql.includes('FROM notifications')) {
+      const [userId, maybeType, maybeIsRead, maybeLimit] = params;
+      let query = this.supabase.from('notifications').select('*').eq('userId', userId);
+      if (sql.includes('type = ?') && maybeType !== undefined) {
+        query = query.eq('type', maybeType);
+      }
+      if (sql.includes('isRead = ?')) {
+        const isRead = (sql.match(/isRead = \?/g) || []).length > 0 ? (maybeIsRead === 1 || maybeIsRead === true) : undefined;
+        if (isRead !== undefined) query = query.eq('isRead', isRead);
+      }
+      query = query.order('createdAt', { ascending: false });
+      if (sql.includes('LIMIT ?')) {
+        const limitVal = typeof maybeLimit === 'string' ? parseInt(maybeLimit, 10) : (maybeLimit || 50);
+        query = query.limit(limitVal);
+      }
+      const { data, error } = await query;
+      if (error) {
+        console.error('❌ Supabase list notifications error:', error);
+        return [];
+      }
+      return data as any[];
+    }
+    
+    // Handle ratings list (by user or by task)
+    if (sql.includes('FROM ratings')) {
+      const paramValues = [...params];
+      let query = this.supabase.from('ratings').select('*');
+      if (sql.includes('WHERE r.ratedUserId = ?') || sql.includes('WHERE ratedUserId = ?')) {
+        const userId = paramValues.shift();
+        if (userId) query = query.eq('ratedUserId', userId);
+      } else if (sql.includes('WHERE r.taskId = ?') || sql.includes('WHERE taskId = ?')) {
+        const taskId = paramValues.shift();
+        if (taskId) query = query.eq('taskId', taskId);
+      }
+      if (sql.includes('r.category = ?') || sql.includes('category = ?')) {
+        const cat = paramValues.shift();
+        if (cat) query = query.eq('category', cat);
+      }
+      query = query.order('createdAt', { ascending: false });
+      const { data: ratings, error } = await query;
+      if (error) {
+        console.error('❌ Supabase list ratings error:', error);
+        return [];
+      }
+      // Fetch related users and tasks to enrich
+      const rList = ratings as any[];
+      const userIds = Array.from(new Set(rList.flatMap((r) => [r.raterId, r.ratedUserId])));
+      const usersMap = await this.fetchUsersByIds(userIds);
+      const taskIds = Array.from(new Set(rList.map((r) => r.taskId)));
+      let taskMap: Record<number, any> = {};
+      if (taskIds.length) {
+        const { data: tasks } = await this.supabase.from('tasks').select('id,title').in('id', taskIds);
+        taskMap = (tasks || []).reduce((acc: any, t: any) => { acc[t.id] = t; return acc; }, {});
+      }
+      return rList.map((r) => ({
+        ...r,
+        raterFirstName: usersMap[r.raterId]?.firstName ?? '',
+        raterLastName: usersMap[r.raterId]?.lastName ?? '',
+        ratedFirstName: usersMap[r.ratedUserId]?.firstName ?? '',
+        ratedLastName: usersMap[r.ratedUserId]?.lastName ?? '',
+        taskTitle: taskMap[r.taskId]?.title ?? ''
+      }));
     }
     
     return [];
