@@ -49,6 +49,8 @@ export default function SearchPage() {
       if (searchQuery) params.set('search', searchQuery);
       if (selectedCategory) params.set('category', selectedCategory);
       if (selectedLocation) params.set('location', selectedLocation);
+      // Only show tasks open for joining by default
+      params.set('status', 'PENDING');
 
       const res = await fetch(`/api/tasks?${params.toString()}`);
       const data = await res.json();
