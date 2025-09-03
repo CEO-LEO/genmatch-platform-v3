@@ -20,12 +20,27 @@ export async function POST(
 
     const db = await getDatabase();
 
-      // Update task status to ACCEPTED (compatible with mock/real DB handler)
+      // Check current status to prevent accepting completed/cancelled
+      const existing = await db.get('SELECT id, status FROM tasks WHERE id = ?', [id]);
+      if (!existing) {
+        return NextResponse.json(
+          { error: 'ไม่พบนข้อมูลงาน' },
+          { status: 404 }
+        );
+      }
+      if (['COMPLETED','CANCELLED','IN_PROGRESS','ACCEPTED'].includes(existing.status)) {
+        return NextResponse.json(
+          { error: 'ไม่สามารถรับงานในสถานะปัจจุบันได้' },
+          { status: 400 }
+        );
+      }
+
+      // Update task status to ACCEPTED and set volunteerId if schema supports it
       const result = await db.run(`
         UPDATE tasks 
-        SET status = ?, progress = ?, notes = ?, updatedAt = CURRENT_TIMESTAMP
+        SET status = ?, progress = ?, notes = ?, volunteerId = COALESCE(volunteerId, ?), updatedAt = CURRENT_TIMESTAMP
         WHERE id = ?
-      `, ['ACCEPTED', 0, 'accepted', id]);
+      `, ['ACCEPTED', 0, 'accepted', actualUserId, id]);
 
       if (result && result.changes === 0) {
         return NextResponse.json(

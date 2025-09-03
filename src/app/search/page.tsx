@@ -400,12 +400,21 @@ export default function SearchPage() {
                     >
                       ดูรายละเอียด
                     </Link>
-                    <button 
-                      onClick={() => handleJoinTask(task.id, task.title)}
-                      className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium hover:bg-purple-600 hover:text-white"
-                    >
-                      สมัครเข้าร่วม
-                    </button>
+                    {task.status === 'PENDING' ? (
+                      <button 
+                        onClick={() => handleJoinTask(task.id, task.title)}
+                        className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium hover:bg-purple-600 hover:text-white"
+                      >
+                        สมัครเข้าร่วม
+                      </button>
+                    ) : (
+                      <button 
+                        disabled
+                        className="px-4 py-2 border border-gray-300 text-gray-400 rounded-lg cursor-not-allowed text-sm font-medium"
+                      >
+                        ไม่พร้อมรับสมัคร
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
