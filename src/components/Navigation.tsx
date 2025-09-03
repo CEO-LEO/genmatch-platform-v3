@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +30,8 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement | null>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -40,14 +42,49 @@ export default function Navigation() {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isProfileDropdownOpen) {
-        setIsProfileDropdownOpen(false);
+      const target = event.target as Node;
+      // Close profile dropdown on any outside click
+      if (isProfileDropdownOpen) setIsProfileDropdownOpen(false);
+      // Close mobile menu when clicking outside menu and its toggle button
+      if (
+        isMobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(target) &&
+        !(mobileMenuButtonRef.current && mobileMenuButtonRef.current.contains(target))
+      ) {
+        setIsMobileMenuOpen(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isProfileDropdownOpen]);
+  }, [isProfileDropdownOpen, isMobileMenuOpen]);
+
+  // Close menus with Esc key
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+        if (isProfileDropdownOpen) setIsProfileDropdownOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isMobileMenuOpen, isProfileDropdownOpen]);
+
+  // Support browser back button to close overlays instead of navigating
+  useEffect(() => {
+    if (isMobileMenuOpen || isProfileDropdownOpen) {
+      const state = { gmOverlayOpen: true } as any;
+      history.pushState(state, '');
+      const onPop = (ev: PopStateEvent) => {
+        setIsMobileMenuOpen(false);
+        setIsProfileDropdownOpen(false);
+      };
+      window.addEventListener('popstate', onPop, { once: true });
+      return () => window.removeEventListener('popstate', onPop);
+    }
+  }, [isMobileMenuOpen, isProfileDropdownOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -107,7 +144,7 @@ export default function Navigation() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6 border-b border-white/20">
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/dashboard" className="flex items-center space-x-3">
               <LogoIcon size="md" variant="white" />
               <span className="text-2xl font-bold text-white">GenMatch</span>
             </Link>
@@ -229,7 +266,7 @@ export default function Navigation() {
         <div className="glass-card mx-4 mt-4 p-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/dashboard" className="flex items-center space-x-3">
               <LogoIcon size="sm" variant="white" />
               <span className="text-xl font-bold text-white">GenMatch</span>
             </Link>
@@ -258,6 +295,7 @@ export default function Navigation() {
 
               {/* Mobile Menu Button */}
               <button
+                ref={mobileMenuButtonRef}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 text-white/70 hover:text-white transition-colors"
               >
@@ -273,7 +311,7 @@ export default function Navigation() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="glass-card mx-4 mt-2 p-4">
+          <div ref={mobileMenuRef} className="glass-card mx-4 mt-2 p-4">
             <nav className="space-y-2">
               {navigationItems.map((item) => {
                 const Icon = item.icon;

@@ -5,8 +5,10 @@ import { getDatabase } from '@/lib/database';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
+    const categoryParam = searchParams.get('category');
+    const category = categoryParam ? categoryParam.toLowerCase() : null;
     const location = searchParams.get('location');
+    const nearUni = searchParams.get('nearUni') === 'true';
     const search = searchParams.get('search');
     const status = searchParams.get('status');
     
@@ -28,6 +30,11 @@ export async function GET(request: NextRequest) {
     if (location) {
       query += ' AND t.location LIKE ?';
       params.push(`%${location}%`);
+    }
+    if (nearUni) {
+      // Bias towards common university keywords in Bangkok context
+      query += ' AND (t.location LIKE ? OR t.description LIKE ? OR t.tags LIKE ?)';
+      params.push('%มหาวิทยาลัย%', '%มหาวิทยาลัย%', '%มหาวิทยาลัย%');
     }
     
     if (search) {

@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { mockDatabase } from '@/lib/database';
+import { getDatabase } from '@/lib/database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get token from Authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'ไม่พบ token การยืนยันตัวตน' }, { status: 401 });
     }
 
     const token = authHeader.substring(7);
-    
-    // Verify JWT token
     let decoded: any;
     try {
       decoded = jwt.verify(token, JWT_SECRET);
@@ -23,122 +20,60 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = decoded.userId;
+    const db = await getDatabase();
 
-    // Get user data from mock database
-    const users = mockDatabase.get('users') || [];
-    const user = users.find((u: any) => u.id === userId);
-    
+    // Load user
+    const user = await db.get('SELECT * FROM users WHERE id = ?', [userId]);
     if (!user) {
       return NextResponse.json({ error: 'ไม่พบข้อมูลผู้ใช้' }, { status: 404 });
     }
 
-    // Get tasks data
-    const tasks = mockDatabase.get('tasks') || [];
-    const photos = mockDatabase.get('photos') || [];
-    const notifications = mockDatabase.get('notifications') || [];
-
-    let stats = {};
+    let stats: any = {};
 
     if (user.userType === 'STUDENT') {
-      // Student stats - tasks they joined
-      const joinedTasks = tasks.filter((task: any) => 
-        task.volunteers && task.volunteers.includes(userId)
+      const joined = await db.all(
+        'SELECT * FROM tasks WHERE volunteerId = ? ORDER BY createdAt DESC',
+        [userId]
       );
-      
-      const completedTasks = joinedTasks.filter((task: any) => task.status === 'completed');
-      const inProgressTasks = joinedTasks.filter((task: any) => task.status === 'in_progress');
-      
-      // Photo verification stats
-      const userPhotos = photos.filter((photo: any) => photo.uploaderId === userId);
-      const pendingPhotos = userPhotos.filter((photo: any) => photo.status === 'pending');
-      const approvedPhotos = userPhotos.filter((photo: any) => photo.status === 'approved');
-      const rejectedPhotos = userPhotos.filter((photo: any) => photo.status === 'rejected');
+      const totalJoinedTasks = joined.length;
+      const completedTasks = joined.filter((t: any) => t.status === 'COMPLETED').length;
+      const inProgressTasks = joined.filter((t: any) => t.status === 'IN_PROGRESS' || t.status === 'ACCEPTED').length;
+      const pendingTasks = joined.filter((t: any) => t.status === 'PENDING').length;
+
+      // Unread notifications
+      const unreadNotifs = await db.all('SELECT * FROM notifications WHERE userId = ? AND isRead = ?', [userId, 0]);
 
       stats = {
-        totalJoinedTasks: joinedTasks.length,
-        completedTasks: completedTasks.length,
-        inProgressTasks: inProgressTasks.length,
-        pendingTasks: joinedTasks.filter((task: any) => task.status === 'pending').length,
-        photoStats: {
-          total: userPhotos.length,
-          pending: pendingPhotos.length,
-          approved: approvedPhotos.length,
-          rejected: rejectedPhotos.length,
-          inProgress: userPhotos.filter((photo: any) => photo.status === 'in_progress').length
-        },
-        recentActivities: [
-          ...completedTasks.slice(-3).map((task: any) => ({
-            type: 'task_completed',
-            title: 'งานเสร็จสิ้น',
-            description: `งาน "${task.title}" เสร็จสิ้นแล้ว`,
-            time: task.updatedAt || new Date().toISOString(),
-            icon: 'CheckCircle',
-            color: 'green'
-          })),
-          ...approvedPhotos.slice(-2).map((photo: any) => ({
-            type: 'photo_approved',
-            title: 'รูปถ่ายได้รับการอนุมัติ',
-            description: `รูปถ่ายการทำงานได้รับการอนุมัติแล้ว`,
-            time: photo.updatedAt || new Date().toISOString(),
-            icon: 'CheckCircle',
-            color: 'green'
-          }))
-        ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5)
+        totalJoinedTasks,
+        completedTasks,
+        inProgressTasks,
+        pendingTasks,
+        photoStats: { total: 0, pending: 0, approved: 0, rejected: 0, inProgress: 0 },
+        recentActivities: [],
+        unreadNotifications: (unreadNotifs || []).length
       };
-
-    } else if (user.userType === 'ELDERLY') {
-      // Elderly stats - tasks they created
-      const createdTasks = tasks.filter((task: any) => task.creatorId === userId);
-      const completedTasks = createdTasks.filter((task: any) => task.status === 'completed');
-      const activeTasks = createdTasks.filter((task: any) => task.status === 'active');
-      
-      // Count total volunteers who joined their tasks
-      const totalVolunteers = createdTasks.reduce((sum: number, task: any) => {
-        return sum + (task.volunteers ? task.volunteers.length : 0);
-      }, 0);
-
-      // Photo verification stats for their tasks
-      const taskPhotos = photos.filter((photo: any) => 
-        createdTasks.some((task: any) => task.id === photo.taskId)
+    } else {
+      // ELDERLY
+      const created = await db.all(
+        'SELECT * FROM tasks WHERE creatorId = ? ORDER BY createdAt DESC',
+        [userId]
       );
-      
+      const totalCreatedTasks = created.length;
+      const completedTasks = created.filter((t: any) => t.status === 'COMPLETED').length;
+      const activeTasks = created.filter((t: any) => t.status !== 'COMPLETED' && t.status !== 'CANCELLED').length;
+
+      const unreadNotifs = await db.all('SELECT * FROM notifications WHERE userId = ? AND isRead = ?', [userId, 0]);
+
       stats = {
-        totalCreatedTasks: createdTasks.length,
-        completedTasks: completedTasks.length,
-        activeTasks: activeTasks.length,
-        totalVolunteers: totalVolunteers,
-        photoStats: {
-          total: taskPhotos.length,
-          pending: taskPhotos.filter((photo: any) => photo.status === 'pending').length,
-          approved: taskPhotos.filter((photo: any) => photo.status === 'approved').length,
-          rejected: taskPhotos.filter((photo: any) => photo.status === 'rejected').length,
-          inProgress: taskPhotos.filter((photo: any) => photo.status === 'in_progress').length
-        },
-        recentActivities: [
-          ...completedTasks.slice(-3).map((task: any) => ({
-            type: 'task_completed',
-            title: 'งานเสร็จสิ้น',
-            description: `งาน "${task.title}" ที่คุณสร้างเสร็จสิ้นแล้ว`,
-            time: task.updatedAt || new Date().toISOString(),
-            icon: 'CheckCircle',
-            color: 'green'
-          })),
-          ...createdTasks.filter((task: any) => task.volunteers && task.volunteers.length > 0).slice(-2).map((task: any) => ({
-            type: 'volunteer_joined',
-            title: 'มีจิตอาสาเข้าร่วม',
-            description: `มีจิตอาสา ${task.volunteers.length} คนเข้าร่วมงาน "${task.title}"`,
-            time: task.updatedAt || new Date().toISOString(),
-            icon: 'Users',
-            color: 'blue'
-          }))
-        ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5)
+        totalCreatedTasks,
+        completedTasks,
+        activeTasks,
+        totalVolunteers: 0,
+        photoStats: { total: 0, pending: 0, approved: 0, rejected: 0, inProgress: 0 },
+        recentActivities: [],
+        unreadNotifications: (unreadNotifs || []).length
       };
     }
-
-    // Get unread notifications count
-    const userNotifications = notifications.filter((notif: any) => 
-      notif.userId === userId && !notif.read
-    );
 
     return NextResponse.json({
       success: true,
@@ -152,7 +87,7 @@ export async function GET(request: NextRequest) {
           createdAt: user.createdAt
         },
         stats,
-        unreadNotifications: userNotifications.length
+        unreadNotifications: stats.unreadNotifications || 0
       }
     });
 

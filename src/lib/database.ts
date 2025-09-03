@@ -256,6 +256,27 @@ class MockDatabase {
     if (sql.includes('SELECT 1 as test')) {
       return { test: 1 };
     }
+    // Task details by id with creator join (used by /api/tasks/[id]/status)
+    if (sql.includes('FROM tasks') && sql.includes('WHERE') && (sql.includes('t.id') || sql.includes('id = ?'))) {
+      const idParam = params[0];
+      const taskId = typeof idParam === 'string' ? parseInt(idParam, 10) : idParam;
+      const task = global.mockTasks.get(taskId);
+      if (!task) return null;
+      const creator = Array.from(global.mockUsers.values()).find(u => u.id === task.creatorId);
+      // volunteer fields are optional in mock; keep nulls if not available
+      const volunteer = (task as any).volunteerId
+        ? Array.from(global.mockUsers.values()).find(u => u.id === (task as any).volunteerId)
+        : null;
+      return {
+        ...task,
+        firstName: creator?.firstName ?? '',
+        lastName: creator?.lastName ?? '',
+        creatorPhone: creator?.phone ?? '',
+        volunteerFirstName: volunteer?.firstName ?? null,
+        volunteerLastName: volunteer?.lastName ?? null,
+        volunteerPhone: volunteer?.phone ?? null
+      };
+    }
     if (sql.includes('COUNT(*)')) {
       return { count: global.mockUsers.size };
     }
@@ -1139,6 +1160,7 @@ export async function getDatabase() {
       console.log('✅ Real Supabase Database connected successfully');
       db = new SupabaseDatabase(supabase);
       currentDatabaseMode = 'real';
+      
       return db;
       
   } catch (error) {

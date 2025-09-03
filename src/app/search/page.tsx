@@ -16,6 +16,7 @@ export default function SearchPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nearUniversity, setNearUniversity] = useState(false);
 
   const categories = [
     { id: 'hospital', name: 'โรงพยาบาล', icon: '🏥', color: 'bg-red-100 text-red-700' },
@@ -25,7 +26,7 @@ export default function SearchPage() {
   ];
 
   const locations = [
-    'กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'พัทยา', 'หาดใหญ่', 'นครราชสีมา'
+    'กรุงเทพมหานคร'
   ];
 
   // Initialize filters from URL query (e.g., /search?category=hospital&location=กรุงเทพมหานคร&q=คำค้น)
@@ -33,9 +34,11 @@ export default function SearchPage() {
     const cat = searchParams.get('category') || '';
     const loc = searchParams.get('location') || '';
     const q = searchParams.get('q') || '';
+    const nearUni = searchParams.get('nearUni') === 'true';
     if (cat && cat !== selectedCategory) setSelectedCategory(cat);
     if (loc && loc !== selectedLocation) setSelectedLocation(loc);
     if (q && q !== searchQuery) setSearchQuery(q);
+    if (nearUni !== nearUniversity) setNearUniversity(nearUni);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -49,6 +52,12 @@ export default function SearchPage() {
       if (searchQuery) params.set('search', searchQuery);
       if (selectedCategory) params.set('category', selectedCategory);
       if (selectedLocation) params.set('location', selectedLocation);
+      if (nearUniversity) {
+        // Bias results to university areas; reuse search term if user didn't type
+        if (!searchQuery) params.set('search', 'มหาวิทยาลัย');
+        if (!selectedLocation) params.set('location', 'กรุงเทพมหานคร');
+        params.set('nearUni', 'true');
+      }
       // Only show tasks open for joining by default
       params.set('status', 'PENDING');
 
@@ -237,11 +246,11 @@ export default function SearchPage() {
               </div>
             </div>
 
-            {/* Locations */}
+            {/* Locations (Bangkok only) */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <MapPin className="h-5 w-5 mr-2" />
-                สถานที่
+                สถานที่ (เฉพาะกรุงเทพฯ)
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {locations.map((location) => (
@@ -258,6 +267,16 @@ export default function SearchPage() {
                     <div className="text-sm font-medium text-gray-700">{location}</div>
                   </button>
                 ))}
+              </div>
+              {/* Near University toggle */}
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNearUniversity(!nearUniversity)}
+                  className={`px-3 py-1 rounded-full border text-sm ${nearUniversity ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                >
+                  ใกล้มหาวิทยาลัย
+                </button>
               </div>
             </div>
           </div>
