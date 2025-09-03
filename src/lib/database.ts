@@ -1114,6 +1114,7 @@ class SupabaseDatabase {
 
 // Database connection
 let db: any = null;
+let currentDatabaseMode: 'real' | 'demo' = 'demo';
 
 export async function getDatabase() {
   if (db) return db;
@@ -1137,6 +1138,7 @@ export async function getDatabase() {
       
       console.log('✅ Real Supabase Database connected successfully');
       db = new SupabaseDatabase(supabase);
+      currentDatabaseMode = 'real';
       return db;
       
   } catch (error) {
@@ -1151,6 +1153,7 @@ export async function getDatabase() {
   
   db = new MockDatabase();
   console.log('✅ Mock Database ready - Demo Mode');
+  currentDatabaseMode = 'demo';
   
   return db;
 }
@@ -1164,16 +1167,63 @@ export async function closeDatabase() {
 
 // Database health check
 export async function checkDatabaseHealth() {
-  return { 
-    status: 'demo', 
-    message: 'Running in demo mode with mock database',
-    users: global.mockUsers.size,
-    timestamp: new Date().toISOString() 
-  };
+  try {
+    // If real env vars are present, verify connection explicitly
+    if (USE_REAL_DATABASE) {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { error } = await supabase.from('users').select('id').limit(1);
+      if (error) {
+        return {
+          status: 'demo',
+          message: `Real DB configured but connection failed: ${error.message}. Falling back to demo`,
+          users: global.mockUsers.size,
+          timestamp: new Date().toISOString()
+        };
+      }
+      return {
+        status: 'real',
+        message: 'Connected to Supabase',
+        timestamp: new Date().toISOString()
+      };
+    }
+    // Default demo
+    return {
+      status: 'demo',
+      message: 'Running in demo mode with mock database',
+      users: global.mockUsers.size,
+      timestamp: new Date().toISOString()
+    };
+  } catch (err: any) {
+    return {
+      status: 'demo',
+      message: 'Health check error; assuming demo',
+      error: err?.message,
+      timestamp: new Date().toISOString()
+    } as any;
+  }
 }
 
 // Database stats
 export async function getDatabaseStats() {
+  if (currentDatabaseMode === 'real' && USE_REAL_DATABASE) {
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+      const { count: usersCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
+      const { count: photosCount } = await supabase.from('photos').select('*', { count: 'exact', head: true });
+      return {
+        users: usersCount || 0,
+        photos: photosCount || 0,
+        timestamp: new Date().toISOString(),
+        database: 'Supabase (Real)'
+      };
+    } catch {
+      // Fall through to demo stats when counting fails
+    }
+  }
   return {
     users: global.mockUsers.size,
     photos: global.mockPhotos.size,
