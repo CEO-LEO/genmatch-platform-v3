@@ -29,12 +29,16 @@ export async function PUT(
 
     const db = await getDatabase();
     
+    // If progress reaches 100, force status to COMPLETED
+    const computedStatus = (typeof progress === 'number' && progress >= 100) ? 'COMPLETED' : status;
+    const computedProgress = typeof progress === 'number' ? Math.min(progress, 100) : 0;
+    
     // Update task status
     const result = await db.run(`
       UPDATE tasks 
       SET status = ?, progress = ?, notes = ?, updatedAt = CURRENT_TIMESTAMP
       WHERE id = ?
-    `, [status, progress || 0, notes || '', id]);
+    `, [computedStatus, computedProgress, notes || '', id]);
     
     if (result.changes === 0) {
       return NextResponse.json(
@@ -46,7 +50,9 @@ export async function PUT(
     return NextResponse.json({
       success: true,
       message: 'อัปเดตสถานะงานสำเร็จ',
-      taskId: id
+      taskId: id,
+      status: computedStatus,
+      progress: computedProgress
     });
 
   } catch (error) {
