@@ -72,18 +72,9 @@ export default function Navigation() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isMobileMenuOpen, isProfileDropdownOpen]);
 
-  // Support browser back button to close overlays instead of navigating
+  // Remove history pushState behavior to avoid trapping navigation
   useEffect(() => {
-    if (isMobileMenuOpen || isProfileDropdownOpen) {
-      const state = { gmOverlayOpen: true } as any;
-      history.pushState(state, '');
-      const onPop = (ev: PopStateEvent) => {
-        setIsMobileMenuOpen(false);
-        setIsProfileDropdownOpen(false);
-      };
-      window.addEventListener('popstate', onPop, { once: true });
-      return () => window.removeEventListener('popstate', onPop);
-    }
+    // Intentionally left blank
   }, [isMobileMenuOpen, isProfileDropdownOpen]);
 
   const handleLogout = async () => {
@@ -139,6 +130,13 @@ export default function Navigation() {
 
   return (
     <>
+      {/* Backdrop overlay to allow closing menus by clicking outside (mobile + desktop) */}
+      {(isMobileMenuOpen || isProfileDropdownOpen) && (
+        <div
+          className="fixed inset-0 z-30 bg-black/0"
+          onClick={() => { setIsMobileMenuOpen(false); setIsProfileDropdownOpen(false); }}
+        />
+      )}
       {/* Desktop Navigation */}
       <nav className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white/10 backdrop-blur-xl border-r border-white/20 z-40">
         <div className="flex flex-col h-full">
