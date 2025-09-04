@@ -7,6 +7,13 @@ export async function POST(
 ) {
   try {
     const { id } = params;
+    const taskId = Number(id);
+    if (!Number.isFinite(taskId)) {
+      return NextResponse.json(
+        { error: 'รหัสงานไม่ถูกต้อง' },
+        { status: 400 }
+      );
+    }
     const body = await request.json();
     const { volunteerId, userId } = body;
     const actualUserId = userId || volunteerId; // Support both field names
@@ -21,7 +28,7 @@ export async function POST(
     const db = await getDatabase();
 
       // Check current status to prevent accepting completed/cancelled
-      const existing = await db.get('SELECT id, status FROM tasks WHERE id = ?', [id]);
+      const existing = await db.get('SELECT id, status FROM tasks WHERE id = ?', [taskId]);
       if (!existing) {
         return NextResponse.json(
           { error: 'ไม่พบนข้อมูลงาน' },
@@ -35,12 +42,11 @@ export async function POST(
         );
       }
 
-      // Update task status to ACCEPTED and set volunteerId if schema supports it
-      const result = await db.run(`
-        UPDATE tasks 
-        SET status = ?, progress = ?, notes = ?, volunteerId = COALESCE(volunteerId, ?), updatedAt = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `, ['ACCEPTED', 0, 'accepted', actualUserId, id]);
+      // Update task status to ACCEPTED and set volunteerId explicitly
+      const result = await db.run(
+        `UPDATE tasks SET status = ?, progress = ?, notes = ?, volunteerId = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?`,
+        ['ACCEPTED', 0, 'accepted', actualUserId, taskId]
+      );
 
       if (result && result.changes === 0) {
         return NextResponse.json(
