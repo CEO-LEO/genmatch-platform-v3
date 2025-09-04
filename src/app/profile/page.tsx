@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Edit, MapPin, Phone, Mail, Calendar, Star, Award, Users, Clock, Heart, ArrowLeft } from 'lucide-react';
+import { Edit, MapPin, Phone, Mail, Star, Award, Users, Clock, Heart, ArrowLeft } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -16,8 +16,7 @@ export default function ProfilePage() {
     email: 'somchai@example.com',
     phone: '081-234-5678',
     location: 'กรุงเทพมหานคร',
-    bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก',
-    birthDate: '1985-03-15'
+    bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก'
   });
 
   const [stats, setStats] = useState<any | null>(null);
@@ -38,8 +37,7 @@ export default function ProfilePage() {
         email: (user as any).email || 'user@example.com',
         phone: user.phone || '081-234-5678',
         location: 'กรุงเทพมหานคร',
-        bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก',
-        birthDate: '1985-03-15'
+        bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก'
       });
 
       // Fetch realtime stats
@@ -308,19 +306,7 @@ export default function ProfilePage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
                 />
               </div>
-              <div>
-                <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">
-                  วันเกิด
-                </label>
-                <input
-                  type="date"
-                  id="birthDate"
-                  name="birthDate"
-                  value={profileData.birthDate}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                />
-              </div>
+              
               <div className="md:col-span-2">
                 <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
                   เกี่ยวกับฉัน
