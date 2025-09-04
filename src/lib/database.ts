@@ -387,13 +387,23 @@ class MockDatabase {
 
     // Handle UPDATE tasks
     if (sql.includes('UPDATE tasks') && sql.includes('SET status')) {
-      const [status, progress, notes, id] = params;
-      const taskId = typeof id === 'string' ? parseInt(id, 10) : id;
+      const includesVolunteer = sql.includes('volunteerId');
+      let status: any, progress: any, notes: any, volunteerIdParam: any, idParam: any;
+      if (includesVolunteer) {
+        [status, progress, notes, volunteerIdParam, idParam] = params;
+      } else {
+        [status, progress, notes, idParam] = params;
+      }
+      const taskId = typeof idParam === 'string' ? parseInt(idParam, 10) : idParam;
       if (global.mockTasks.has(taskId)) {
         const task = global.mockTasks.get(taskId);
         task.status = status;
         task.progress = Number(progress) || 0;
         task.notes = notes?.toString() ?? '';
+        if (includesVolunteer) {
+          const volunteerNumeric = typeof volunteerIdParam === 'string' ? parseInt(volunteerIdParam, 10) : volunteerIdParam;
+          (task as any).volunteerId = volunteerNumeric;
+        }
         task.updatedAt = new Date().toISOString();
         global.mockTasks.set(taskId, task);
         return { changes: 1 };
@@ -808,13 +818,23 @@ class SupabaseDatabase {
       return { lastID: data.id };
     }
     
-    // Handle UPDATE tasks (status, progress, notes)
+    // Handle UPDATE tasks (status, progress, notes, optional volunteerId)
     if (sql.includes('UPDATE tasks') && sql.includes('SET status')) {
-      const [status, progress, notes, idParam] = params;
+      const includesVolunteer = sql.includes('volunteerId');
+      let status: any, progress: any, notes: any, volunteerIdParam: any, idParam: any;
+      if (includesVolunteer) {
+        [status, progress, notes, volunteerIdParam, idParam] = params;
+      } else {
+        [status, progress, notes, idParam] = params;
+      }
       const id = typeof idParam === 'string' ? parseInt(idParam, 10) : idParam;
+      const updatePayload: any = { status, progress: Number(progress) || 0, notes, updatedAt: new Date().toISOString() };
+      if (includesVolunteer) {
+        updatePayload.volunteerId = typeof volunteerIdParam === 'string' ? parseInt(volunteerIdParam, 10) : volunteerIdParam;
+      }
       const { error } = await this.supabase
         .from('tasks')
-        .update({ status, progress: Number(progress) || 0, notes, updatedAt: new Date().toISOString() })
+        .update(updatePayload)
         .eq('id', id);
       if (error) {
         console.error('❌ Supabase update task error:', error);
