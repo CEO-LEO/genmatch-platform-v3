@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Edit, MapPin, Phone, Mail, Star, Award, Users, Clock, Heart, ArrowLeft } from 'lucide-react';
+import { Edit, Phone, Mail, Star, Award, Users, Clock, Heart, ArrowLeft } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -15,7 +15,6 @@ export default function ProfilePage() {
     lastName: 'ใจดี',
     email: 'somchai@example.com',
     phone: '081-234-5678',
-    location: 'กรุงเทพมหานคร',
     bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก'
   });
 
@@ -36,7 +35,6 @@ export default function ProfilePage() {
         lastName: user.lastName || 'ใจดี',
         email: (user as any).email || 'user@example.com',
         phone: user.phone || '081-234-5678',
-        location: 'กรุงเทพมหานคร',
         bio: 'จิตอาสาที่มีความสุขในการช่วยเหลือผู้อื่น โดยเฉพาะผู้สูงอายุและเด็ก'
       });
 
@@ -196,10 +194,6 @@ export default function ProfilePage() {
               
               <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                 <div className="flex items-center">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  {profileData.location}
-                </div>
-                <div className="flex items-center">
                   <Phone className="w-4 h-4 mr-1" />
                   {profileData.phone}
                 </div>
@@ -293,19 +287,7 @@ export default function ProfilePage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
                 />
               </div>
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                  ที่อยู่
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  value={profileData.location}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                />
-              </div>
+              
               
               <div className="md:col-span-2">
                 <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
