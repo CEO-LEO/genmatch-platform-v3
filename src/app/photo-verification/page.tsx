@@ -37,56 +37,63 @@ export default function PhotoVerificationPage() {
     setIsLoading(true);
     
     try {
-      // Mock data for tasks with photos (in production, fetch from API)
-      const mockTasks = [
-        {
-          id: 1,
-          title: 'ช่วยพาออกกำลังกาย',
-          category: 'ออกกำลังกาย',
-          location: 'กรุงเทพมหานคร',
-          date: '25 ส.ค. 2568',
-          time: '15.00 - 17.00',
-          status: 'IN_PROGRESS',
-          photoCount: 3,
-          pendingPhotos: 2,
-          approvedPhotos: 1,
-          volunteers: [
-            { id: 1, name: 'สมชาย ใจดี', phone: '0812345678' },
-            { id: 2, name: 'สมหญิง รักดี', phone: '0823456789' }
-          ]
-        },
-        {
-          id: 2,
-          title: 'งานซ่อมแซมบ้าน',
-          category: 'งานซ่อม',
-          location: 'กรุงเทพมหานคร',
-          date: '30 ส.ค. 2568',
-          time: '14.00 - 16.00',
-          status: 'PENDING',
-          photoCount: 1,
-          pendingPhotos: 1,
-          approvedPhotos: 0,
-          volunteers: []
-        },
-        {
-          id: 3,
-          title: 'ช่วยจัดงานบุญที่วัด',
-          category: 'วัด',
-          location: 'กรุงเทพมหานคร',
-          date: '20 ส.ค. 2568',
-          time: '08.00 - 12.00',
-          status: 'COMPLETED',
-          photoCount: 5,
-          pendingPhotos: 0,
-          approvedPhotos: 5,
-          volunteers: [
-            { id: 3, name: 'ลุงปู่ ใจบุญ', phone: '0834567890' },
-            { id: 4, name: 'คุณยาย ใจดี', phone: '0845678901' }
-          ]
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch('/api/tasks/my-tasks', {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : ''
         }
-      ];
-      
-      setTasks(mockTasks);
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.warn('Failed to load tasks for photo verification:', data?.error || res.statusText);
+        setTasks([]);
+        return;
+      }
+
+      const baseTasks: any[] = Array.isArray(data.tasks) ? data.tasks : (data.data?.tasks || []);
+
+      // For each task, fetch its photos and compute counts
+      const tasksWithPhotos = await Promise.all(
+        baseTasks.map(async (t: any) => {
+          try {
+            const photosRes = await fetch(`/api/photos?taskId=${t.id}`);
+            const photosData = await photosRes.json();
+            const photos: any[] = photosRes.ok ? (photosData.photos || photosData.data || []) : [];
+            const photoCount = photos.length;
+            const pendingPhotos = photos.filter((p: any) => p.status === 'PENDING').length;
+            const approvedPhotos = photos.filter((p: any) => p.status === 'APPROVED').length;
+            return {
+              id: t.id,
+              title: t.title,
+              category: t.category,
+              location: t.location,
+              date: t.date || t.createdAt?.slice(0, 10) || '',
+              time: t.startTime && t.endTime ? `${t.startTime} - ${t.endTime}` : '',
+              status: t.status,
+              photoCount,
+              pendingPhotos,
+              approvedPhotos,
+              volunteers: []
+            };
+          } catch (e) {
+            return {
+              id: t.id,
+              title: t.title,
+              category: t.category,
+              location: t.location,
+              date: t.date || t.createdAt?.slice(0, 10) || '',
+              time: t.startTime && t.endTime ? `${t.startTime} - ${t.endTime}` : '',
+              status: t.status,
+              photoCount: 0,
+              pendingPhotos: 0,
+              approvedPhotos: 0,
+              volunteers: []
+            };
+          }
+        })
+      );
+
+      setTasks(tasksWithPhotos);
     } catch (error) {
       console.error('Error loading tasks:', error);
     } finally {
