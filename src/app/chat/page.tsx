@@ -60,6 +60,14 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
+  // Always load messages when activeChat changes
+  useEffect(() => {
+    if (activeChat?.taskId) {
+      setMessages([]);
+      loadMessages(activeChat.taskId);
+    }
+  }, [activeChat]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -245,7 +253,6 @@ export default function ChatPage() {
                     key={chat.id}
                     onClick={() => {
                       setActiveChat(chat);
-                      loadMessages(chat.taskId);
                     }}
                     className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
                       activeChat?.id === chat.id ? 'bg-purple-50 border-purple-200' : ''
