@@ -114,7 +114,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
       } else {
-        throw new Error(data.error || 'Login failed');
+        // Surface backend message to UI
+        throw new Error(data.error || data.message || 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);

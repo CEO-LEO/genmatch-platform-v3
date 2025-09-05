@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('🔐 Login attempt for phone:', body.phone);
     
-    const { phone, password } = body;
+    const phone = (body.phone || '').toString().trim();
+    const password = (body.password || '').toString();
 
     // Validation
     if (!phone || !password) {
@@ -58,9 +59,15 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ User found:', { id: user.id, firstName: user.firstName, userType: user.userType });
 
-    // Check password (production-only)
+    // Check password: support both bcrypt-hashed and legacy plain-text passwords
     console.log('🔐 Verifying password...');
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    let isValidPassword = false;
+    const stored = String(user.password || '');
+    if (stored.startsWith('$2a$') || stored.startsWith('$2b$') || stored.startsWith('$2y$')) {
+      isValidPassword = await bcrypt.compare(password, stored);
+    } else {
+      isValidPassword = password === stored;
+    }
     
     if (!isValidPassword) {
       console.log('❌ Invalid password for user:', user.id);
