@@ -227,8 +227,14 @@ export default function DashboardPage() {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
