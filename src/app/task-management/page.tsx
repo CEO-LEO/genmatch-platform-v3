@@ -57,7 +57,7 @@ export default function TaskManagementPage() {
           status: t.status === 'PENDING' ? 'PENDING' : t.status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
           progress: t.progress || 0,
           maxVolunteers: 1,
-          volunteers: (Array.isArray(t.volunteers) ? t.volunteers.length : (t.volunteerId ? 1 : 0)),
+          volunteers: (Array.isArray(t.volunteers) ? t.volunteers.length : ((t as any).volunteerId ? 1 : 0)),
           description: t.description,
           requirements: t.requirements,
           notes: t.notes
@@ -284,7 +284,7 @@ export default function TaskManagementPage() {
                       </div>
                       <div className="flex items-center space-x-2 text-gray-600 p-3 bg-gray-50 rounded-lg">
                         <Users className="h-4 w-4 text-purple-600" />
-                        <span className="text-sm font-medium">{task.volunteers}/1 คน</span>
+                        <span className="text-sm font-medium">{Math.min(Number(task.volunteers) || 0, 1)}/1 คน</span>
                       </div>
                     </div>
 

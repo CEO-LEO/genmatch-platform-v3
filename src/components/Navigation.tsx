@@ -130,13 +130,7 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Backdrop overlay to allow closing menus by clicking outside (mobile + desktop) */}
-      {(isMobileMenuOpen || isProfileDropdownOpen) && (
-        <div
-          className="fixed inset-0 z-30 bg-black/0"
-          onClick={() => { setIsMobileMenuOpen(false); setIsProfileDropdownOpen(false); }}
-        />
-      )}
+      {/* Removed backdrop overlay to prevent extra click before navigation */}
       {/* Desktop Navigation */}
       <nav className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white/10 backdrop-blur-xl border-r border-white/20 z-40">
         <div className="flex flex-col h-full">

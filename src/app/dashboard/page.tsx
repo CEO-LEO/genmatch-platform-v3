@@ -227,14 +227,7 @@ export default function DashboardPage() {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <div
-            className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-y-0 right-0 z-50 w-80 bg-white shadow-xl">
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -268,7 +261,6 @@ export default function DashboardPage() {
               </nav>
             </div>
           </div>
-        </div>
       )}
 
       {/* Main Content - Mobile Optimized */}
@@ -539,14 +531,7 @@ export default function DashboardPage() {
                 </div>
                 <ChevronRight className="w-5 h-5" />
               </Link>
-              <Link href="/ratings" className="flex items-center p-4 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl text-white active:scale-95 transition-all duration-200">
-                <Star className="w-6 h-6 mr-3" />
-                <div className="flex-1 text-left">
-                  <div className="font-semibold">คะแนนและรีวิว</div>
-                  <div className="text-sm text-yellow-100">ให้คะแนนและรีวิวการทำงาน</div>
-                </div>
-                <ChevronRight className="w-5 h-5" />
-              </Link>
+              {/* ratings page disabled per product policy (no reviews) */}
               {/* Admin Panel - Only show for admin users */}
               {user.userType === 'STUDENT' && user.firstName === 'Leo' && (
                 <Link href="/admin" className="flex items-center p-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl text-white active:scale-95 transition-all duration-200">

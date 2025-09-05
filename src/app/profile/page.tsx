@@ -1,5 +1,9 @@
 'use client';
 
+// Force dynamic rendering to avoid serving stale cached UI
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -207,7 +211,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-purple-600 mb-1">{derivedCounters.total}</div>
             <div className="text-sm text-gray-600">งานทั้งหมด</div>
@@ -223,10 +227,6 @@ export default function ProfilePage() {
           <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-yellow-600 mb-1">{derivedCounters.rating}</div>
             <div className="text-sm text-gray-600">คะแนน</div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-pink-600 mb-1">{derivedCounters.badges}</div>
-            <div className="text-sm text-gray-600">เหรียญ</div>
           </div>
         </div>
 
@@ -353,9 +353,9 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Badges and Achievements */}
+        {/* Achievements (no coin/monetary wording) */}
         <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-8">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6">เหรียญและความสำเร็จ</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">ความสำเร็จ</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {mockBadges.map((badge) => (
               <div key={badge.id} className="flex items-center space-x-4 p-4 border border-gray-100 rounded-lg">

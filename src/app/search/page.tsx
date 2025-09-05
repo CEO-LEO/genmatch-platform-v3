@@ -392,10 +392,10 @@ export default function SearchPage() {
                     <Clock className="h-4 w-4 text-purple-600" />
                     <span className="text-sm font-medium">{task.startTime} - {task.endTime}</span>
                   </div>
-                                     <div className="flex items-center space-x-2 text-gray-600 p-2 bg-gray-50 rounded-lg">
-                     <Users className="h-4 w-4 text-purple-600" />
-                     <span className="text-sm font-medium">งานจิตอาสา</span>
-                   </div>
+                  <div className="flex items-center space-x-2 text-gray-600 p-2 bg-gray-50 rounded-lg">
+                    <Users className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm font-medium">0/1 คน</span>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">

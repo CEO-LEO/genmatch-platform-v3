@@ -53,7 +53,15 @@ export default function PhotoVerificationPage() {
         return;
       }
 
-      const baseTasks: any[] = Array.isArray(data.tasks) ? data.tasks : (data.ongoing || []).concat(data.completed || []).concat(data.created || []);
+      // Use only tasks relevant to the current user:
+      // - STUDENT: tasks the user joined (ongoing + completed)
+      // - ELDERLY: tasks the user created
+      let baseTasks: any[] = [];
+      if (user?.userType === 'STUDENT') {
+        baseTasks = ([] as any[]).concat(data.ongoing || [], data.completed || []);
+      } else {
+        baseTasks = ([] as any[]).concat(data.created || []);
+      }
 
       // For each task, fetch its photos and compute counts
       const tasksWithPhotos = await Promise.all(

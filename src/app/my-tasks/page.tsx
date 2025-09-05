@@ -51,7 +51,7 @@ export default function MyTasksPage() {
             : typeof t.volunteers === 'number'
               ? t.volunteers
               : (typeof (t as any).volunteerCount === 'number' ? (t as any).volunteerCount : ((t as any).volunteerId ? 1 : 0));
-          const capacity = typeof t.maxVolunteers === 'number' ? t.maxVolunteers : ((t as any).capacity ?? undefined);
+          const capacity = 1; // Platform rule: single volunteer per task
           return {
             id: t.id,
             title: t.title,
@@ -266,7 +266,7 @@ export default function MyTasksPage() {
                       {task.volunteers !== undefined && (
                         <div className="flex items-center space-x-2 text-gray-600">
                           <Users className="h-4 w-4 text-purple-600" />
-                          <span className="text-sm">{Number.isFinite(task.volunteers) ? task.volunteers : (Array.isArray(task.volunteers) ? task.volunteers.length : 0)}/{task.maxVolunteers || '∞'} คน</span>
+                          <span className="text-sm">{Number.isFinite(task.volunteers) ? task.volunteers : (Array.isArray(task.volunteers) ? task.volunteers.length : 0)}/1 คน</span>
                         </div>
                       )}
                     </div>

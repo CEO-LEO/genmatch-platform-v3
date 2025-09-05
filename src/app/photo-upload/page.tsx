@@ -95,30 +95,65 @@ export default function PhotoUploadPage() {
     setUploadProgress(0);
 
     try {
-      // Simulate upload progress
-      for (let i = 0; i <= 100; i += 20) {
-        await new Promise(resolve => setTimeout(resolve, 200));
+      // Simulate visual progress while preparing request
+      for (let i = 0; i <= 60; i += 20) {
+        await new Promise(resolve => setTimeout(resolve, 150));
         setUploadProgress(i);
       }
 
-      // In production, this would upload to server/storage
-      const uploadData = {
-        taskId: task.id,
-        photos: selectedPhotos,
-        description,
-        uploadedBy: user?.id,
-        uploadedAt: new Date().toISOString()
-      };
+      // Use the first preview as a data URL payload for demo/initial real mode
+      const firstPreviewDataUrl = photoPreviews[0];
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-      console.log('Uploading photos:', uploadData);
+      // 1) Create photo record so progress rules pass
+      const photoRes = await fetch('/api/photos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          taskId: task.id,
+          photoUrl: firstPreviewDataUrl,
+          description,
+          uploadedBy: user?.id
+        })
+      });
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const photoJson = await photoRes.json();
+      if (!photoRes.ok) {
+        throw new Error(photoJson?.error || 'อัปโหลดรูปไม่สำเร็จ');
+      }
 
+      // 2) Bump task progress so UI shows immediate change
+      const bumpProgress = 10;
+      const statusRes = await fetch(`/api/tasks/${task.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ status: 'IN_PROGRESS', progress: bumpProgress, notes: 'อัปโหลดรูปยืนยันความคืบหน้า' })
+      });
+      const statusJson = await statusRes.json();
+      if (!statusRes.ok) {
+        throw new Error(statusJson?.error || 'อัปเดตความคืบหน้าไม่สำเร็จ');
+      }
+
+      setUploadProgress(100);
       setMessage({ 
         type: 'success', 
-        text: 'อัปโหลดรูปถ่ายสำเร็จ! รอการยืนยันจากผู้สร้างงาน' 
+        text: `อัปโหลดรูปถ่ายสำเร็จ! อัปเดตความคืบหน้าเป็น ${statusJson.progress ?? bumpProgress}% แล้ว` 
       });
+
+      // Smooth UX: auto-navigate back to task page shortly after success
+      setTimeout(() => {
+        try {
+          router.push(`/task-management?taskId=${task.id}`);
+        } catch (_) {
+          // no-op
+        }
+      }, 1200);
 
       // Reset form
       setSelectedPhotos([]);
@@ -347,6 +382,24 @@ export default function PhotoUploadPage() {
                     {message.type === 'success' ? 'อัปโหลดสำเร็จ!' : 'เกิดข้อผิดพลาด'}
                   </div>
                   <div className="text-base">{message.text}</div>
+                  {message.type === 'success' && (
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/task-management?taskId=${task.id}`)}
+                        className="px-5 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all font-medium"
+                      >
+                        กลับไปจัดการงานทันที
+                      </button>
+                      <Link
+                        href="/my-tasks"
+                        className="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                      >
+                        ไปที่งานของฉัน
+                      </Link>
+                      <span className="block w-full text-xs text-gray-500 mt-1">จะพากลับอัตโนมัติภายใน 1 วินาที…</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
