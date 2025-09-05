@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('🔐 Login attempt for phone:', body.phone);
     
-    const phone = (body.phone || '').toString().trim();
+    const phoneRaw = (body.phone || '').toString().trim();
+    // Normalize common phone formats
+    const digitsOnly = phoneRaw.replace(/\D/g, '');
+    const phone = phoneRaw.startsWith('+66')
+      ? '0' + phoneRaw.replace(/\D/g, '').substring(2)
+      : (digitsOnly.length === 9 ? '0' + digitsOnly : digitsOnly);
     const password = (body.password || '').toString();
 
     // Validation
@@ -45,9 +50,16 @@ export async function POST(request: NextRequest) {
 
     // Get user by phone
     console.log('🔍 Searching for user with phone:', phone);
-    const user = await db.get(`SELECT id, firstName, lastName, email, phone, userType, 
+    let user = await db.get(`SELECT id, firstName, lastName, email, phone, userType, 
              studentId, university, address, password
       FROM users WHERE phone = ?`, [phone]);
+
+    // Fallback: try the raw input (in case DB stores with dashes/spaces)
+    if (!user && phoneRaw && phoneRaw !== phone) {
+      user = await db.get(`SELECT id, firstName, lastName, email, phone, userType, 
+               studentId, university, address, password
+        FROM users WHERE phone = ?`, [phoneRaw]);
+    }
 
     if (!user) {
       console.log('❌ User not found for phone:', phone);
