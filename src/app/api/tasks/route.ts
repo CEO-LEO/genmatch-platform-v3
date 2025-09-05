@@ -96,7 +96,8 @@ export async function POST(request: NextRequest) {
     const date = (rawDate || '').toString().trim();
     const startTime = (rawStartTime || '').toString().trim();
     const endTime = (rawEndTime || '').toString().trim();
-    const maxVolunteers = Number.parseInt((rawMaxVolunteers ?? 1).toString(), 10) || 1;
+    // Enforce single-volunteer per task platform-wide
+    const maxVolunteers = 1;
     const requirements = (rawRequirements || '').toString().trim();
     const tags = (rawTags || '').toString().trim();
     const contactName = (rawContactName || '').toString().trim();
@@ -113,12 +114,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!Number.isInteger(maxVolunteers) || maxVolunteers < 1) {
-      return NextResponse.json(
-        { error: 'จำนวนอาสาสมัครต้องเป็นตัวเลขตั้งแต่ 1 ขึ้นไป' },
-        { status: 400 }
-      );
-    }
+    // No need to validate maxVolunteers as it's enforced to 1
 
     const db = await getDatabase();
     

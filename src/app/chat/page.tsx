@@ -48,8 +48,11 @@ export default function ChatPage() {
       const chat = chats.find(c => c.taskId === parseInt(taskId));
       if (chat) {
         setActiveChat(chat);
-        loadMessages(chat.id);
+        loadMessages(chat.taskId);
       }
+    } else if (!taskId && chats.length > 0 && !activeChat) {
+      setActiveChat(chats[0]);
+      loadMessages(chats[0].taskId);
     }
   }, [taskId, chats]);
 
@@ -99,10 +102,9 @@ export default function ChatPage() {
     }
   };
 
-  const loadMessages = async (chatId: number) => {
+  const loadMessages = async (taskIdForChat: number) => {
     try {
-      if (!activeChat) return;
-      const res = await fetch(`/api/chat?taskId=${activeChat.taskId}`);
+      const res = await fetch(`/api/chat?taskId=${taskIdForChat}`);
       const data = await res.json();
       if (res.ok) {
         const mapped = (data.messages || []).map((m: any) => ({
@@ -145,7 +147,7 @@ export default function ChatPage() {
         throw new Error('send failed');
       }
       // Reload from server to get authoritative message ids/order
-      await loadMessages(activeChat.id);
+      await loadMessages(activeChat.taskId);
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -243,7 +245,7 @@ export default function ChatPage() {
                     key={chat.id}
                     onClick={() => {
                       setActiveChat(chat);
-                      loadMessages(chat.id);
+                      loadMessages(chat.taskId);
                     }}
                     className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
                       activeChat?.id === chat.id ? 'bg-purple-50 border-purple-200' : ''

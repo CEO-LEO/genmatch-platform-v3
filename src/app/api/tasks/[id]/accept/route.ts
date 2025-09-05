@@ -27,17 +27,17 @@ export async function POST(
 
     const db = await getDatabase();
 
-      // Check current status to prevent accepting completed/cancelled
-      const existing = await db.get('SELECT id, status FROM tasks WHERE id = ?', [taskId]);
+      // Check current status and whether a volunteer is already assigned
+      const existing = await db.get('SELECT id, status, volunteerId FROM tasks WHERE id = ?', [taskId]);
       if (!existing) {
         return NextResponse.json(
           { error: 'ไม่พบนข้อมูลงาน' },
           { status: 404 }
         );
       }
-      if (['COMPLETED','CANCELLED','IN_PROGRESS','ACCEPTED'].includes(existing.status)) {
+      if (['COMPLETED','CANCELLED','IN_PROGRESS','ACCEPTED'].includes(existing.status) || existing.volunteerId) {
         return NextResponse.json(
-          { error: 'ไม่สามารถรับงานในสถานะปัจจุบันได้' },
+          { error: 'งานนี้มีผู้รับแล้ว' },
           { status: 400 }
         );
       }

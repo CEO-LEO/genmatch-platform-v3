@@ -38,7 +38,10 @@ export default function PhotoVerificationPage() {
     
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      const res = await fetch('/api/tasks/my-tasks', {
+      const userIdParam = user?.id ? `userId=${user.id}` : '';
+      const userTypeParam = user?.userType ? `&userType=${user.userType}` : '';
+      const qs = userIdParam ? `?${userIdParam}${userTypeParam}` : '';
+      const res = await fetch(`/api/tasks/my-tasks${qs}`, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : ''
         }
@@ -50,7 +53,7 @@ export default function PhotoVerificationPage() {
         return;
       }
 
-      const baseTasks: any[] = Array.isArray(data.tasks) ? data.tasks : (data.data?.tasks || []);
+      const baseTasks: any[] = Array.isArray(data.tasks) ? data.tasks : (data.ongoing || []).concat(data.completed || []).concat(data.created || []);
 
       // For each task, fetch its photos and compute counts
       const tasksWithPhotos = await Promise.all(

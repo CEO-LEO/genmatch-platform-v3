@@ -56,8 +56,8 @@ export default function TaskManagementPage() {
           time: `${t.startTime || ''}${t.endTime ? ' - ' + t.endTime : ''}`.trim(),
           status: t.status === 'PENDING' ? 'PENDING' : t.status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
           progress: t.progress || 0,
-          maxVolunteers: t.maxVolunteers,
-          volunteers: t.volunteers || [],
+          maxVolunteers: 1,
+          volunteers: (Array.isArray(t.volunteers) ? t.volunteers.length : (t.volunteerId ? 1 : 0)),
           description: t.description,
           requirements: t.requirements,
           notes: t.notes
@@ -284,12 +284,7 @@ export default function TaskManagementPage() {
                       </div>
                       <div className="flex items-center space-x-2 text-gray-600 p-3 bg-gray-50 rounded-lg">
                         <Users className="h-4 w-4 text-purple-600" />
-                        <span className="text-sm font-medium">
-                          {user.userType === 'ELDERLY' 
-                            ? `${task.volunteers?.length || 0}/${task.maxVolunteers} คน`
-                            : 'งานจิตอาสา'
-                          }
-                        </span>
+                        <span className="text-sm font-medium">{task.volunteers}/1 คน</span>
                       </div>
                     </div>
 

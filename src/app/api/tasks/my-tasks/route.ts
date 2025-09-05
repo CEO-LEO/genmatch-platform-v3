@@ -4,14 +4,34 @@ import { getDatabase } from '@/lib/database';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const userType = searchParams.get('userType');
+    let userId = searchParams.get('userId');
+    let userType = searchParams.get('userType');
+
+    const db = await getDatabase();
+
+    // Support Authorization header (JWT) so clients don't have to pass params
+    if (!userId || !userType) {
+      const authHeader = request.headers.get('authorization') || '';
+      const token = authHeader.startsWith('Bearer ')
+        ? authHeader.substring(7)
+        : '';
+      if (token) {
+        try {
+          // Lazy import to avoid top-level dependency here
+          const { default: jwt }: any = await import('jsonwebtoken');
+          const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+          userId = userId || String(decoded.userId);
+        } catch {}
+      }
+      if (userId && !userType) {
+        const u = await db.get('SELECT userType FROM users WHERE id = ?', [userId]);
+        userType = u?.userType || userType;
+      }
+    }
 
     if (!userId || !userType) {
       return NextResponse.json({ error: 'missing userId or userType' }, { status: 400 });
     }
-
-    const db = await getDatabase();
 
     let rows: any[] = [];
     if (userType === 'ELDERLY') {

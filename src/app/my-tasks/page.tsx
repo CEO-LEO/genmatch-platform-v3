@@ -46,7 +46,13 @@ export default function MyTasksPage() {
         const toCard = (t: any) => {
           const statusCode = (t.status || '').toUpperCase();
           const statusLabel = statusCode === 'COMPLETED' ? 'เสร็จสิ้น' : statusCode === 'IN_PROGRESS' || statusCode === 'ACCEPTED' ? 'กำลังดำเนินการ' : 'รอจิตอาสา';
-        return {
+          const joinedCount = Array.isArray(t.volunteers)
+            ? t.volunteers.length
+            : typeof t.volunteers === 'number'
+              ? t.volunteers
+              : (typeof (t as any).volunteerCount === 'number' ? (t as any).volunteerCount : ((t as any).volunteerId ? 1 : 0));
+          const capacity = typeof t.maxVolunteers === 'number' ? t.maxVolunteers : ((t as any).capacity ?? undefined);
+          return {
             id: t.id,
             title: t.title,
             category: t.category,
@@ -55,8 +61,8 @@ export default function MyTasksPage() {
             time: `${t.startTime || ''}${t.endTime ? ' - ' + t.endTime : ''}`.trim(),
             status: statusLabel,
             progress: t.progress || 0,
-            maxVolunteers: t.maxVolunteers,
-            volunteers: t.volunteers || [],
+            maxVolunteers: capacity,
+            volunteers: joinedCount,
             description: t.description,
             requirements: t.requirements,
             notes: t.notes
@@ -260,7 +266,7 @@ export default function MyTasksPage() {
                       {task.volunteers !== undefined && (
                         <div className="flex items-center space-x-2 text-gray-600">
                           <Users className="h-4 w-4 text-purple-600" />
-                          <span className="text-sm">{task.volunteers}/{task.maxVolunteers || '∞'} คน</span>
+                          <span className="text-sm">{Number.isFinite(task.volunteers) ? task.volunteers : (Array.isArray(task.volunteers) ? task.volunteers.length : 0)}/{task.maxVolunteers || '∞'} คน</span>
                         </div>
                       )}
                     </div>
