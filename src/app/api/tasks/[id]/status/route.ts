@@ -28,6 +28,27 @@ export async function PUT(
     }
 
     const db = await getDatabase();
+
+    // Enforce photo proof:
+    // - progress > 0 requires at least 1 photo (any status)
+    // - progress >= 100 (COMPLETED) requires at least 1 APPROVED photo
+    if (typeof progress === 'number' && progress > 0) {
+      const photos: any[] = await db.all('SELECT status FROM photos WHERE taskId = ?', [id]);
+      const hasAny = Array.isArray(photos) && photos.length > 0;
+      const hasApproved = photos?.some((p: any) => p.status === 'APPROVED');
+      if (!hasAny) {
+        return NextResponse.json(
+          { error: 'โปรดอัปโหลดรูปเพื่อยืนยันความคืบหน้าก่อน' },
+          { status: 400 }
+        );
+      }
+      if (progress >= 100 && !hasApproved) {
+        return NextResponse.json(
+          { error: 'ต้องมีรูปที่ได้รับการอนุมัติอย่างน้อย 1 รูปเพื่อปิดงาน' },
+          { status: 400 }
+        );
+      }
+    }
     
     // If progress reaches 100, force status to COMPLETED
     const computedStatus = (typeof progress === 'number' && progress >= 100) ? 'COMPLETED' : status;
