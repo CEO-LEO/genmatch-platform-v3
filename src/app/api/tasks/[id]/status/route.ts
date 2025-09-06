@@ -29,17 +29,51 @@ export async function PUT(
 
     const db = await getDatabase();
 
+    // Load current task state to validate milestone progression
+    const currentTask = await db.get('SELECT status, progress FROM tasks WHERE id = ?', [id]);
+    if (!currentTask) {
+      return NextResponse.json(
+        { error: 'ไม่พบงานที่ต้องการอัปเดต' },
+        { status: 404 }
+      );
+    }
+
     // Enforce photo proof rules
     // - Any progress > 0 requires at least 1 photo
     // - Completing (status=COMPLETED or progress>=100) requires at least 1 APPROVED photo
-    const isAttemptComplete = status === 'COMPLETED' || (typeof progress === 'number' && progress >= 100);
-    if ((typeof progress === 'number' && progress > 0) || isAttemptComplete) {
+    // Allowed milestone-based progress updates: 30%, 50%, 100%
+    const requestedProgress = status === 'COMPLETED' ? 100 : (typeof progress === 'number' ? progress : 0);
+    const allowedMilestones = [30, 50, 100];
+    const isAttemptComplete = requestedProgress >= 100;
+
+    if (requestedProgress > 0 && !allowedMilestones.includes(requestedProgress)) {
+      return NextResponse.json(
+        { error: 'อัปเดตความคืบหน้าได้เฉพาะ 30%, 50% หรือ 100% เท่านั้น' },
+        { status: 400 }
+      );
+    }
+
+    if (requestedProgress > 0 && requestedProgress <= (currentTask.progress || 0)) {
+      return NextResponse.json(
+        { error: 'ความคืบหน้าต้องมากกว่าครั้งก่อน' },
+        { status: 400 }
+      );
+    }
+    if (requestedProgress > 0 || isAttemptComplete) {
       const photos: any[] = await db.all('SELECT status FROM photos WHERE taskId = ?', [id]);
       const hasAny = Array.isArray(photos) && photos.length > 0;
       const hasApproved = photos?.some((p: any) => p.status === 'APPROVED');
       if (!hasAny) {
         return NextResponse.json(
           { error: 'โปรดอัปโหลดรูปเพื่อยืนยันความคืบหน้าก่อน' },
+          { status: 400 }
+        );
+      }
+      // Require one new photo per milestone: 30% -> >=1, 50% -> >=2, 100% -> >=3
+      const requiredPhotoCount = requestedProgress === 30 ? 1 : requestedProgress === 50 ? 2 : (requestedProgress >= 100 ? 3 : 0);
+      if (requiredPhotoCount > 0 && photos.length < requiredPhotoCount) {
+        return NextResponse.json(
+          { error: `ต้องอัปโหลดรูปอย่างน้อย ${requiredPhotoCount} รูปเพื่ออัปเดตเป็น ${requestedProgress}%` },
           { status: 400 }
         );
       }
@@ -52,10 +86,8 @@ export async function PUT(
     }
     
     // If progress reaches 100, force status to COMPLETED
-    const computedStatus = ((typeof progress === 'number' && progress >= 100) || status === 'COMPLETED') ? 'COMPLETED' : status;
-    const computedProgress = computedStatus === 'COMPLETED'
-      ? 100
-      : (typeof progress === 'number' ? Math.min(progress, 100) : 0);
+    const computedStatus = (isAttemptComplete) ? 'COMPLETED' : (status || currentTask.status);
+    const computedProgress = isAttemptComplete ? 100 : requestedProgress;
     
     // Update task status
     const result = await db.run(`

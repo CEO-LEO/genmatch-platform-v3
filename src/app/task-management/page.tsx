@@ -57,7 +57,8 @@ export default function TaskManagementPage() {
           status: t.status === 'PENDING' ? 'PENDING' : t.status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
           progress: t.progress || 0,
           maxVolunteers: 1,
-          volunteers: (Array.isArray(t.volunteers) ? t.volunteers.length : ((t as any).volunteerId ? 1 : 0)),
+          // Prefer explicit volunteerId; fallback to volunteers array length
+          volunteers: ((t as any).volunteerId ? 1 : (Array.isArray(t.volunteers) ? t.volunteers.length : 0)),
           description: t.description,
           requirements: t.requirements,
           notes: t.notes

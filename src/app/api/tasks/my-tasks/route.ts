@@ -33,8 +33,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'missing userId or userType' }, { status: 400 });
     }
 
+    // Normalize userType to avoid casing mismatch
+    const normalizedType = String(userType).toUpperCase();
+
     let rows: any[] = [];
-    if (userType === 'ELDERLY') {
+    if (normalizedType === 'ELDERLY') {
       rows = await db.all(`
         SELECT t.*, u.firstName, u.lastName, u.phone as creatorPhone
         FROM tasks t

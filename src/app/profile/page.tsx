@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Edit, Phone, Mail, Star, Award, Users, Clock, Heart, ArrowLeft } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { user, loading } = useAuth();
+  const { user, loading, updateUser } = useAuth();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -83,10 +83,42 @@ export default function ProfilePage() {
     }));
   };
 
-  const handleSave = () => {
-    // Handle save logic here
-    console.log('Profile updated:', profileData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token || !user) {
+        throw new Error('Not authenticated');
+      }
+      const res = await fetch('/api/auth/update-user', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          id: user.id,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email,
+          phone: profileData.phone,
+          userType: user.userType,
+          address: ''
+        })
+      });
+      const updated = await res.json();
+      if (!res.ok) {
+        throw new Error(updated?.error || updated?.message || 'อัปเดตโปรไฟล์ไม่สำเร็จ');
+      }
+      updateUser({
+        firstName: updated.firstName,
+        lastName: updated.lastName,
+        phone: updated.phone
+      });
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Profile update failed:', err);
+      alert('อัปเดตโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่');
+    }
   };
 
   // Derive counters from fetched stats to avoid showing fake data

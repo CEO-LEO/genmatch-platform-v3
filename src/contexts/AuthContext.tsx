@@ -17,6 +17,7 @@ interface AuthContextType {
   login: (phone: string, password: string) => Promise<void>;
   register: (userData: any) => Promise<void>;
   logout: () => void;
+  updateUser: (updated: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -87,7 +88,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         loading: true,
         login: async () => {},
         register: async () => {},
-        logout: () => {}
+        logout: () => {},
+        updateUser: () => {}
       }}>
         {children}
       </AuthContext.Provider>
@@ -155,12 +157,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     localStorage.removeItem('token');
   };
 
+  const updateUser = (updated: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const merged = { ...prev, ...updated } as User;
+      try {
+        localStorage.setItem('user', JSON.stringify(merged));
+      } catch {}
+      return merged;
+    });
+  };
+
   const value: AuthContextType = {
     user,
     loading,
     login,
     register,
-    logout
+    logout,
+    updateUser
   };
 
   return (

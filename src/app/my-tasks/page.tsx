@@ -30,6 +30,13 @@ export default function MyTasksPage() {
     }
   }, [user, loading, router]);
 
+  // Ensure students don't land on "created" tab which is irrelevant for them
+  useEffect(() => {
+    if (user?.userType === 'STUDENT' && activeTab === 'created') {
+      setActiveTab('ongoing');
+    }
+  }, [user, activeTab]);
+
   const loadUserTasks = async () => {
     if (!user) {
       console.log('Cannot load tasks: No user data');
@@ -46,11 +53,14 @@ export default function MyTasksPage() {
         const toCard = (t: any) => {
           const statusCode = (t.status || '').toUpperCase();
           const statusLabel = statusCode === 'COMPLETED' ? 'เสร็จสิ้น' : statusCode === 'IN_PROGRESS' || statusCode === 'ACCEPTED' ? 'กำลังดำเนินการ' : 'รอจิตอาสา';
-          const joinedCount = Array.isArray(t.volunteers)
-            ? t.volunteers.length
-            : typeof t.volunteers === 'number'
-              ? t.volunteers
-              : (typeof (t as any).volunteerCount === 'number' ? (t as any).volunteerCount : ((t as any).volunteerId ? 1 : 0));
+          // Prefer explicit volunteerId; fallback to volunteers array/count
+          const joinedCount = (t as any).volunteerId
+            ? 1
+            : (Array.isArray(t.volunteers)
+                ? t.volunteers.length
+                : (typeof (t as any).volunteerCount === 'number'
+                    ? (t as any).volunteerCount
+                    : (typeof t.volunteers === 'number' ? t.volunteers : 0)));
           const capacity = 1; // Platform rule: single volunteer per task
           return {
             id: t.id,
@@ -196,16 +206,18 @@ export default function MyTasksPage() {
             >
               เสร็จสิ้น
             </button>
-            <button
-              onClick={() => setActiveTab('created')}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                activeTab === 'created'
-                  ? 'bg-white text-purple-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              ที่สร้างขึ้น
-            </button>
+            {user?.userType === 'ELDERLY' && (
+              <button
+                onClick={() => setActiveTab('created')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  activeTab === 'created'
+                    ? 'bg-white text-purple-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                ที่สร้างขึ้น
+              </button>
+            )}
           </div>
         </div>
 
