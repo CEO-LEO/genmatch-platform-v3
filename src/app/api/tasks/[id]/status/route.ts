@@ -29,10 +29,11 @@ export async function PUT(
 
     const db = await getDatabase();
 
-    // Enforce photo proof:
-    // - progress > 0 requires at least 1 photo (any status)
-    // - progress >= 100 (COMPLETED) requires at least 1 APPROVED photo
-    if (typeof progress === 'number' && progress > 0) {
+    // Enforce photo proof rules
+    // - Any progress > 0 requires at least 1 photo
+    // - Completing (status=COMPLETED or progress>=100) requires at least 1 APPROVED photo
+    const isAttemptComplete = status === 'COMPLETED' || (typeof progress === 'number' && progress >= 100);
+    if ((typeof progress === 'number' && progress > 0) || isAttemptComplete) {
       const photos: any[] = await db.all('SELECT status FROM photos WHERE taskId = ?', [id]);
       const hasAny = Array.isArray(photos) && photos.length > 0;
       const hasApproved = photos?.some((p: any) => p.status === 'APPROVED');
@@ -42,7 +43,7 @@ export async function PUT(
           { status: 400 }
         );
       }
-      if (progress >= 100 && !hasApproved) {
+      if (isAttemptComplete && !hasApproved) {
         return NextResponse.json(
           { error: 'ต้องมีรูปที่ได้รับการอนุมัติอย่างน้อย 1 รูปเพื่อปิดงาน' },
           { status: 400 }
@@ -51,8 +52,10 @@ export async function PUT(
     }
     
     // If progress reaches 100, force status to COMPLETED
-    const computedStatus = (typeof progress === 'number' && progress >= 100) ? 'COMPLETED' : status;
-    const computedProgress = typeof progress === 'number' ? Math.min(progress, 100) : 0;
+    const computedStatus = ((typeof progress === 'number' && progress >= 100) || status === 'COMPLETED') ? 'COMPLETED' : status;
+    const computedProgress = computedStatus === 'COMPLETED'
+      ? 100
+      : (typeof progress === 'number' ? Math.min(progress, 100) : 0);
     
     // Update task status
     const result = await db.run(`
@@ -68,6 +71,34 @@ export async function PUT(
       );
     }
     
+    // Create notifications on completion
+    try {
+      if (computedStatus === 'COMPLETED') {
+        const task = await db.get('SELECT * FROM tasks WHERE id = ?', [id]);
+        if (task) {
+          const title = 'งานเสร็จสิ้น';
+          const notifMsg = `งาน "${task.title || ''}" ถูกทำเสร็จสิ้นแล้ว`;
+          const payload = JSON.stringify({ taskId: id });
+          const creatorId = task.creatorId;
+          const volunteerId = (task as any).volunteerId ?? null;
+          if (creatorId) {
+            await db.run(
+              'INSERT INTO notifications (userId, type, title, message, data, priority) VALUES (?, ?, ?, ?, ?, ?)',
+              [creatorId, 'task_completed', title, notifMsg, payload, 'NORMAL']
+            );
+          }
+          if (volunteerId) {
+            await db.run(
+              'INSERT INTO notifications (userId, type, title, message, data, priority) VALUES (?, ?, ?, ?, ?, ?)',
+              [volunteerId, 'task_completed', title, notifMsg, payload, 'NORMAL']
+            );
+          }
+        }
+      }
+    } catch (notifyErr) {
+      console.error('Create completion notification error:', notifyErr);
+    }
+
     return NextResponse.json({
       success: true,
       message: 'อัปเดตสถานะงานสำเร็จ',
