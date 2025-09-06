@@ -58,6 +58,28 @@ export async function POST(request: NextRequest) {
       VALUES (?, ?, ?)
     `, [taskId, senderId, message]);
 
+    // Attempt to create a notification for the recipient
+    try {
+      // Fetch task to determine recipient (creator or volunteer)
+      const task = await db.get(`SELECT * FROM tasks WHERE id = ?`, [taskId]);
+      if (task) {
+        const creatorId = task.creatorId;
+        const volunteerId = (task as any).volunteerId ?? (Array.isArray((task as any).volunteers) ? (task as any).volunteers[0] : null);
+        const recipientId = senderId === creatorId ? volunteerId : creatorId;
+        if (recipientId && recipientId !== senderId) {
+          const title = 'ข้อความใหม่';
+          const msg = `มีข้อความใหม่ในงาน "${task.title || ''}"`;
+          const data = { taskId, messageId: result.lastID, senderId };
+          await db.run(
+            `INSERT INTO notifications (userId, type, title, message, data, priority) VALUES (?, ?, ?, ?, ?, ?)`,
+            [recipientId, 'chat_message', title, msg, JSON.stringify(data), 'NORMAL']
+          );
+        }
+      }
+    } catch (notifyErr) {
+      console.error('Create chat notification error:', notifyErr);
+    }
+
     return NextResponse.json({
       success: true,
       message: 'ส่งข้อความสำเร็จ',

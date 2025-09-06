@@ -426,6 +426,42 @@ class MockDatabase {
       return { lastID: newMessage.id };
     }
 
+    // Handle INSERT INTO notifications
+    if (sql.includes('INSERT INTO notifications')) {
+      const [userIdParam, type, title, message, dataJson, priority] = params;
+      const userId = typeof userIdParam === 'string' ? parseInt(userIdParam, 10) : userIdParam;
+      const id = global.mockNextNotificationId++;
+      const notif = {
+        id,
+        userId,
+        type: type?.toString() ?? 'general',
+        title: title?.toString() ?? '',
+        message: message?.toString() ?? '',
+        data: dataJson ? JSON.parse(dataJson) : {},
+        priority: priority || 'NORMAL',
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        readAt: null
+      } as any;
+      global.mockNotifications.set(id, notif);
+      console.log('🔔 Mock Database: Notification stored:', notif);
+      return { lastID: id, changes: 1 };
+    }
+
+    // Handle UPDATE notifications (mark as read)
+    if (sql.includes('UPDATE notifications')) {
+      const [isReadParam, idParam] = params;
+      const id = typeof idParam === 'string' ? parseInt(idParam, 10) : idParam;
+      if (global.mockNotifications.has(id)) {
+        const notif = global.mockNotifications.get(id);
+        notif.isRead = !!isReadParam;
+        notif.readAt = new Date().toISOString();
+        global.mockNotifications.set(id, notif);
+        return { changes: 1 };
+      }
+      return { changes: 0 };
+    }
+
     // Handle INSERT INTO users
     if (sql.includes('INSERT INTO users')) {
       const [firstName, lastName, email, phone, userType, studentId, university, address, password] = params;
@@ -604,6 +640,28 @@ class MockDatabase {
       }));
       
       return photosWithUsers;
+    }
+
+    // Handle notifications list with filters
+    if (sql.includes('FROM notifications')) {
+      // Expected params order: userId, maybe type, maybe isRead, maybe limit
+      const p = [...params];
+      const userIdParam = p.shift();
+      const userId = typeof userIdParam === 'string' ? parseInt(userIdParam, 10) : userIdParam;
+      let list = Array.from(global.mockNotifications.values()).filter((n: any) => n.userId == userId);
+      if (sql.includes('type = ?') && p.length) {
+        const type = p.shift();
+        if (type) list = list.filter((n: any) => n.type === type);
+      }
+      if (sql.includes('isRead = ?')) {
+        const isReadParam = p.shift();
+        const isRead = isReadParam === 1 || isReadParam === true || isReadParam === 'true';
+        list = list.filter((n: any) => n.isRead === isRead);
+      }
+      // order and limit
+      list = list.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const limit = sql.includes('LIMIT ?') ? (typeof p[0] === 'string' ? parseInt(String(p[0]), 10) : (p[0] || 50)) : list.length;
+      return list.slice(0, limit);
     }
     
     // Return mock table structure for demo mode
